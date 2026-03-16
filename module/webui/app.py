@@ -217,8 +217,6 @@ class AlasGUI(Frame):
         self.simulator = OSSimulator()
         self._simulator_logger_pm = None
 
-
-
     @use_scope("aside", clear=True)
     def set_aside(self) -> None:
         # TODO: update put_icon_buttons()
@@ -268,7 +266,6 @@ class AlasGUI(Frame):
                 )
             return rendered_state
 
-
         if not len(self.rendered_cache) or self.load_home:
             # Reload when add/delete new instance | first start app.py | go to HomePage (HomePage load call force reload)
             flag = False
@@ -291,7 +288,6 @@ class AlasGUI(Frame):
             # Redraw lost focus, now focus on aside button
             aside_name = get_localstorage("aside")
             self.active_button("aside", aside_name)
-
 
         return
 
@@ -727,17 +723,26 @@ class AlasGUI(Frame):
                 except Exception as e:
                     meow_data = {}
 
-                meow_round_times = meow_data.get("round_times", [])
-                meow_battle_count = round(meow_data.get("battle_count", 0))
+                # 防缓存: 每次渲染生成唯一时间戳，确保前端不会复用旧表格 DOM。
+                meow_refresh_token = int(time.time() * 1000)
+
+                meow_battle_count = int(meow_data.get("battle_count", 0) or 0)
+                meow_effective_rounds = float(meow_data.get("effective_rounds", 0) or 0)
+
                 meow_avg_time = meow_data.get("avg_round_time", 0.0)
-                meow_avg_battle_time = meow_data.get("avg_battle_time", 0.0)
+                try:
+                    meow_avg_battle_time = exp_stats.get_average_meow_battle_time()
+                except Exception:
+                    meow_avg_battle_time = meow_data.get("avg_battle_time", 0.0)
 
                 try:
-                    meow_rounds = len(meow_round_times) if meow_round_times else 0
+                    meow_rounds = round(meow_effective_rounds, 1)
+                    if abs(meow_rounds - int(meow_rounds)) < 1e-6:
+                        meow_rounds = int(meow_rounds)
                 except Exception:
                     meow_rounds = 0
 
-                if meow_round_times:
+                if meow_data.get("round_times"):
                     avg_time_str = f"{meow_avg_time:.1f}{t('Gui.Stat.SecondUnit')}"
                 else:
                     avg_time_str = "-"
@@ -757,6 +762,7 @@ class AlasGUI(Frame):
                 meow_labels = [t("Gui.Stat.Month"), t("Gui.Stat.BattleCount"), t("Gui.Stat.MeowRounds"), t("Gui.Stat.AvgBattleTimeHeader"), t("Gui.Stat.AvgMeowRoundTime")]
 
                 put_html(build_title_block(t("Gui.Stat.MeowDataCollectionTitle"), margin_top=20, margin_bottom=8))
+                put_html(f"<!-- meow-stats-refresh-token:{meow_refresh_token} -->")
                 put_html(build_simple_table(meow_labels, [meow_values]))
 
                 # ========== 短猫相接收获 ==========
