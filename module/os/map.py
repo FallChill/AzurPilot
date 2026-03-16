@@ -817,6 +817,13 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                     hazard_level = self.zone.hazard_level
             except Exception:
                 logger.debug('Failed to get hazard level for battle count')
+            if hazard_level not in [2, 3, 4, 5, 6]:
+                try:
+                    hazard_level = self.config.cross_get(
+                        keys='OpsiMeowfficerFarming.OpsiMeowfficerFarming.HazardLevel'
+                    )
+                except Exception:
+                    hazard_level = None
 
             try:
                 try:
@@ -932,6 +939,13 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             instance_name = getattr(self.config, 'config_name', 'default')
             # 获取侵蚀等级用于计算出击轮次
             hazard_level = getattr(getattr(self, 'zone', None), 'hazard_level', None)
+            if hazard_level not in [2, 3, 4, 5, 6]:
+                try:
+                    hazard_level = self.config.cross_get(
+                        keys='OpsiMeowfficerFarming.OpsiMeowfficerFarming.HazardLevel'
+                    )
+                except Exception:
+                    hazard_level = None
             cl1_db.add_meow_round_time(instance_name, duration, hazard_level)
         except Exception:
             logger.debug('Failed to record meow search duration', exc_info=True)
