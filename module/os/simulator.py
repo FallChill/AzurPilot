@@ -158,20 +158,73 @@ class OSSimulator:
         self.logger.info(f'每轮侵蚀1时间: {self.cl1_time}')
         
         # 修正后的单轮时间：包含了因“时间利用率”不足而产生的空闲时间，用于正确计算AP的自然恢复
-        self.modified_meow_time = self.meow_time / self.time_use_ratio
-        self.modified_cl1_time = self.cl1_time / self.time_use_ratio
-
         self.days_until_next_monday = self._get_days_until_next_monday()
         self.logger.info(f'距离下周一还有多少天: {self.days_until_next_monday}')
 
         # 调试模式开关：设置为 True 则取消随机性，按照期望值计算演化
         self.deterministic = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.Deterministic', False)
-        
+
         if self.deterministic:
             self.samples = 1
             self.logger.info('调试模式：使用确定性计算。采样数已强制设置为 1 以提高计算速度。')
             self.logger.info('（不使用随机概率，按期望演化）')
-        
+
+        log_res = LogRes(self.config)
+        ap = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.InitialAp')
+        if not ap:
+            ap = log_res.group('ActionPoint')
+            ap = ap['Total'] if ap and 'Total' in ap else 0
+        coin = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.InitialCoin')
+        if not coin:
+            coin = log_res.group('YellowCoin')
+            coin = coin['Value'] if coin and 'Value' in coin else 0
+
+        self.initial_state = np.array([
+            np.ones(self.samples) * ap,    # ap
+            np.ones(self.samples) * coin, # coin
+            np.zeros(self.samples), # status (cl1: 0, meow: 1, crashed: 2, done: 3)
+            np.zeros(self.samples), # used_time
+            np.zeros(self.samples), # has_crashed
+            np.zeros(self.samples), # has_earned_coin
+            np.zeros(self.samples), # meow_count
+            np.zeros(self.samples), # cl1_count
+            np.zeros(self.samples), # passed_days
+            np.ones(self.samples) * time.time(), # timestamp
+        ])
+        self.logger.info(f'初始黄币: {coin}')
+        self.logger.info(f'初始行动力: {ap}')
+
+        self.coin_preserve = self.config.cross_get('OpsiScheduling.OpsiScheduling.OperationCoinsPreserve')
+        self.logger.info(f'保留黄币: {self.coin_preserve}')
+        self.ap_preserve = self.config.cross_get('OpsiScheduling.OpsiScheduling.ActionPointPreserve')
+        self.logger.info(f'保留行动力: {self.ap_preserve}')
+        self.coin_threshold = self.config.cross_get('OpsiScheduling.OpsiScheduling.OperationCoinsReturnThreshold')
+        self.logger.info(f'短猫直到获得多少黄币: {self.coin_threshold}')
+
+        self.instance_name = getattr(self.config, 'config_name', 'default')
+        self.logger.info(f'实例名: {self.instance_name}')
+
+        if self.meow_hazard_level == 3:
+            self.meow_time = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.Meow3Time', 0)
+            if not self.meow_time:
+                # 尝试从数据库获取短猫统计，如果不区分等级则统一使用平均值
+                self.meow_time = db.get_meow_stats(self.instance_name).get('avg_round_time', 100)
+        else: # hazard level 5
+            self.meow_time = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.Meow5Time', 0)
+            if not self.meow_time:
+                self.meow_time = db.get_meow_stats(self.instance_name).get('avg_round_time', 200)
+
+        self.logger.info(f'每轮短猫时间: {self.meow_time}')
+
+        self.cl1_time = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.Cl1Time', 0)
+        if not self.cl1_time:
+            self.cl1_time = get_ship_exp_stats(self.instance_name).get_average_round_time()
+        self.logger.info(f'每轮侵蚀1时间: {self.cl1_time}')
+
+        # 修正后的单轮时间：包含了因“时间利用率”不足而产生的空闲时间，用于正确计算AP的自然恢复
+        self.modified_meow_time = self.meow_time / self.time_use_ratio
+        self.modified_cl1_time = self.cl1_time / self.time_use_ratio
+
         self.buy_ap = self.config.cross_get('OpsiSimulator.OpsiSimulatorParameters.BuyAp', True)
         self.logger.info(f'每周是否购买行动力: {self.buy_ap}')
     
@@ -231,8 +284,7 @@ class OSSimulator:
         return days_ahead
     
     def _handle_akashi(self, state, base_mask):
-        n = np.sum(base_mask)
-        if n == 0:
+        if np.sum(base_mask) == 0:
             return
 
         if self.deterministic:
@@ -301,7 +353,7 @@ class OSSimulator:
             self.get_paras()
             
         now_state = np.copy(self.initial_state)
-        # 记录历史数据，Shape: (Steps, 2, Samples)
+        # 记录历史数据，Shape: (Steps, 3, Samples)
         history = []
         
         while np.any(now_state[self.STATUS] != self.STATUS_DONE):
@@ -319,7 +371,7 @@ class OSSimulator:
             
             # 从侵蚀1切换到短猫
             # 触发条件：当前处于侵蚀1，且黄币跌破保留值
-            to_meow_mask = is_cl1 & (now_state[self.COIN] < self.coin_preserve)
+            to_meow_base_mask = is_cl1 & (now_state[self.COIN] < self.coin_preserve)
             
             # 从短猫切换到侵蚀1
             # 触发条件：当前处于短猫，且黄币由于短猫补充后，已经超过了 (保留值 + 单次目标值)
@@ -336,8 +388,8 @@ class OSSimulator:
             to_crashed_mask = (is_cl1 | is_meow) & (now_state[self.AP] < self.AP_COSTS[1])
             to_crashed_mask |= is_cl1 & (now_state[self.COIN] < self.coin_preserve) & (now_state[self.AP] < self.ap_preserve)
             
-            # 从侵蚀1切换到短猫的额外限制：只有在 AP 高于保留值时才允许切换去短猫
-            to_meow_mask = is_cl1 & (now_state[self.COIN] < self.coin_preserve) & (now_state[self.AP] >= self.ap_preserve)
+            # 应用短猫切换的额外限制：只有在 AP 高于保留值时才允许切换去短猫
+            to_meow_mask = to_meow_base_mask & (now_state[self.AP] >= self.ap_preserve)
             
             # 如果正在短猫但 AP 掉到了保留值以下，强制切回侵蚀1（即便金币还没攒够）
             to_cl1_mask |= is_meow & (now_state[self.AP] < self.ap_preserve)
@@ -375,7 +427,6 @@ class OSSimulator:
         return now_state, np.array(history)
     
     def _handle_result(self, result):
-        import numpy as np
         result, history = result
         self.result_cl1_count = np.average(result[self.CL1_COUNT])
         self.logger.info(f'[模拟结果] 侵蚀1次数: {self.result_cl1_count}')
@@ -416,6 +467,7 @@ class OSSimulator:
         try:
             import sys
             import subprocess
+            import shlex
             
             if not self.deterministic:
                 self.logger.info("非确定性模式，跳过绘制折线图（平均值在概率模拟下无意义）")
@@ -428,7 +480,7 @@ class OSSimulator:
             
             os.makedirs('./log/oss', exist_ok=True)
             timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            csv_path = f'./log/oss/{timestamp_str}.csv'
+            csv_path = os.path.abspath(f'./log/oss/{timestamp_str}.csv')
             
             # 保存到 CSV (每行: Timestamp, AP_Avg, Coin_Avg)
             header = "Timestamp,AP,Coin"
@@ -437,7 +489,9 @@ class OSSimulator:
             
             # 调用子脚本绘图 (异步)
             python_exe = sys.executable
-            subprocess.Popen([python_exe, 'module/os/draw_os_plot.py', csv_path, str(self.coin_preserve), str(self.coin_threshold)])
+            # 使用 shlex 序列化参数，虽然 Popen 列表形式本身相对安全，但增加审计清晰度
+            args = [python_exe, 'module/os/draw_os_plot.py', csv_path, str(self.coin_preserve), str(self.coin_threshold)]
+            subprocess.Popen(args)
             
             self.logger.info(f"数据已保存至 CSV，绘图子进程已启动: {csv_path}")
         except Exception as e:

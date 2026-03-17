@@ -11,6 +11,7 @@ def draw(csv_path, preserve=None, target=None):
     try:
         # 读取数据 (Timestamp, AP, Coin)
         data = np.loadtxt(csv_path, delimiter=',', skiprows=1)
+        data = np.atleast_2d(data)
         if len(data) == 0:
             print("No data in CSV")
             return
