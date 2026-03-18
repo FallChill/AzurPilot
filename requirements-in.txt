@@ -1,27 +1,26 @@
-numpy
+numpy<2.0
 scipy
 pillow
-opencv-python<4.5.5 # pip19
+opencv-python>=4.8.0
 imageio
 
 # Device connection
 adbutils
-uiautomator2==2.16.17
-uiautomator2cache==0.3.0.1
+uiautomator2
+uiautomator2cache
 wrapt
 retrying
 jellyfish
 pyyaml
 inflection
-pywebio==1.7.1
+pywebio
 starlette
 anyio
 uvicorn[standard]
 aiofiles
-wrapt
-pypresence==4.2.1
-alas-webapp==0.3.7
-rich==11.2.0
+pypresence
+alas-webapp
+rich
 zerorpc
 pyzmq
 onepush
@@ -29,3 +28,10 @@ pydantic
 psutil
 chardet
 mxnet-alas
+matplotlib
+pycryptodome
+typing_extensions>=4.8.0
+pydantic>=2.5.0
+onnxruntime; sys_platform != "win32"
+onnxruntime-directml; sys_platform == "win32"
+rapidocr-onnxruntime
