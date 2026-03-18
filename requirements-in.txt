@@ -32,3 +32,4 @@ pycryptodome
 typing_extensions>=4.8.0
 pydantic>=2.5.0
 cnocr
+watchdog>=2.0.0
