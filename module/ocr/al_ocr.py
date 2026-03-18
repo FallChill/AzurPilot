@@ -76,10 +76,11 @@ class AlOcr:
         if res is None or len(res) == 0:
             return []
         
-        # When use_det=False, RapidOCR returns [['text', score], ...]
+        # When use_det=False, newer RapidOCR versions still return [[box, text, score], ...] with a dummy box
         results = []
         for r in res:
-            text = r[0] if isinstance(r, (list, tuple)) else r
+            # r is [box, text, score]
+            text = r[1] if isinstance(r, (list, tuple)) and len(r) >= 2 else str(r)
             if self._cand_alphabet:
                 text = "".join(c for c in text if c in self._cand_alphabet)
             results.append(list(text))
