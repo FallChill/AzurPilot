@@ -11,7 +11,7 @@ try:
     from rapidocr import RapidOCR, OCRVersion
 except Exception as e:
     logger.critical(f'Failed to load OCR dependencies: {e}')
-    logger.critical(f'无法加载 OCR 模型，如错误信息包含 DLL load failed while 请安装微软 C++ 运行库 https://aka.ms/vs/17/release/vc_redist.x64.exe')
+    logger.critical(f'无法加载 OCR 依赖，如错误信息包含 DLL load failed while 请安装微软 C++ 运行库 https://aka.ms/vs/17/release/vc_redist.x64.exe')
     # Define dummy classes to prevent ImportErrors in other modules
     class RapidOCR:
         pass
@@ -21,7 +21,7 @@ except Exception as e:
 
 class AlOcr:
     # 设为 True 可将每张送入 OCR 的图片保存到 debug_ocr/ 目录以便调试
-    DEBUG = True
+    DEBUG = False
 
     def __init__(self, **kwargs):
         self.model = None
