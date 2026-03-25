@@ -34,3 +34,4 @@ onnxruntime-directml
 watchdog>=2.0.0
 numba
 pip
+lz4
