@@ -12706,6 +12706,10 @@
         "type": "stored",
         "value": null,
         "display": "hide"
+      },
+      "CollectTargetReward": {
+        "type": "checkbox",
+        "value": false
       }
     },
     "OpsiFleet": {
@@ -13109,6 +13113,12 @@
           6,
           10
         ]
+      }
+    },
+    "OpsiTarget": {
+      "TargetFarming": {
+        "type": "checkbox",
+        "value": false
       },
       "TargetZone": {
         "type": "input",
@@ -13152,6 +13162,11 @@
       "SirenDetectorSearch_FoundZones": {
         "type": "textarea",
         "value": ""
+      },
+      "LastRun": {
+        "type": "datetime",
+        "value": "2020-01-01 00:00:00",
+        "validate": "datetime"
       }
     },
     "OpsiSirenBug": {

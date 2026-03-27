@@ -680,6 +680,7 @@ class GeneratedConfig:
     OpsiDaily_SkipSirenResearchMission = False
     OpsiDaily_KeepMissionZone = False
     OpsiDaily_MissionZones = None
+    OpsiDaily_CollectTargetReward = False
 
     # Group `OpsiObscure`
     OpsiObscure_SkipHazard2Obscure = False
@@ -709,6 +710,11 @@ class GeneratedConfig:
     OpsiMeowfficerFarming_SirenDetectorSearch_FleetForBlock = 2  # 1, 2, 3, 4
     OpsiMeowfficerFarming_SirenDetectorSearch_StopAfterFound = 1
     OpsiMeowfficerFarming_SirenDetectorSearch_FoundZones = None
+
+    # Group `OpsiTarget`
+    OpsiTarget_TargetFarming = False
+    OpsiTarget_TargetZone = 0
+    OpsiTarget_LastRun = datetime.datetime(2020, 1, 1, 0, 0)
 
     # Group `OpsiHazard1Leveling`
     OpsiHazard1Leveling_TargetZone = 0  # 0, 44, 22

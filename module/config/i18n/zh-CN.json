@@ -4415,17 +4415,21 @@
       "name": "使用效能样本",
       "help": "使用所有六种效能样本和强力效能样本"
     },
-    "SkipSirenResearchMission": {
-      "name": "不做塞壬研究任务",
-      "help": "开启后，将跳过“塞壬研究·I”与“塞壬研究·II”两个任务\n塞壬研究任务使用黄币兑换紫币"
+    “SkipSirenResearchMission”: {
+      “name”: “不做塞壬研究任务”,
+      “help”: “开启后，将跳过”塞壬研究·I”与”塞壬研究·II”两个任务\n塞壬研究任务使用黄币兑换紫币”
     },
-    "KeepMissionZone": {
-      "name": "保留海域不清理",
-      "help": "完成每日任务后退出海域，下次任务刷在同一海域时不用再消耗行动力进入\n每个月的最后一天会对所有未清理海域进行清理"
+    “KeepMissionZone”: {
+      “name”: “保留海域不清理”,
+      “help”: “完成每日任务后退出海域，下次任务刷在同一海域时不用再消耗行动力进入\n每个月的最后一天会对所有未清理海域进行清理”
     },
-    "MissionZones": {
-      "name": "月底需要清理的海域",
-      "help": "这个数值是自动记录的，一般不需要修改"
+    “MissionZones”: {
+      “name”: “月底需要清理的海域”,
+      “help”: “这个数值是自动记录的，一般不需要修改”
+    },
+    “CollectTargetReward”: {
+      “name”: “领取成就奖励”,
+      “help”: “”
     }
   },
   "OpsiObscure": {
@@ -4508,6 +4512,16 @@
       "5": "5",
       "6": "6",
       "10": "中心海域"
+    }
+  },
+  "OpsiTarget": {
+    "_info": {
+      "name": "海域成就",
+      "help": ""
+    },
+    "TargetFarming": {
+      "name": "刷取安全海域成就",
+      "help": ""
     },
     "TargetZone": {
       "name": "指定海域",
@@ -4546,6 +4560,24 @@
     "SirenDetectorSearch_FoundZones": {
       "name": "已找到的塞壬探测装置海域",
       "help": "已找到的塞壬探测装置海域，会按侵蚀等级分开记录并分开排除。若对应海域的塞壬探测装置已经被使用，可手动删除该海域记录。"
+    }
+  },
+  "OpsiTarget": {
+    "_info": {
+      "name": "海域成就",
+      "help": ""
+    },
+    "TargetFarming": {
+      "name": "刷取安全海域成就",
+      "help": ""
+    },
+    "TargetZone": {
+      "name": "指定海域",
+      "help": "仅出击指定的海域，可以用来获取大世界成就星星\n支持海域ID、国服/国际服/日服/台服海域名称，例如 \"51\", \"NA海域东南E\", \"NA Ocean SE Sector E\"\n填入默认值0，或者删除数值即可取消指定"
+    },
+    "LastRun": {
+      "name": "上一次领取时间",
+      "help": "这个数值是自动记录的，一般不需要修改"
     }
   },
   "OpsiHazard1Leveling": {

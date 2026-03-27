@@ -4426,6 +4426,10 @@
     "MissionZones": {
       "name": "月末に清掃が必要な海域",
       "help": "この値は自動的に記録されるため、通常は変更する必要はありません。"
+    },
+    "CollectTargetReward": {
+      "name": "OpsiDaily.CollectTargetReward.name",
+      "help": "OpsiDaily.CollectTargetReward.help"
     }
   },
   "OpsiObscure": {
@@ -4546,6 +4550,24 @@
     "SirenDetectorSearch_FoundZones": {
       "name": "サイレン探知装置の海域を発見",
       "help": "サイレン探知装置が海域で発見された。該当海域のサイレン探知装置が使用されている場合、該当海域の記録を手動で削除することができます。"
+    }
+  },
+  "OpsiTarget": {
+    "_info": {
+      "name": "OpsiTarget._info.name",
+      "help": "OpsiTarget._info.help"
+    },
+    "TargetFarming": {
+      "name": "OpsiTarget.TargetFarming.name",
+      "help": "OpsiTarget.TargetFarming.help"
+    },
+    "TargetZone": {
+      "name": "OpsiTarget.TargetZone.name",
+      "help": "OpsiTarget.TargetZone.help"
+    },
+    "LastRun": {
+      "name": "OpsiTarget.LastRun.name",
+      "help": "OpsiTarget.LastRun.help"
     }
   },
   "OpsiHazard1Leveling": {
