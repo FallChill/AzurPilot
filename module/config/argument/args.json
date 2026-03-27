@@ -13113,12 +13113,6 @@
           6,
           10
         ]
-      }
-    },
-    "OpsiTarget": {
-      "TargetFarming": {
-        "type": "checkbox",
-        "value": false
       },
       "TargetZone": {
         "type": "input",
@@ -13162,11 +13156,6 @@
       "SirenDetectorSearch_FoundZones": {
         "type": "textarea",
         "value": ""
-      },
-      "LastRun": {
-        "type": "datetime",
-        "value": "2020-01-01 00:00:00",
-        "validate": "datetime"
       }
     },
     "OpsiSirenBug": {
@@ -13230,6 +13219,21 @@
       "SirenBug_AutoDisable": {
         "type": "checkbox",
         "value": false
+      }
+    },
+    "OpsiTarget": {
+      "TargetFarming": {
+        "type": "checkbox",
+        "value": false
+      },
+      "TargetZone": {
+        "type": "input",
+        "value": 0
+      },
+      "LastRun": {
+        "type": "datetime",
+        "value": "2020-01-01 00:00:00",
+        "validate": "datetime"
       }
     },
     "OpsiFleet": {
