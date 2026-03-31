@@ -1141,8 +1141,8 @@ class AlasGUI(Frame):
             
             if not unlocked:
                 pwd = input(label=_t("Task.OpsiHazard1Leveling.name"), type='text', 
-                            placeholder="请输入解锁Key", help_text="请观看猛蓝视频 https://www.bilibili.com/video/BV1bkroBLEi7 找到结语部分的第一行红色字体部分 不包含标点符号")
-                if pwd == '溢出的黄币本质上其实可以当成另一种石油':
+                            placeholder="请观看猛蓝视频 https://www.bilibili.com/video/BV1bkroBLEi7 找到结语部分的第一行红色字体部分", help_text="请观看猛蓝视频 https://www.bilibili.com/video/BV1bkroBLEi7 找到结语部分的第一行红色字体部分")
+                if pwd is not None and re.sub(r'\W+', '', pwd) == '溢出的黄币本质上其实可以当成另一种石油':
                     auth_data = {}
                     os.makedirs(os.path.dirname(auth_file), exist_ok=True)
                     if os.path.exists(auth_file):
