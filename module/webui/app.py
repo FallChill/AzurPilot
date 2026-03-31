@@ -1127,40 +1127,6 @@ class AlasGUI(Frame):
         Set arg groups from dict
         """
         config = self.alas_config.read_file(self.alas_name)
-
-        # 侵蚀1练级密码验证
-        auth_file = './config/data/webui_auth.json'
-        if task == 'OpsiHazard1Leveling':
-            unlocked = False
-            if os.path.exists(auth_file):
-                try:
-                    with open(auth_file, 'r', encoding='utf-8') as f:
-                        unlocked = json.load(f).get('OpsiHazard1Leveling', False)
-                except Exception:
-                    pass
-            
-            if not unlocked:
-                pwd = input(label=_t("Task.OpsiHazard1Leveling.name"), type='text', 
-                            placeholder="请观看猛蓝视频 https://www.bilibili.com/video/BV1bkroBLEi7 找到结语部分的第一行红色字体部分", help_text="请观看猛蓝视频 https://www.bilibili.com/video/BV1bkroBLEi7 找到结语部分的第一行红色字体部分")
-                if pwd is not None and re.sub(r'\W+', '', pwd) == '溢出的黄币本质上其实可以当成另一种石油':
-                    auth_data = {}
-                    os.makedirs(os.path.dirname(auth_file), exist_ok=True)
-                    if os.path.exists(auth_file):
-                        try:
-                            with open(auth_file, 'r', encoding='utf-8') as f:
-                                auth_data = json.load(f)
-                        except Exception:
-                            pass
-                    auth_data['OpsiHazard1Leveling'] = True
-                    with open(auth_file, 'w', encoding='utf-8') as f:
-                        json.dump(auth_data, f)
-                    toast("解锁成功", color='success')
-                else:
-                    if pwd is not None:
-                        toast("密码错误", color='error')
-                    self.alas_overview()
-                    return
-
         self.init_menu(name=task)
         self.set_title(t(f"Task.{task}.name"))
 
