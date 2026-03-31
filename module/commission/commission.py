@@ -491,11 +491,66 @@ class RewardCommission(UI, InfoHandler):
         if not self.daily_choose and not self.urgent_choose:
             logger.info('No commission chose')
 
+    def _record_commission_income(self):
+        """识别委托奖励截图中的物品并记录到数据库。
+
+        使用 GetItemsStatistics 对已保存的截图进行物品识别，
+        将结果写入 Cl1Database 的 commission_income_entries。
+        识别失败时静默跳过，不影响委托主流程。
+        """
+        try:
+            from module.statistics.get_items import GetItemsStatistics, ITEM_GROUP
+            from module.statistics.cl1_database import db as cl1_db
+            from module.config.utils import get_server
+            import os
+
+            template_folder = os.path.join('./assets/stats_basic')
+            if not os.path.exists(template_folder):
+                logger.debug('Commission income: template folder not found, skip')
+                return
+
+            get_items = GetItemsStatistics()
+            get_items.load_template_folder(template_folder)
+
+            if not ITEM_GROUP.templates:
+                logger.debug('Commission income: no templates loaded, skip')
+                return
+
+            merged_items = {}
+            commission_count = 0
+
+            if not self._commission_reward_images:
+                logger.debug('Commission income: no reward images collected')
+                return
+
+            for image in self._commission_reward_images:
+                try:
+                    items = get_items.stats_get_items(image)
+                    for item in items:
+                        if item.is_known_item() and item.name not in ('DefaultItem',):
+                            merged_items[item.name] = merged_items.get(item.name, 0) + item.amount
+                            commission_count += 1
+                except Exception as e:
+                    logger.debug(f'Commission income: item recognition failed: {e}')
+                    continue
+
+            if merged_items:
+                instance = self.config.config_name
+                cl1_db.add_commission_income(instance, merged_items, commission_count=max(1, commission_count))
+                item_str = ', '.join([f'{k}x{v}' for k, v in merged_items.items()])
+                logger.info(f'Commission income recorded: {item_str}')
+            else:
+                logger.debug('Commission income: no known items recognized')
+
+        except Exception as e:
+            logger.warning(f'Commission income recording failed: {e}')
+
     def commission_receive(self, skip_first_screenshot=True):
         logger.hr('Reward receive')
 
         reward = False
         click_timer = Timer(1)
+        self._commission_reward_images = []
 
         with self.stat.new(
                 'commission', method=self.config.DropRecord_CommissionRecord
@@ -513,6 +568,7 @@ class RewardCommission(UI, InfoHandler):
                     if self.appear(button, interval=1):
                         self.ensure_no_info_bar(timeout=1)
                         drop.add(self.device.image)
+                        self._commission_reward_images.append(self.device.image.copy())
 
                         REWARD_SAVE_CLICK.name = button.name
                         self.device.click(REWARD_SAVE_CLICK)
@@ -584,6 +640,7 @@ class RewardCommission(UI, InfoHandler):
                     if click_timer.reached() and self.appear(button, interval=1):
                         self.ensure_no_info_bar(timeout=1)
                         drop.add(self.device.image)
+                        self._commission_reward_images.append(self.device.image.copy())
 
                         REWARD_SAVE_CLICK.name = button.name
                         self.device.click(REWARD_SAVE_CLICK)
@@ -593,6 +650,9 @@ class RewardCommission(UI, InfoHandler):
                 if click_timer.reached() and self.ui_additional():
                     click_timer.reset()
                     continue
+
+        if reward:
+            self._record_commission_income()
 
         return reward
 

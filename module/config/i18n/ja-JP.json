@@ -5273,7 +5273,22 @@
       "ExpRemaining": "EXP remaining",
       "StartCleanupTime": "Suggested cleanup start: {value}",
       "NextOsReset": "Next OS reset: {value}",
-      "MeowAutoCleanupStatus": "Auto early cleanup: {value}"
+      "MeowAutoCleanupStatus": "Auto early cleanup: {value}",
+      "CommissionIncomeTitle": "Gui.Stat.CommissionIncomeTitle",
+      "CommissionIncomeMonth": "Gui.Stat.CommissionIncomeMonth",
+      "CommissionIncomeWeek": "Gui.Stat.CommissionIncomeWeek",
+      "CommissionIncomeDay": "Gui.Stat.CommissionIncomeDay",
+      "CommissionIncomeNoData": "Gui.Stat.CommissionIncomeNoData",
+      "CommissionIncomeItemGem": "Gui.Stat.CommissionIncomeItemGem",
+      "CommissionIncomeItemCube": "Gui.Stat.CommissionIncomeItemCube",
+      "CommissionIncomeItemChip": "Gui.Stat.CommissionIncomeItemChip",
+      "CommissionIncomeItemOil": "Gui.Stat.CommissionIncomeItemOil",
+      "CommissionIncomeItemCoin": "Gui.Stat.CommissionIncomeItemCoin",
+      "CommissionIncomeHeaderItem": "Gui.Stat.CommissionIncomeHeaderItem",
+      "CommissionIncomeHeaderTotal": "Gui.Stat.CommissionIncomeHeaderTotal",
+      "CommissionIncomeHeaderCount": "Gui.Stat.CommissionIncomeHeaderCount",
+      "CommissionIncomeHeaderAvg": "Gui.Stat.CommissionIncomeHeaderAvg",
+      "CommissionIncomeTotalCommissions": "Gui.Stat.CommissionIncomeTotalCommissions"
     },
     "OpsiScheduling": {
       "UseSmartSchedulingOperationCoinsPreserve": "Gui.OpsiScheduling.UseSmartSchedulingOperationCoinsPreserve",

@@ -5273,7 +5273,22 @@
       "ExpRemaining": "EXP remaining",
       "StartCleanupTime": "Suggested cleanup start: {value}",
       "NextOsReset": "Next OS reset: {value}",
-      "MeowAutoCleanupStatus": "Auto early cleanup: {value}"
+      "MeowAutoCleanupStatus": "Auto early cleanup: {value}",
+      "CommissionIncomeTitle": "Commission Income",
+      "CommissionIncomeMonth": "This Month",
+      "CommissionIncomeWeek": "This Week",
+      "CommissionIncomeDay": "Today",
+      "CommissionIncomeNoData": "No commission income data yet. It will update automatically after commissions.",
+      "CommissionIncomeItemGem": "Gem",
+      "CommissionIncomeItemCube": "Cube",
+      "CommissionIncomeItemChip": "Chip",
+      "CommissionIncomeItemOil": "Oil",
+      "CommissionIncomeItemCoin": "Coin",
+      "CommissionIncomeHeaderItem": "Item",
+      "CommissionIncomeHeaderTotal": "Total",
+      "CommissionIncomeHeaderCount": "Commissions",
+      "CommissionIncomeHeaderAvg": "Avg/Run",
+      "CommissionIncomeTotalCommissions": "Total commissions: {value}"
     },
     "OpsiScheduling": {
       "UseSmartSchedulingOperationCoinsPreserve": "Gui.OpsiScheduling.UseSmartSchedulingOperationCoinsPreserve",

@@ -1121,6 +1121,92 @@ class AlasGUI(Frame):
         _render_ship_exp()
         self.task_handler.add(_render_ship_exp, 60, True)
 
+        # ========== 委托收益统计 ==========
+        if not hasattr(self, '_commission_income_period'):
+            self._commission_income_period = 'month'
+
+        def _render_commission_income():
+            try:
+                from module.statistics.commission_income_stats import (
+                    get_commission_income_summary,
+                    COMMISSION_ITEM_META,
+                )
+                instance_name = self.alas_name if hasattr(self, 'alas_name') and self.alas_name else None
+                if not instance_name:
+                    from module.config.utils import alas_instance
+                    all_instances = alas_instance()
+                    instance_name = all_instances[0] if all_instances else None
+                if not instance_name:
+                    with use_scope("commission_income", clear=True):
+                        put_text(t("Gui.Stat.CommissionIncomeNoData"))
+                    return
+
+                period = self._commission_income_period
+                summary = get_commission_income_summary(instance_name, period=period)
+
+                with use_scope("commission_income", clear=True):
+                    put_html(f'<h3 style="margin: 8px 0 4px 0; color: #333;">{t("Gui.Stat.CommissionIncomeTitle")}</h3>')
+
+                    current_view = period
+                    put_row([
+                        put_button(t("Gui.Stat.CommissionIncomeMonth"), onclick=lambda: _switch_ci_period('month'), color="off" if current_view != 'month' else "primary"),
+                        put_button(t("Gui.Stat.CommissionIncomeWeek"), onclick=lambda: _switch_ci_period('week'), color="off" if current_view != 'week' else "primary"),
+                        put_button(t("Gui.Stat.CommissionIncomeDay"), onclick=lambda: _switch_ci_period('day'), color="off" if current_view != 'day' else "primary"),
+                        put_button(t("Gui.Stat.Refresh"), onclick=_render_commission_income, color="off"),
+                    ], size="auto")
+
+                    put_html(f'<p style="margin: 4px 0; color: #666; font-size: 13px;">{t("Gui.Stat.CommissionIncomeTotalCommissions", value=summary["total_commissions"])}</p>')
+
+                    rows = summary.get('detail_rows', [])
+                    if not rows or all(r['total'] == 0 for r in rows):
+                        put_html(f'<p style="margin: 12px 0; color: #999; font-size: 13px;">{t("Gui.Stat.CommissionIncomeNoData")}</p>')
+                        return
+
+                    item_name_map = {
+                        'Gem': t("Gui.Stat.CommissionIncomeItemGem"),
+                        'Cube': t("Gui.Stat.CommissionIncomeItemCube"),
+                        'Chip': t("Gui.Stat.CommissionIncomeItemChip"),
+                        'Oil': t("Gui.Stat.CommissionIncomeItemOil"),
+                        'Coin': t("Gui.Stat.CommissionIncomeItemCoin"),
+                    }
+
+                    table_html = '<table style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px;">'
+                    table_html += '<thead><tr style="background: #f5f5f5; border-bottom: 2px solid #e0e0e0;">'
+                    table_html += f'<th style="padding: 8px; text-align: left;">{t("Gui.Stat.CommissionIncomeHeaderItem")}</th>'
+                    table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderTotal")}</th>'
+                    table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderCount")}</th>'
+                    table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderAvg")}</th>'
+                    table_html += '</tr></thead><tbody>'
+
+                    for row in rows:
+                        if row['total'] == 0:
+                            continue
+                        display_name = item_name_map.get(row['name'], row['name'])
+                        table_html += '<tr style="border-bottom: 1px solid #eee;">'
+                        table_html += f'<td style="padding: 6px 8px;">'
+                        table_html += f'<span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {row["color"]}; margin-right: 8px; vertical-align: middle;"></span>'
+                        table_html += f'{display_name}</td>'
+                        table_html += f'<td style="padding: 6px 8px; text-align: right; font-weight: 500;">{row["total"]}</td>'
+                        table_html += f'<td style="padding: 6px 8px; text-align: right; color: #666;">{row["count"]}</td>'
+                        table_html += f'<td style="padding: 6px 8px; text-align: right; color: #666;">{row["avg"]}</td>'
+                        table_html += '</tr>'
+
+                    table_html += '</tbody></table>'
+                    put_html(table_html)
+
+            except Exception as e:
+                with use_scope("commission_income", clear=True):
+                    put_text(t("Gui.Stat.CommissionIncomeNoData"))
+                    logger.warning(f'Commission income render failed: {e}')
+
+        def _switch_ci_period(p):
+            self._commission_income_period = p
+            _render_commission_income()
+
+        put_scope("commission_income", [])
+        _render_commission_income()
+        self.task_handler.add(_render_commission_income, 60, True)
+
     @use_scope("content", clear=True)
     def alas_set_group(self, task: str) -> None:
         """
