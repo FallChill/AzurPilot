@@ -1133,6 +1133,7 @@ class AlasGUI(Frame):
                     get_recent_commission_entries,
                     COMMISSION_ITEM_META,
                     COMMISSION_ITEM_NAME_MAP,
+                    COMMISSION_TRACKED_ITEMS,
                 )
                 instance_name = self.alas_name if hasattr(self, 'alas_name') and self.alas_name else None
                 if not instance_name:
@@ -1213,6 +1214,8 @@ class AlasGUI(Frame):
                                 if not amount or int(amount) <= 0:
                                     continue
                                 mapped_name = COMMISSION_ITEM_NAME_MAP.get(raw_name, raw_name)
+                                if mapped_name not in COMMISSION_TRACKED_ITEMS:
+                                    continue
                                 meta = COMMISSION_ITEM_META.get(mapped_name, {'color': '#888'})
                                 display = item_name_map.get(mapped_name, mapped_name)
                                 item_parts.append(
