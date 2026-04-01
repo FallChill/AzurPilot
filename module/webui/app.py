@@ -1123,7 +1123,7 @@ class AlasGUI(Frame):
 
         # ========== 委托收益统计 ==========
         if not hasattr(self, '_commission_income_period'):
-            self._commission_income_period = 'month'
+            self._commission_income_period = 'day'
 
         def _render_commission_income():
             try:
@@ -1158,49 +1158,74 @@ class AlasGUI(Frame):
                 recent = get_recent_commission_entries(instance_name, limit=10)
 
                 with use_scope("commission_income", clear=True):
-                    put_html(f'<h3 style="margin: 8px 0 4px 0; color: #333;">{t("Gui.Stat.CommissionIncomeTitle")}</h3>')
+                    html = '<div style="padding: 0;">'
 
-                    current_view = period
-                    put_row([
-                        put_button(t("Gui.Stat.CommissionIncomeDay"), onclick=lambda: _switch_ci_period('day'), color="off" if current_view != 'day' else "primary"),
-                        put_button(t("Gui.Stat.CommissionIncomeWeek"), onclick=lambda: _switch_ci_period('week'), color="off" if current_view != 'week' else "primary"),
-                        put_button(t("Gui.Stat.CommissionIncomeMonth"), onclick=lambda: _switch_ci_period('month'), color="off" if current_view != 'month' else "primary"),
-                        put_button(t("Gui.Stat.Refresh"), onclick=_render_commission_income, color="off"),
-                    ], size="auto")
-
-                    put_html(f'<p style="margin: 4px 0; color: #666; font-size: 13px;">{t("Gui.Stat.CommissionIncomeTotalCommissions", value=summary["total_commissions"])}</p>')
+                    html += f'<div style="font-size: 1rem; font-weight: 500; color: #333; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #eee;">{t("Gui.Stat.CommissionIncomeTitle")}</div>'
 
                     rows = summary.get('detail_rows', [])
-                    if not rows or all(r['total'] == 0 for r in rows):
-                        put_html(f'<p style="margin: 12px 0; color: #999; font-size: 13px;">{t("Gui.Stat.CommissionIncomeNoData")}</p>')
+                    has_data = rows and not all(r['total'] == 0 for r in rows)
+
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 12px; margin-bottom: 20px;">'
+                    for row in rows:
+                        display_name = item_name_map.get(row['name'], row['name'])
+                        total_str = f'+{row["total"]:,}' if row['total'] > 0 else '0'
+                        html += f'''
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: {row["color"]}; flex-shrink: 0;"></div>
+                            <div style="display: flex; flex-direction: column; gap: 1px;">
+                                <span style="font-size: 0.78rem; color: #888;">{display_name}</span>
+                                <span style="font-size: 1.15rem; font-weight: 400; color: #333;">{total_str}</span>
+                            </div>
+                        </div>'''
+                    html += '</div>'
+
+                    put_html(html)
+
+                    def on_period_click(p):
+                        self._commission_income_period = p
+                        _render_commission_income()
+
+                    put_buttons([
+                        {'label': t("Gui.Stat.CommissionIncomeDay"), 'value': 'day', 'color': 'primary' if period == 'day' else 'secondary'},
+                        {'label': t("Gui.Stat.CommissionIncomeWeek"), 'value': 'week', 'color': 'primary' if period == 'week' else 'secondary'},
+                        {'label': t("Gui.Stat.CommissionIncomeMonth"), 'value': 'month', 'color': 'primary' if period == 'month' else 'secondary'},
+                    ], onclick=on_period_click, small=True, scope="commission_income")
+
+                    html2 = ''
+                    if not has_data:
+                        html2 += f'<p style="margin: 12px 0; color: #999; font-size: 13px;">{t("Gui.Stat.CommissionIncomeNoData")}</p>'
                     else:
-                        table_html = '<table style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px;">'
-                        table_html += '<thead><tr style="background: #f5f5f5; border-bottom: 2px solid #e0e0e0;">'
-                        table_html += f'<th style="padding: 8px; text-align: left;">{t("Gui.Stat.CommissionIncomeHeaderItem")}</th>'
-                        table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderTotal")}</th>'
-                        table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderCount")}</th>'
-                        table_html += f'<th style="padding: 8px; text-align: right;">{t("Gui.Stat.CommissionIncomeHeaderAvg")}</th>'
-                        table_html += '</tr></thead><tbody>'
+                        html2 += '<table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">'
+                        html2 += '<thead><tr>'
+                        html2 += f'<th style="text-align: left; padding: 8px 10px; background: #f7f7f7; border-bottom: 1px solid #e0e0e0; font-weight: 500; color: #555; font-size: 0.8rem;">{t("Gui.Stat.CommissionIncomeHeaderItem")}</th>'
+                        html2 += f'<th style="text-align: right; padding: 8px 10px; background: #f7f7f7; border-bottom: 1px solid #e0e0e0; font-weight: 500; color: #555; font-size: 0.8rem;">{t("Gui.Stat.CommissionIncomeHeaderTotal")}</th>'
+                        html2 += f'<th style="text-align: right; padding: 8px 10px; background: #f7f7f7; border-bottom: 1px solid #e0e0e0; font-weight: 500; color: #555; font-size: 0.8rem;">{t("Gui.Stat.CommissionIncomeHeaderCount")}</th>'
+                        html2 += f'<th style="text-align: right; padding: 8px 10px; background: #f7f7f7; border-bottom: 1px solid #e0e0e0; font-weight: 500; color: #555; font-size: 0.8rem;">{t("Gui.Stat.CommissionIncomeHeaderAvg")}</th>'
+                        html2 += '</tr></thead><tbody>'
 
                         for row in rows:
                             if row['total'] == 0:
                                 continue
                             display_name = item_name_map.get(row['name'], row['name'])
-                            table_html += '<tr style="border-bottom: 1px solid #eee;">'
-                            table_html += f'<td style="padding: 6px 8px;">'
-                            table_html += f'<span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {row["color"]}; margin-right: 8px; vertical-align: middle;"></span>'
-                            table_html += f'{display_name}</td>'
-                            table_html += f'<td style="padding: 6px 8px; text-align: right; font-weight: 500;">{row["total"]}</td>'
-                            table_html += f'<td style="padding: 6px 8px; text-align: right; color: #666;">{row["count"]}</td>'
-                            table_html += f'<td style="padding: 6px 8px; text-align: right; color: #666;">{row["avg"]}</td>'
-                            table_html += '</tr>'
+                            html2 += '<tr style="border-bottom: 1px solid #f0f0f0;">'
+                            html2 += f'<td style="padding: 7px 10px;"><div style="display: flex; align-items: center; gap: 6px;"><div style="width: 8px; height: 8px; border-radius: 50%; background: {row["color"]}; flex-shrink: 0;"></div>{display_name}</div></td>'
+                            html2 += f'<td style="padding: 7px 10px; text-align: right; font-family: monospace;">{row["total"]:,}</td>'
+                            html2 += f'<td style="padding: 7px 10px; text-align: right; font-family: monospace; color: #666;">{row["count"]}</td>'
+                            html2 += f'<td style="padding: 7px 10px; text-align: right; font-family: monospace; color: #666;">{row["avg"]}</td>'
+                            html2 += '</tr>'
 
-                        table_html += '</tbody></table>'
-                        put_html(table_html)
+                        html2 += '</tbody></table>'
 
+                    html2 += '<div style="display: flex; gap: 8px; margin-top: 14px;">'
+                    put_html(html2, scope="commission_income")
+
+                    put_button(t("Gui.Stat.Refresh"), onclick=_render_commission_income, color="secondary", small=True, scope="commission_income")
+
+                    html3 = ''
                     if recent:
-                        put_html(f'<h4 style="margin: 16px 0 6px 0; color: #555; font-size: 14px; border-top: 1px solid #e0e0e0; padding-top: 10px;">{t("Gui.Stat.CommissionIncomeRecentTitle")}</h4>')
-                        recent_html = '<div style="font-size: 13px;">'
+                        html3 += f'<div style="height: 1px; background: #eee; margin: 24px 0;"></div>'
+                        html3 += f'<div style="font-size: 0.9rem; font-weight: 500; color: #333; margin-bottom: 10px;">{t("Gui.Stat.CommissionIncomeRecentTitle")}</div>'
+                        html3 += '<div style="font-size: 13px;">'
                         for entry in recent:
                             ts = entry.get('ts', '')
                             try:
@@ -1219,28 +1244,29 @@ class AlasGUI(Frame):
                                 meta = COMMISSION_ITEM_META.get(mapped_name, {'color': '#888'})
                                 display = item_name_map.get(mapped_name, mapped_name)
                                 item_parts.append(
-                                    f'<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {meta["color"]}; margin-right: 4px; vertical-align: middle;"></span>'
+                                    f'<span style="display: inline-flex; align-items: center; margin-right: 12px;">'
+                                    f'<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {meta["color"]}; margin-right: 4px;"></span>'
                                     f'<span style="color: #444;">{display}</span>'
                                     f'<span style="color: #888; margin-left: 2px;">x{int(amount)}</span>'
+                                    f'</span>'
                                 )
-                            items_str = ' '.join(item_parts) if item_parts else '<span style="color: #999;">--</span>'
-                            recent_html += (
-                                f'<div style="display: flex; align-items: center; padding: 5px 0; border-bottom: 1px solid #f0f0f0;">'
+                            items_str = ''.join(item_parts) if item_parts else '<span style="color: #999;">--</span>'
+                            html3 += (
+                                f'<div style="display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0;">'
                                 f'<span style="color: #888; min-width: 80px; font-size: 12px;">{time_str}</span>'
                                 f'<span style="flex: 1;">{items_str}</span>'
                                 f'</div>'
                             )
-                        recent_html += '</div>'
-                        put_html(recent_html)
+                        html3 += '</div>'
+
+                    html3 += f'<p style="font-size: 0.75rem; color: #aaa; margin-top: 10px;">{t("Gui.Stat.CommissionIncomeTotalCommissions", value=summary["total_commissions"])}</p>'
+                    html3 += '</div>'
+                    put_html(html3, scope="commission_income")
 
             except Exception as e:
                 with use_scope("commission_income", clear=True):
                     put_text(t("Gui.Stat.CommissionIncomeNoData"))
                     logger.warning(f'Commission income render failed: {e}')
-
-        def _switch_ci_period(p):
-            self._commission_income_period = p
-            _render_commission_income()
 
         put_scope("commission_income", [])
         _render_commission_income()
