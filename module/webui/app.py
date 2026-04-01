@@ -1158,14 +1158,14 @@ class AlasGUI(Frame):
                 recent = get_recent_commission_entries(instance_name, limit=10)
 
                 with use_scope("commission_income", clear=True):
-                    html = '<div style="padding: 0; width: 100%; max-width: 100%;">'
+                    html = '<div style="padding: 0; width: 100%; box-sizing: border-box;">'
 
                     html += f'<div style="font-size: 1rem; font-weight: 500; color: #333; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #eee;">{t("Gui.Stat.CommissionIncomeTitle")}</div>'
 
                     rows = summary.get('detail_rows', [])
                     has_data = rows and not all(r['total'] == 0 for r in rows)
 
-                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 12px; margin-bottom: 20px;">'
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 12px; margin-bottom: 20px; width: 100%;">'
                     for row in rows:
                         display_name = item_name_map.get(row['name'], row['name'])
                         total_str = f'+{row["total"]:,}' if row['total'] > 0 else '0'
@@ -1191,7 +1191,7 @@ class AlasGUI(Frame):
                         {'label': t("Gui.Stat.CommissionIncomeMonth"), 'value': 'month', 'color': 'primary' if period == 'month' else 'secondary'},
                     ], onclick=on_period_click, small=True, scope="commission_income")
 
-                    html2 = ''
+                    html2 = '<div style="width: 100%; box-sizing: border-box;">'
                     if not has_data:
                         html2 += f'<p style="margin: 12px 0; color: #999; font-size: 13px;">{t("Gui.Stat.CommissionIncomeNoData")}</p>'
                     else:
