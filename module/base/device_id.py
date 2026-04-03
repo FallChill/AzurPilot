@@ -72,7 +72,8 @@ def _collect_hardware_fingerprint() -> str:
                     break
             except Exception:
                 pass
-                if platform.system() == 'Darwin':
+
+        if platform.system() == 'Darwin':
             try:
                 result = subprocess.run(
                     ['system_profiler', 'SPHardwareDataType'],
@@ -84,7 +85,8 @@ def _collect_hardware_fingerprint() -> str:
                         break
             except Exception:
                 pass
-        mac = _get_mac_address()
+
+    mac = _get_mac_address()
     if mac:
         parts.append(f'mac={mac}')
     
