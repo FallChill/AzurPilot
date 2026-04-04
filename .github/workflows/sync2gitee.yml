@@ -45,7 +45,7 @@ jobs:
           mappings: "AzurLaneAutoScript=>AzurLaneAutoScript"
           force_update: true
 
-      - name: sync github -> gitcode
+      - name: sync github -> gitcode2
         uses: Yikun/hub-mirror-action@master
         if: env.gitcode_key_2 && env.gitcode_token_2 && env.gitcode_user_2
         with:
