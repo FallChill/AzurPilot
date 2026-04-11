@@ -224,9 +224,9 @@ class CoinTaskMixin:
             if previous_ap is not None:
                 ap_delta = current_ap - previous_ap
                 if ap_delta >= 0:
-                    content = f"当前行动力: {current_ap} 增加{ap_delta}"
+                    content = f"当前行动力: {current_ap} 上涨{ap_delta}行动力"
                 else:
-                    content = f"当前行动力: {current_ap} 下跌{abs(ap_delta)}"
+                    content = f"当前行动力: {current_ap} 下跌{abs(ap_delta)}行动力"
 
             pushed = self.notify_push(
                 title="[Alas] 行动力出现变化！",
