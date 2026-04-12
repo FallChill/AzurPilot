@@ -2312,12 +2312,37 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 logger.info(f'已达到塞壬Bug自动处理阈值 ({count_limit}次)，开始自动收菜')
                 # 禁用塞壬研究装置的处理
                 self.config._disable_siren_research = True
+                
+                # 术语说明：
+                # - 主舰队（主舰队卡位舰队）：OpsiFleet_Fleet，用于探测敌人和卡位
+                # - 收菜舰队：与主舰队不同的舰队，用于清理战斗和收菜
+                main_fleet = self.config.OpsiFleet_Fleet
+                harvest_fleet = 1 if main_fleet != 1 else 2
+                
                 if siren_bug_type == 'safe':
+                    logger.info(f'[安全海域收菜] 步骤1: 主舰队({main_fleet})探测敌人进行卡位')
+                    # 使用主舰队卡位敌人
                     self.os_auto_search_daemon_until_combat()
-                    logger.info('遇到敌舰，卡位完成')
-                    self.fleet_set(1 if self.config.OpsiFleet_Fleet != 1 else 2)
-                self.os_auto_search_run()
-                self.fleet_set(self.config.OpsiFleet_Fleet)
+                    logger.info(f'[安全海域收菜] 步骤2: 遇到敌舰，卡位完成')
+                    
+                    # 切换到收菜舰队进行收菜
+                    logger.info(f'[安全海域收菜] 步骤3: 切换到收菜舰队({harvest_fleet})进行收菜')
+                    self.fleet_set(harvest_fleet)
+                    self.os_auto_search_run()
+                    
+                    # 切换回主舰队
+                    logger.info(f'[安全海域收菜] 步骤4: 切换回主舰队({main_fleet})')
+                    self.fleet_set(main_fleet)
+                else:
+                    logger.info(f'[普通海域收菜] 步骤1: 切换到收菜舰队({harvest_fleet})进行收菜')
+                    # 普通海域切换到收菜舰队进行收菜
+                    self.fleet_set(harvest_fleet)
+                    self.os_auto_search_run()
+                    
+                    # 切换回主舰队
+                    logger.info(f'[普通海域收菜] 步骤2: 切换回主舰队({main_fleet})')
+                    self.fleet_set(main_fleet)
+                
                 self._reset_siren_bug_daily_count(sync_state=sync_state)
                 # 恢复塞壬研究装置的处理
                 self.config._disable_siren_research = False
