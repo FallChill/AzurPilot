@@ -2174,6 +2174,12 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             
             logger.info(f'当前区域: {source_zone}, 目标区域: {target_zone}')
             count, sync_state = self._get_siren_bug_effective_daily_count()
+            
+            # 读取探测策略
+            siren_bug_mode = self.config.cross_get(
+                keys=f"{task}.OpsiSirenBug.SirenBug_Mode",
+                default='resource'
+            )
 
             # 跳转至指定高侵蚀区域
             with self.config.temporary(STORY_ALLOW_SKIP=False):
@@ -2181,11 +2187,14 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 self.globe_goto(target_zone, types=(siren_bug_type.upper(),), refresh=True)
                 self.zone_init()
                 
-                # Siren bug count sleep
-                if count > 0:
+                # Siren bug count sleep - 仅在探测资源模式时生效
+                if count > 0 and siren_bug_mode == 'resource':
                     logger.info(f'塞壬 Bug 今日已使用 {count} 次，自律前等待 {count} 秒')
                     logger.info('【设计说明】等待秒数与当日计数绑定，用于节奏控制与行为可观测性')
+                    logger.info('【模式说明】此等待仅在探测资源模式时生效')
                     time.sleep(count)
+                elif count > 0:
+                    logger.info(f'塞壬 Bug 今日已使用 {count} 次，当前模式为探测敌人，跳过等待')
 
                 target_grid = self.config.cross_get(keys=f"{task}.OpsiSirenBug.SirenBug_Grid", default=None)
                 device_found = False
