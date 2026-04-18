@@ -1,4 +1,4 @@
-from module.campaign.campaign_base import CampaignBase
+from .campaign_base import CampaignBase
 from module.map.map_base import CampaignMap
 from module.map.map_grids import SelectedGrids, RoadGrids
 from module.logger import logger
@@ -47,22 +47,7 @@ A8, B8, C8, D8, E8, F8, G8, H8, I8, \
 
 class Config:
     # ===== Start of generated config =====
-    DETECTION_BACKEND = 'perspective'
-    INTERNAL_LINES_HOUGHLINES_THRESHOLD = 40
-    EDGE_LINES_HOUGHLINES_THRESHOLD = 40
-    INTERNAL_LINES_FIND_PEAKS_PARAMETERS = {
-        'height': (80, 255 - 24),
-        'width': (1.5, 10),
-        'prominence': 10,
-        'distance': 35,
-    }
-    EDGE_LINES_FIND_PEAKS_PARAMETERS = {
-        'height': (255 - 40, 255),
-        'prominence': 10,
-        'distance': 50,
-        'wlen': 1000
-    }
-    MAP_SIREN_TEMPLATE = []
+    MAP_SIREN_TEMPLATE = ['Bremerton']
     MOVABLE_ENEMY_TURN = (2,)
     MAP_HAS_SIREN = True
     MAP_HAS_MOVABLE_ENEMY = True
@@ -70,14 +55,25 @@ class Config:
     MAP_HAS_FLEET_STEP = True
     MAP_HAS_AMBUSH = False
     MAP_HAS_MYSTERY = False
-    MAP_CHAPTER_SWITCH_20241219 = True
-    STAGE_ENTRANCE = ['half', '20240725']
-    MAP_HAS_MODE_SWITCH = False
-    MAP_ENSURE_EDGE_INSIGHT_CORNER = 'bottom'
-    STAGE_INCREASE_AB = True
-    MAP_WALK_USE_CURRENT_FLEET = True
     # ===== End of generated config =====
 
+    MAP_CHAPTER_SWITCH_20241219_SPEX = True
+    STAGE_ENTRANCE = ['half', '20240725']
+    INTERNAL_LINES_FIND_PEAKS_PARAMETERS = {
+        'height': (80, 255 - 49),
+        'width': (1.5, 10),
+        'prominence': 10,
+        'distance': 35,
+    }
+    EDGE_LINES_FIND_PEAKS_PARAMETERS = {
+        'height': (255 - 49, 255),
+        'prominence': 10,
+        'distance': 50,
+        'wlen': 1000
+    }
+    MAP_SWIPE_MULTIPLY = (1.188, 1.210)
+    MAP_SWIPE_MULTIPLY_MINITOUCH = (1.149, 1.170)
+    MAP_SWIPE_MULTIPLY_MAATOUCH = (1.116, 1.136)
 
 class Campaign(CampaignBase):
     MAP = MAP
