@@ -1,139 +1,208 @@
 /* ==========================================
    Alas 现代苹果风格主题 v2
-   Modern Apple Style Theme for Alas
+   设计理念：还原 Apple 原生界面的简约、毛玻璃
    ========================================== */
 
 /* ==========================================
-   目录
+   目录 (Table of Contents)
    ==========================================
-   1. CSS 变量定义
-   2. 基础样式
-   3. 滚动条样式
-   4. 布局组件
-      4.1 侧边栏
-      4.2 顶部导航栏
-      4.3 导航器
-   5. 卡片样式
-   6. 按钮样式
-   7. 表单元素
-      7.1 输入框
-      7.2 选择框
-      7.3 复选框
-   8. 菜单样式
-   9. 表格样式
-   10. 日志区域
-   11. 动画定义
-   12. 工具类
-   13. 媒体查询
+   1. CSS 变量定义          - 全局样式变量，统一设计系统
+   2. 基础样式              - 页面整体基础样式重置与定义
+   3. 滚动条样式            - 自定义滚动条，适配 Apple 风格
+   4. 布局组件              - 核心布局模块（侧边栏/导航栏/导航器）
+   5. 卡片样式              - 通用卡片容器样式
+   6. 按钮样式              - 各类按钮的视觉与交互样式
+   7. 表单元素              - 输入框/选择框/复选框等表单控件
+   8. 菜单样式              - 折叠菜单/菜单项的交互样式
+   9. 表格样式              - 数据表格的视觉优化
+   10. 日志区域             - 日志展示容器样式
+   11. 动画定义             - 通用动画效果
+   12. 媒体查询             - 适配减少动画偏好等场景
    ========================================== */
 
 /* ==========================================
-   1. CSS 变量定义
+   1. CSS 变量定义 (CSS Variables)
+   核心设计系统变量，统一管理色彩、间距、圆角、动效等样式属性
    ========================================== */
 
-/* 引入 Google Fonts 字体：Inter，包含常规、中等和半粗字重 */
+/* 引入 Google Fonts 字体：Inter（常规/中等/半粗字重） */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root {
-	/* === 色彩系统 === */
-	--alas-apple-bg: #f5f5f7;
-	--alas-apple-bg-image: url("https://api.yppp.net/api.php");
-	--alas-apple-bg-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-	--alas-apple-card-bg: rgba(255, 255, 255, 0.72);
-	--alas-apple-card-bg-solid: #ffffff;
-	--alas-apple-glass-border: rgba(255, 255, 255, 0.4);
-	--alas-apple-text: #1d1d1f;
-	--alas-apple-text-secondary: #86868b;
-	--alas-apple-text-tertiary: #6e6e73;
-	--alas-apple-text-muted: #424245;
-	--alas-apple-accent: #007aff;
-	--alas-apple-accent-hover: #0066d6;
-	--alas-apple-accent-light: rgba(0, 122, 255, 0.08);
-	--alas-apple-border: rgba(0, 0, 0, 0.06);
-	--alas-apple-border-color: #d2d2d7;
-	--alas-toggle-bg-off: #e9e9eb;
-	--alas-toggle-bg-on: #34c759;
+    /* === 色彩系统 (Color System) === */
+    --alas-apple-bg: #f5f5f7;                  /* 全局背景色，匹配 macOS/iOS 浅色基调 */
+    --alas-apple-bg-gradient: linear-gradient(90deg, rgba(155, 224, 219, 0.45) 0%, rgba(227, 255, 227, 0.3) 40%, rgba(255, 255, 255, 0) 100%); /* 背景渐变，增强层次感 */
+    --alas-apple-card-bg: rgba(255, 255, 255, 0.72); /* 卡片毛玻璃背景 */
+    --alas-apple-card-bg-solid: #ffffff;       /* 卡片实色背景 */
+    --alas-apple-glass-border: rgba(255, 255, 255, 0.4); /* 毛玻璃边框色 */
+    --alas-apple-text: #1d1d1f;                /* 主文本色 */
+    --alas-apple-text-secondary: #86868b;      /* 次要文本色 */
+    --alas-apple-text-tertiary: #6e6e73;       /* 三级文本色 */
+    --alas-apple-text-muted: #424245;          /* 弱化文本色 */
+    --alas-apple-accent: #2c92ff;              /* 强调色（蓝色，匹配 Apple 系统蓝） */
+    --alas-apple-accent-hover: #2c92ff;        /* 强调色 hover 状态 */
+    --alas-apple-accent-light: rgba(0, 122, 255, 0.08); /* 浅强调色（背景用） */
+    --alas-apple-border: rgba(0, 0, 0, 0.06);  /* 通用边框色 */
+    --alas-apple-border-color: #d2d2d7;        /* 表单边框色 */
 
-	/* === 阴影系统 === */
-	--alas-apple-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.04);
-	--alas-apple-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-	--alas-apple-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
-	--alas-apple-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
-	--alas-apple-shadow-accent: 0 2px 8px rgba(0, 122, 255, 0.2);
-	--alas-apple-shadow-accent-lg: 0 4px 20px rgba(0, 122, 255, 0.25);
+    /* === 阴影系统 (Shadow System) === */
+    --alas-apple-shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.04);    /* 超小阴影 */
+    --alas-apple-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);       /* 基础阴影 */
+    --alas-apple-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);   /* 中等阴影 */
+    --alas-apple-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);   /* 大阴影 */
+    --alas-apple-shadow-accent: 0 2px 8px rgba(0, 122, 255, 0.2); /* 强调色阴影 */
+    --alas-apple-shadow-accent-lg: 0 4px 20px rgba(0, 122, 255, 0.25); /* 大尺寸强调色阴影 */
 
-	/* === 字体系统 === */
-	--alas-font-stack: "MiSans", "Maple Mono NF CN ExtraBold", "Noto Sans SC", "Microsoft YaHei", "SimHei", sans-serif;
+    /* === 字体系统 (Font System) === */
+    --alas-font-stack: "Maple Mono NF CN", "MiSans", "Noto Sans SC", "Microsoft YaHei", sans-serif; /* 通用字体栈 */
+    --alas-font-mono: "Maple Mono NF CN", "SF Mono", "Menlo", "Consolas", monospace; /* 等宽字体（日志/代码） */
 
-	/* === 间距系统 === */
-	--spacing-xs: 4px;
-	--spacing-sm: 8px;
-	--spacing-md: 12px;
-	--spacing-lg: 24px;
-	--spacing-xl: 32px;
-	--spacing-2xl: 40px;
+    /* === 间距系统 (Spacing System) === */
+    --spacing-xs: 4px;    /* 超小间距 */
+    --spacing-sm: 8px;    /* 小间距 */
+    --spacing-md: 12px;   /* 中等间距 */
+    --spacing-lg: 24px;   /* 大间距 */
+    --spacing-xl: 32px;   /* 超大间距 */
+    --spacing-2xl: 40px;  /* 特大间距 */
 
-	/* === 圆角系统 === */
-	--radius-xs: 6px;
-	--radius-sm: 8px;
-	--radius-md: 12px;
-	--radius-lg: 16px;
-	--radius-xl: 20px;
-	--radius-2xl: 24px;
+    /* === 圆角系统 (Border Radius System) === */
+    --radius-xs: 6px;     /* 超小圆角 */
+    --radius-sm: 8px;     /* 小圆角 */
+    --radius-md: 12px;    /* 中等圆角 */
+    --radius-lg: 16px;    /* 大圆角 */
+    --radius-xl: 20px;    /* 超大圆角 */
+    --radius-2xl: 24px;   /* 特大圆角 */
 
-	/* === 滚动条变量 === */
-	--scrollbar-width: 8px;
-	--scrollbar-thumb: rgba(0, 0, 0, 0.2);
-	--scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
-	--scrollbar-track: transparent;
-	--scrollbar-radius: 4px;
+    /* === 滚动条变量 (Scrollbar Variables) === */
+    --scrollbar-width: 8px;                  /* 滚动条宽度 */
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);   /* 滚动条滑块 */
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3); /* 滚动条滑块 hover */
+    --scrollbar-track: transparent;          /* 滚动条轨道 */
+    --scrollbar-radius: 4px;                 /* 滚动条圆角 */
 
-	/* === 过渡时间 === */
-	--transition-fast: 0.15s ease;
-	--transition-normal: 0.25s ease;
-	--transition-slow: 0.35s ease;
+    /* === 过渡时间 (Transition Duration) === */
+    --transition-fast: 0.15s ease;    /* 快速过渡 */
+    --transition-normal: 0.25s ease;  /* 常规过渡 */
+    --transition-slow: 0.35s ease;    /* 慢速过渡 */
 
-	/* === iOS 弹性动画曲线 === */
-	--ease-ios-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-	--ease-ios-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	--ease-ios-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
-	--ease-spring-fast: 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-	--ease-spring-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-	--ease-spring-slow: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* === iOS 弹性动画曲线 (iOS Animation Curves) === */
+    --ease-ios-spring: cubic-bezier(0.34, 1.56, 0.64, 1);    /* iOS 弹簧曲线 */
+    --ease-ios-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* iOS 弹跳曲线 */
+    --ease-ios-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);     /* iOS 平滑曲线 */
+    --ease-spring-fast: 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);  /* 快速弹簧 */
+    --ease-spring-normal: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* 常规弹簧 */
+    --ease-spring-slow: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);   /* 慢速弹簧 */
+
+    /* === 毛玻璃效果系统 (Glass Morphism) === */
+    --glass-blur: blur(20px);                /* 毛玻璃模糊度 */
+    --glass-saturate: saturate(180%);        /* 毛玻璃饱和度 */
+    --glass-effect: blur(20px) saturate(180%); /* 组合毛玻璃效果 */
+
+    /* === 卡片背景透明度 (Card Opacity) === */
+    --card-bg-light: rgba(255, 255, 255, 0.6);   /* 浅色卡片 */
+    --card-bg-medium: rgba(255, 255, 255, 0.65); /* 中等透明度卡片 */
+    --card-bg-heavy: rgba(255, 255, 255, 0.7);   /* 高透明度卡片 */
+    --card-bg-solid: rgba(255, 255, 255, 0.85);  /* 实色卡片 */
+
+    /* === 统一卡片样式 (Unified Card Styles) === */
+    --card-border: 1px solid rgba(255, 255, 255, 0.5); /* 卡片边框 */
+    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);     /* 卡片阴影 */
+    --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1); /* 卡片 hover 阴影 */
+    --card-transition: transform 0.2s ease, box-shadow 0.2s ease; /* 卡片过渡效果 */
+
+	  /*复选框 尺寸 */
+	--button-width: 50px;
+	--button-height: 29.5px;
+	--toggle-diameter: 20px;
+	--button-toggle-offset: calc((var(--button-height) - var(--toggle-diameter)) / 2);
+	--toggle-wider: 26px; /* 按压变宽宽度 */
+  
+	/* 复选框颜色 */
+	--alas-toggle-bg-off: #E9E9E9;
+	--alas-toggle-bg-on: #30D158;
+
 }
 
 /* ==========================================
-   2. 基础样式
+   2. 基础样式 (Base Styles)
+   页面全局基础样式，重置默认样式并统一基础视觉
    ========================================== */
 
 html {
-	scroll-behavior: smooth;
+    scroll-behavior: smooth; /* 平滑滚动 */
 }
 
 body {
-	background-color: var(--alas-apple-bg) !important;
-	background-image: var(--alas-apple-bg-image) !important;
-	background-repeat: no-repeat !important;
-	background-size: cover !important;
-	background-attachment: fixed !important;
-	background-position: center !important;
-	font-family: var(--alas-font-stack) !important;
-	color: var(--alas-apple-text) !important;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	letter-spacing: -0.01em;
+    background-color: var(--alas-apple-bg) !important;
+    background-image: var(--alas-apple-bg-gradient) !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+    background-position: center !important;
+    font-family: var(--alas-font-stack) !important;
+    color: var(--alas-apple-text) !important;
+    -webkit-font-smoothing: antialiased; /* 开启字体抗锯齿（webkit） */
+    -moz-osx-font-smoothing: grayscale; /* 开启字体抗锯齿（firefox） */
+    letter-spacing: -0.01em; /* 微缩字间距，匹配 Apple 风格 */
+    min-height: 100vh; /* 最小高度占满视口 */
 }
 
-body *:not(#pywebio-scope-log):not(#pywebio-scope-log *) {
-	font-family: var(--alas-font-stack) !important;
+/* 强制统一字体栈 */
+html body {
+    font-family: var(--alas-font-stack) !important;
 }
 
+/* 排除日志/代码区域的字体强制统一 */
+html body *:not(#pywebio-scope-log):not(#pywebio-scope-log *):not(.CodeMirror-line):not(pre.rich-traceback-code) {
+    font-family: var(--alas-font-stack) !important;
+}
+
+/* 内容区域透明背景 */
 #pywebio-scope-content {
-	background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 /* ==========================================
-   3. 滚动条样式
+   2.5 可复用工具类 (Reusable Utilities)
+   毛玻璃效果、卡片样式等通用工具类
+   ========================================== */
+
+/* 标准毛玻璃效果（Apple 风格：20px 模糊 + 180% 饱和度） */
+.glass-normal {
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect); /* 兼容 Safari */
+}
+
+/* --- 卡片基类 (Card Base Classes) --- */
+.card-base {
+    background-color: var(--card-bg-medium);
+    border-radius: var(--radius-lg);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    transition: var(--card-transition);
+}
+
+.card-base:hover {
+    box-shadow: var(--card-shadow-hover); /* hover 增强阴影 */
+}
+
+.card-light { /* 浅色卡片变体 */
+    background-color: var(--card-bg-light);
+}
+
+.card-heavy { /* 高透明度卡片变体 */
+    background-color: var(--card-bg-heavy);
+}
+
+.card-solid { /* 实色卡片变体 */
+    background-color: var(--card-bg-solid);
+}
+
+/* ==========================================
+   3. 滚动条样式 (Scrollbar Styles)
+   自定义滚动条，适配 Apple 简约风格
    ========================================== */
 
 /* Webkit 内核浏览器滚动条 */
@@ -182,1271 +251,1011 @@ body *:not(#pywebio-scope-log):not(#pywebio-scope-log *) {
 }
 
 /* ==========================================
-   4. 布局组件
+   4. 布局组件 (Layout Components)
+   核心布局模块：侧边栏、顶部导航栏、导航器
    ========================================== */
 
-/* --- 4.1 侧边栏（磨砂玻璃效果）--- */
+/* --- 4.1 侧边栏 (Sidebar) --- */
 #pywebio-scope-aside {
-	background-color: rgba(245, 245, 247, 0.88) !important;
-	backdrop-filter: blur(20px) saturate(180%);
-	-webkit-backdrop-filter: blur(20px) saturate(180%);
-	border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
-	padding-top: 20px !important;
-	transition: background-color var(--ease-spring-slow), backdrop-filter var(--ease-spring-slow) !important;
-	will-change: background-color, backdrop-filter;
+    background-color: rgba(245, 245, 247, 0.88) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+    padding-top: 20px !important;
+    transition: background-color var(--ease-spring-slow), backdrop-filter var(--ease-spring-slow) !important;
 }
 
 /* 菜单容器 - 毛玻璃效果 */
 #pywebio-scope-menu {
-	background-color: rgba(245, 245, 247, 0.65) !important;
-	backdrop-filter: blur(20px) saturate(180%) !important;
-	-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-	border: none !important;
-	border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
-	box-shadow: none !important;
-	padding: 12px 6px !important;
+    background-color: rgba(245, 245, 247, 0.65) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border: none !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+    padding: 12px 6px !important;
 }
 
-/* 菜单内部子元素保持透明，不遮挡模糊 */
+/* 菜单内部子元素保持透明，不遮挡毛玻璃模糊效果 */
 #pywebio-scope-menu *,
 #pywebio-scope-menu details,
 #pywebio-scope-menu summary {
-	background-color: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	outline: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* 侧边栏折叠项标题 */
 #pywebio-scope-menu summary {
-	font-weight: 600 !important;
-	font-size: 15px !important;
-	color: var(--alas-apple-text-secondary) !important;
-	padding: 8px 12px !important;
-	cursor: pointer;
-	list-style: none;
-	transition: color 0.2s ease;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    color: var(--alas-apple-text-secondary) !important;
+    padding: 8px 12px !important;
+    cursor: pointer;
+    list-style: none; /* 隐藏默认折叠图标 */
+    transition: color 0.2s ease;
 }
 
 #pywebio-scope-menu summary:hover {
-	color: var(--alas-apple-text) !important;
+    color: var(--alas-apple-text) !important; /* hover 加深文字色 */
 }
 
 #pywebio-scope-menu summary::-webkit-details-marker {
-	display: none;
+    display: none; /* 隐藏 Webkit 折叠图标 */
 }
 
+/* 清除菜单内 pywebio 容器的默认样式 */
 #pywebio-scope-menu [id^="pywebio-scope-"] {
-	background-color: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
-	padding: 0 !important;
-	margin: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* --- 4.2 顶部导航栏 --- */
+/* --- 4.2 顶部导航栏 (Header Navbar) --- */
 #pywebio-scope-header {
-	background-color: rgba(255, 255, 255, 0.92) !important;
-	backdrop-filter: blur(20px) saturate(180%);
-	-webkit-backdrop-filter: blur(20px) saturate(180%);
-	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 8px rgba(0, 0, 0, 0.04) !important;
-	height: 56px !important;
-	z-index: 1000;
-	position: relative !important;
-	transition: all var(--transition-normal) var(--ease-ios-smooth), box-shadow var(--transition-normal) var(--ease-ios-smooth) !important;
-	will-change: box-shadow, transform;
+    background-color: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 8px rgba(0, 0, 0, 0.04) !important;
+    height: 56px !important; /* 固定高度，匹配 Apple 导航栏 */
+    z-index: 100; /* 置顶层级 */
+    position: sticky !important; /* 粘性定位，滚动时固定顶部 */
+    top: 0;
+    transition: box-shadow var(--transition-normal) var(--ease-ios-smooth) !important;
 }
 
+/* 导航栏渐变装饰层 */
 #pywebio-scope-header::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background: linear-gradient(90deg, rgba(190, 215, 255, 0.45) 0%, rgba(220, 235, 255, 0.3) 40%, rgba(255, 255, 255, 0) 100%);
-	pointer-events: none;
-	z-index: 0;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(155, 224, 219, 0.45) 0%, rgba(227, 255, 227, 0.3) 40%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none; /* 不遮挡交互 */
+    z-index: 0;
 }
 
+/* 导航栏子元素层级提升，避免被渐变层遮挡 */
 #pywebio-scope-header>* {
-	position: relative !important;
-	z-index: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
-/* --- 4.3 导航器 --- */
+/* --- 4.3 导航器 (Navigator) --- */
 #pywebio-scope-navigator {
-	margin: .5rem 1rem .5rem !important;
-	height: min-content !important;
-	max-width: 12rem !important;
-	background-color: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
-	padding: 0 !important;
-	margin-bottom: 0 !important;
+    margin: .5rem 1rem .5rem !important;
+    height: min-content !important;
+    max-width: 12rem !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
 }
 
+/* 导航器按钮样式 */
 #pywebio-scope-navigator .btn {
-	background-color: var(--alas-apple-card-bg) !important;
-	backdrop-filter: blur(10px) saturate(180%);
-	-webkit-backdrop-filter: blur(10px) saturate(180%);
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	border-radius: var(--radius-md) !important;
-	box-shadow: var(--alas-apple-shadow-xs) !important;
-	margin: 6px 0 !important;
-	padding: 8px 12px !important;
-	text-align: left !important;
-	font-weight: 500 !important;
-	color: var(--alas-apple-text) !important;
-	transition: background-color var(--ease-spring-fast), transform var(--ease-spring-fast), box-shadow var(--ease-spring-fast) !important;
-	white-space: normal !important;
-	word-wrap: break-word !important;
-	word-break: break-word !important;
-	line-height: 1.4 !important;
-	font-size: 13px !important;
-	width: 100% !important;
-	will-change: transform, background-color, box-shadow;
+    background-color: var(--alas-apple-card-bg) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border: 1px solid var(--alas-apple-glass-border) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--alas-apple-shadow-xs) !important;
+    margin: 6px 0 !important;
+    padding: 8px 12px !important;
+    text-align: left !important;
+    font-weight: 500 !important;
+    color: var(--alas-apple-text) !important;
+    transition: background-color var(--ease-spring-fast), border-color var(--ease-spring-fast), transform var(--ease-spring-fast), box-shadow var(--ease-spring-fast) !important;
+    white-space: normal !important; /* 换行适配长文本 */
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    line-height: 1.4 !important;
+    font-size: 13px !important;
+    width: 100% !important;
 }
 
 #pywebio-scope-navigator .btn:hover {
-	background-color: var(--alas-apple-bg) !important;
-	border-color: rgba(0, 0, 0, 0.12) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	transform: translateX(4px) scale(1.01);
+    background-color: var(--alas-apple-bg) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
+    transform: translateX(4px);
 }
 
 #pywebio-scope-navigator .btn:active {
-	background-color: #e5e5ea !important;
-	transform: scale(0.97) translateX(2px);
-	transition: transform 0.1s var(--ease-ios-bounce) !important;
+    background-color: #e5e5ea !important;
+    transform: translateX(2px) scale(0.98);
+    box-shadow: var(--alas-apple-shadow-xs) !important;
+    transition: all 0.15s var(--ease-ios-bounce) !important;
 }
 
 /* ==========================================
-   5. 卡片样式
+   5. 卡片样式 (Card Styles)
+   统一所有功能卡片的视觉风格，应用毛玻璃效果
    ========================================== */
 
-/* 通用卡片样式 */
+/* 通用卡片样式 - 匹配 Apple 毛玻璃设计 */
 [id^="pywebio-scope-group_"]:not(#pywebio-scope-menu):not(#pywebio-scope-aside):not(#pywebio-scope-navigator),
 #pywebio-scope-running,
 #pywebio-scope-pending,
 #pywebio-scope-waiting,
 #pywebio-scope-scheduler-bar,
 #pywebio-scope-stat-bar,
+#pywebio-scope-commission_income,
 #pywebio-scope-image-container,
 #pywebio-scope-log-bar,
 #pywebio-scope-log,
 .container-log,
 #pywebio-scope-groups>*:not(#pywebio-scope-navigator) {
-	background-color: var(--alas-apple-card-bg) !important;
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border-radius: var(--radius-lg) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	padding: var(--spacing-md) !important;
-	margin-bottom: var(--spacing-md) !important;
-	transition: box-shadow var(--ease-spring-normal), transform var(--ease-spring-fast) !important;
-	will-change: box-shadow, transform;
-	animation: ios-slide-up var(--ease-spring-normal) both;
+    background-color: var(--card-bg-medium) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border-radius: var(--radius-lg) !important;
+    border: var(--card-border) !important;
+    box-shadow: var(--card-shadow) !important;
+    padding: var(--spacing-md) !important;
+    margin-bottom: var(--spacing-md) !important;
+    transition: var(--card-transition);
 }
 
-/* 卡片悬停效果 */
+/* 卡片 hover 效果 - 增强阴影 */
 [id^="pywebio-scope-group_"]:not(#pywebio-scope-menu):not(#pywebio-scope-aside):not(#pywebio-scope-navigator):hover,
 #pywebio-scope-running:hover,
 #pywebio-scope-pending:hover,
 #pywebio-scope-waiting:hover,
+#pywebio-scope-scheduler-bar:hover,
+#pywebio-scope-stat-bar:hover,
+#pywebio-scope-commission_income:hover,
+#pywebio-scope-image-container:hover,
 #pywebio-scope-log-bar:hover,
 #pywebio-scope-log:hover,
 .container-log:hover,
 #pywebio-scope-groups>*:not(#pywebio-scope-navigator):hover {
-	box-shadow: var(--alas-apple-shadow-lg) !important;
+    box-shadow: var(--card-shadow-hover) !important;
 }
 
-/* 卡片基类 */
-.apple-card {
-	background-color: var(--alas-apple-card-bg) !important;
-	backdrop-filter: blur(20px) saturate(180%);
-	-webkit-backdrop-filter: blur(20px) saturate(180%);
-	border-radius: var(--radius-lg) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	padding: var(--spacing-md) !important;
-	margin-bottom: var(--spacing-md) !important;
-	transition: box-shadow var(--ease-spring-normal), transform var(--ease-spring-fast) !important;
-	will-change: box-shadow, transform;
-}
-
-/* --- 5.1 日志区域专项适配 --- */
-.container-log {
-	background-color: rgba(255, 255, 255, 0.85) !important;
-	backdrop-filter: blur(10px) saturate(150%) !important;
-	-webkit-backdrop-filter: blur(10px) saturate(150%) !important;
-	border: 1px solid rgba(255, 255, 255, 0.5) !important;
-	border-radius: var(--radius-lg) !important;
-	display: block !important;
-	opacity: 1 !important;
-	padding: 20px !important;
-	margin: 10px !important;
-	min-height: 240px !important;
-	box-shadow: var(--alas-apple-shadow-lg) !important;
-}
-
+/* 日志区域内部元素透明，保留等宽字体 */
 #pywebio-scope-log div,
 #pywebio-scope-log pre,
 #pywebio-scope-log code,
 #pywebio-scope-log * {
-	background: transparent !important;
-	background-color: transparent !important;
-	opacity: 1 !important;
-	font-family: var(--alas-font-mono) !important;
-	line-height: 1.5 !important;
-}
-
-
-.apple-card:hover {
-	box-shadow: var(--alas-apple-shadow-md) !important;
-}
-
-.apple-card-animated {
-	animation: ios-slide-up var(--ease-spring-normal) both;
-}
-
-/* 卡片入场动画延迟 */
-#pywebio-scope-groups>*:nth-child(1) {
-	animation-delay: 0.04s;
-}
-
-#pywebio-scope-groups>*:nth-child(2) {
-	animation-delay: 0.08s;
-}
-
-#pywebio-scope-groups>*:nth-child(3) {
-	animation-delay: 0.12s;
-}
-
-#pywebio-scope-groups>*:nth-child(4) {
-	animation-delay: 0.16s;
-}
-
-#pywebio-scope-groups>*:nth-child(5) {
-	animation-delay: 0.20s;
-}
-
-#pywebio-scope-groups>*:nth-child(6) {
-	animation-delay: 0.24s;
-}
-
-#pywebio-scope-groups>*:nth-child(7) {
-	animation-delay: 0.28s;
-}
-
-#pywebio-scope-groups>*:nth-child(8) {
-	animation-delay: 0.32s;
-}
-
-#pywebio-scope-groups>*:nth-child(9) {
-	animation-delay: 0.36s;
-}
-
-#pywebio-scope-groups>*:nth-child(10) {
-	animation-delay: 0.40s;
-}
-
-#pywebio-scope-groups>*:nth-child(11) {
-	animation-delay: 0.44s;
-}
-
-#pywebio-scope-groups>*:nth-child(12) {
-	animation-delay: 0.48s;
-}
-
-#pywebio-scope-groups>*:nth-child(13) {
-	animation-delay: 0.52s;
-}
-
-#pywebio-scope-groups>*:nth-child(14) {
-	animation-delay: 0.56s;
-}
-
-#pywebio-scope-groups>*:nth-child(n+15) {
-	animation-delay: 0.60s;
-}
-
-#pywebio-scope-running {
-	animation-delay: 0.05s;
-}
-
-#pywebio-scope-pending {
-	animation-delay: 0.10s;
-}
-
-#pywebio-scope-waiting {
-	animation-delay: 0.15s;
-}
-
-#pywebio-scope-log-bar {
-	animation-delay: 0.20s;
-}
-
-#pywebio-scope-log,
-.container-log {
-	animation-delay: 0.25s;
+    background: transparent !important;
+    background-color: transparent !important;
+    opacity: 1 !important;
+    font-family: var(--alas-font-mono) !important;
+    line-height: 1.5 !important;
 }
 
 /* ==========================================
-   6. 按钮样式
+   6. 按钮样式 (Button Styles)
+   各类按钮的视觉与交互设计，匹配 Apple 风格
    ========================================== */
 
-/* 通用按钮 */
+/* 通用按钮基础样式 */
 .btn:not(.btn-aside):not(.btn-menu) {
-	border-radius: var(--radius-md) !important;
-	font-weight: 500 !important;
-	font-size: 14px !important;
-	letter-spacing: -0.01em !important;
-	transition: background-color var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal), opacity var(--transition-normal), transform var(--ease-spring-fast);
-	padding: 8px 16px !important;
-	white-space: nowrap;
-	margin: 4px 0 !important;
-	will-change: transform, box-shadow;
+    border-radius: var(--radius-md) !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    letter-spacing: -0.01em !important;
+    transition: background-color var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal), opacity var(--transition-normal), transform var(--ease-spring-fast);
+    padding: 8px 16px !important;
+    white-space: nowrap;
+    margin: 4px auto 4px 0 !important;
 }
 
-/* 主要按钮（边框镂空风格） */
+/* 主要按钮（强调色填充+镂空 hover） */
 .btn-on,
 .btn-primary {
-	padding: 10px 24px !important;
-	border: 2px solid var(--alas-apple-accent) !important;
-	border-radius: 11px !important;
-	color: white !important;
-	background-color: var(--alas-apple-accent) !important;
-	font-weight: 600 !important;
-	font-size: 14px !important;
-	position: relative !important;
-	transition: all 0.4s var(--ease-ios-smooth) !important;
-	overflow: hidden !important;
-	will-change: transform, background-color, color;
+    padding: 10px 24px !important;
+    border: 2px solid var(--alas-apple-accent) !important;
+    border-radius: 11px !important; /* 非标准圆角，匹配 Apple 按钮风格 */
+    color: white !important;
+    background-color: var(--alas-apple-accent) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    position: relative !important;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+    overflow: hidden !important;
 }
 
 .btn-on:hover,
 .btn-primary:hover {
-	background-color: transparent !important;
-	color: var(--alas-apple-accent) !important;
+    background-color: transparent !important; /* hover 镂空效果 */
+    color: var(--alas-apple-accent) !important;
 }
 
 .btn-on:active,
 .btn-primary:active {
-	transform: scale(0.96);
-	transition: transform 0.1s var(--ease-ios-bounce);
+    transform: scale(0.96); /* 点击收缩 */
+    transition: transform 0.1s var(--ease-ios-bounce);
 }
 
-/* 次要按钮（白底灰边） */
+/* 关闭按钮（灰色系，区分主要按钮） */
+.btn-off {
+    padding: 10px 24px !important;
+    border: 2px solid var(--alas-apple-border-color) !important;
+    border-radius: 11px !important;
+    color: var(--alas-apple-text-secondary) !important;
+    background-color: rgba(142, 142, 147, 0.12) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    position: relative !important;
+    transition: all 0.4s var(--ease-ios-smooth) !important;
+    overflow: hidden !important;
+    will-change: transform, background-color, color, border-color; /* 性能优化：提前声明动画属性 */
+}
+
+.btn-off:hover {
+    background-color: rgba(142, 142, 147, 0.2) !important;
+    border-color: var(--alas-apple-text-tertiary) !important;
+    color: var(--alas-apple-text) !important;
+}
+
+.btn-off:active {
+    transform: scale(0.96);
+    transition: transform 0.1s var(--ease-ios-bounce);
+    background-color: rgba(142, 142, 147, 0.28) !important;
+}
+
+/* 次要按钮（毛玻璃白底） */
 .btn-secondary,
 .btn-light {
-	background-color: rgba(255, 255, 255, 0.5) !important;
-	backdrop-filter: blur(10px) saturate(180%);
-	-webkit-backdrop-filter: blur(10px) saturate(180%);
-	color: var(--alas-apple-text) !important;
-	box-shadow: var(--alas-apple-shadow-xs) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    color: var(--alas-apple-text) !important;
+    box-shadow: var(--alas-apple-shadow-xs) !important;
+    border: 1px solid var(--alas-apple-glass-border) !important;
 }
 
 .btn-secondary:hover,
 .btn-light:hover {
-	background-color: var(--alas-apple-bg) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	border-color: rgba(0, 0, 0, 0.2) !important;
-	transform: scale(1.02) translateY(-1px);
-	transition: transform var(--ease-spring-fast) !important;
+    background-color: var(--alas-apple-bg) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    transform: scale(1.02) translateY(-1px); /* hover 轻微上浮 */
+    transition: transform var(--ease-spring-fast) !important;
 }
 
 .btn-secondary:active,
 .btn-light:active {
-	opacity: 0.85;
-	background-color: #e5e5ea !important;
+    opacity: 0.85;
+    background-color: #e5e5ea !important;
 }
 
-/* 按钮弹性交互 */
+/* 普通按钮弹性交互 */
 .btn:not(.btn-aside):not(.btn-menu):not(.btn-primary):not(.btn-on) {
-	transition: background-color var(--ease-spring-fast), transform var(--ease-spring-fast), box-shadow var(--ease-spring-normal) !important;
-	transform-origin: center;
+    transition: background-color var(--ease-spring-fast), transform var(--ease-spring-fast), box-shadow var(--ease-spring-normal) !important;
+    transform-origin: center;
 }
 
 .btn:not(.btn-aside):not(.btn-menu):not(.btn-primary):not(.btn-on):active {
-	transform: scale(0.95) !important;
-	transition: transform 0.1s var(--ease-ios-bounce) !important;
+    transform: scale(0.95) !important; /* 点击收缩 */
+    transition: transform 0.1s var(--ease-ios-bounce) !important;
 }
 
 /* 侧边栏图标按钮 */
-.btn-aside:hover,
-.btn-aside-active {
-	border-color: var(--alas-apple-accent) !important;
-	color: var(--alas-apple-accent) !important;
+.btn-aside:hover {
+	background-color:#caf0ed;
+    border-color: var(--alas-apple-accent) !important;
+    color: var(--alas-apple-accent) !important;
+	border-radius: var(--radius-sm) !important;
 }
 
-/* 禁用状态 */
+.btn-aside-active {
+    background-color: rgba(44, 146, 255, 0.10) !important;
+    border-color: var(--alas-apple-accent) !important;
+    color: var(--alas-apple-accent) !important;
+    box-shadow: inset 0 0 0 1px rgba(44, 146, 255, 0.15) !important;
+	border-radius: var(--radius-sm) !important;
+}
+
+/* 禁用状态按钮 */
 .btn:disabled,
 .btn[disabled] {
-	opacity: 0.5;
-	cursor: not-allowed;
-	transition: opacity var(--transition-fast) var(--ease-ios-smooth);
+    opacity: 0.5;
+    cursor: not-allowed;
+    transition: opacity var(--transition-fast) var(--ease-ios-smooth);
 }
 
 /* ==========================================
-   7. 表单元素
+   7. 表单元素 (Form Elements)
    ========================================== */
 
-/* --- 7.1 输入框 --- */
+/* --- 7.1 输入框 (Input Fields) --- */
 .form-control,
 input:not([type="checkbox"]):not([type="radio"]) {
-	border-radius: var(--radius-md) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	background-color: rgba(255, 255, 255, 0.4) !important;
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	padding: 8px 12px !important;
-	font-size: 15px !important;
-	letter-spacing: -0.01em !important;
-	color: var(--alas-apple-text) !important;
-	box-shadow: var(--alas-apple-shadow-xs) !important;
-	transition: border-color var(--transition-normal), box-shadow var(--transition-normal), background-color var(--transition-normal) !important;
-	margin: 6px 0 !important;
-	will-change: border-color, box-shadow;
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--alas-apple-border-color) !important;
+    background-color: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    padding: 5px 10px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    letter-spacing: -0.01em !important;
+    color: var(--alas-apple-text) !important;
+    box-shadow: var(--alas-apple-shadow-xs) !important;
+    height: 32px !important;
+    transition: all var(--transition-normal) !important;
+    margin: 4px auto 4px 0 !important;
+    max-width: 170px !important;
 }
 
 .form-control:hover,
-.form-control:focus,
-input:not([type="checkbox"]):not([type="radio"]):hover,
-input:not([type="checkbox"]):not([type="radio"]):focus {
-	border-color: var(--alas-apple-accent) !important;
+input:not([type="checkbox"]):not([type="radio"]):hover {
+    border-color: var(--alas-apple-accent) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
 }
 
-/* --- 7.2 选择框 --- */
+.form-control:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus {
+    border-color: var(--alas-apple-accent) !important;
+    box-shadow: 0 0 0 3px rgba(44, 146, 255, 0.12), var(--alas-apple-shadow-md) !important; /* 焦点外发光 */
+    background-color: #ffffff !important;
+    outline: none !important;
+}
+
+/* --- 7.2 选择框 (Select Dropdowns) --- */
 select,
 select.form-control,
 .bootstrap-select>select {
-	position: relative !important;
-	display: block !important;
-	width: 100% !important;
-	height: auto !important;
-	opacity: 1 !important;
-	z-index: 1 !important;
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 180px !important;
+    height: 32px !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
 
-	background-color: rgba(255, 255, 255, 0.45) !important;
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.72) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
 
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	border-radius: var(--radius-md) !important;
-	box-shadow: var(--alas-apple-shadow-xs) !important;
+    border: 1px solid var(--alas-apple-border-color) !important;
+    border-radius: var(--radius-sm) !important;
+    box-shadow: var(--alas-apple-shadow-xs) !important;
 
-	color: var(--alas-apple-text) !important;
-	padding: 8px 32px 8px 12px !important;
-	margin: 6px 0 !important;
+    color: var(--alas-apple-text) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    padding: 4px 28px 4px 10px !important;
+    margin: 4px auto 4px 0 !important;
 
-	appearance: none !important;
-	-webkit-appearance: none !important;
-	-moz-appearance: none !important;
+    appearance: none !important; /* 隐藏原生下拉箭头 */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
 
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3cpath stroke='%236e6e73' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3c/svg%3E") !important;
-	background-position: right 10px center !important;
-	background-repeat: no-repeat !important;
-	background-size: 16px 16px !important;
+    cursor: pointer !important;
 
-	transition: border-color var(--transition-normal), box-shadow var(--transition-normal), background-color var(--transition-normal) !important;
+    /* 自定义下拉箭头（SVG） */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3cpolyline points='6 9 12 15 18 9'%3E%3c/polyline%3E%3c/svg%3E") !important;
+    background-position: right 8px center !important;
+    background-repeat: no-repeat !important;
+    background-size: 14px 14px !important;
+
+    transition: all var(--transition-normal) !important;
 }
 
-/* Bootstrap-select 插件样式修复 - 彻底清除外层容器视觉 */
-.bootstrap-select {
-	border: none !important;
-	padding: 0 !important;
-	margin: 0 !important;
-	background: transparent !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
-	backdrop-filter: none !important;
-	-webkit-backdrop-filter: none !important;
-	outline: none !important;
-	width: 100% !important;
-	position: relative !important;
-}
-
-/* 防止 div 类型的 .form-control 容器产生视觉边框 */
-div.form-control {
-	background: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	backdrop-filter: none !important;
-	-webkit-backdrop-filter: none !important;
-	border-radius: 0 !important;
-	outline: none !important;
-}
-
-/* 清除表单组包裹层的多余样式 */
-.form-group {
-	background: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	border-radius: 0 !important;
+select:hover,
+select.form-control:hover,
+.bootstrap-select>select:hover {
+    border-color: var(--alas-apple-accent) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
 }
 
 select:focus,
 select.form-control:focus,
 .bootstrap-select>select:focus {
-	border-color: var(--alas-apple-accent) !important;
-	box-shadow: 0 0 0 5px rgba(0, 122, 255, 0.12), var(--alas-apple-shadow-md) !important;
-	outline: none !important;
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3cpath stroke='%23007aff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3c/svg%3E") !important;
+    border-color: var(--alas-apple-accent) !important;
+    box-shadow: 0 0 0 3px rgba(44, 146, 255, 0.12), var(--alas-apple-shadow-md) !important;
+    outline: none !important;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232c92ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3cpolyline points='6 9 12 15 18 9'%3E%3c/polyline%3E%3c/svg%3E") !important; /* 焦点时箭头变蓝 */
 }
 
-/* --- 7.5 菜单按钮 (Apple 风格) --- */
+/* 下拉选项样式 */
+select option {
+    background-color: #ffffff !important;
+    color: var(--alas-apple-text) !important;
+    padding: 5px 10px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
+
+select option:checked {
+    background-color: rgba(44, 146, 255, 0.1) !important; /* 选中项背景 */
+    color: var(--alas-apple-accent) !important;
+    font-weight: 600 !important;
+}
+
+select option:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important; /* hover 背景 */
+}
+
+/* Bootstrap-select 插件样式重置 */
+.bootstrap-select {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    outline: none !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+/* 清除 div 类型 .form-control 容器的默认样式 */
+div.form-control {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+}
+
+/* 清除表单组包裹层的多余样式 */
+.form-group {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* --- 7.3 菜单按钮 (Menu Buttons) --- */
 .btn-menu {
-	display: block !important;
-	width: 100% !important;
-	text-align: left !important;
-	padding: 10px 16px !important;
-	margin: 2px 0 !important;
-	font-size: 14px !important;
-	font-weight: 500 !important;
-	color: var(--alas-apple-text) !important;
-	border-radius: var(--radius-sm) !important;
-	background: transparent !important;
-	border: none !important;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    padding: 10px 16px !important;
+    margin: 2px 0 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: var(--alas-apple-text) !important;
+    border-radius: var(--radius-sm) !important;
+    background: transparent !important;
+    border: none !important;
+    transition: background-color 0.2s ease, transform 0.2s ease !important;
 }
 
 .btn-menu:hover {
-	background-color: rgba(0, 0, 0, 0.04) !important;
-	transform: translateX(4px);
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    transform: translateX(4px); /* hover 轻微右移 */
 }
 
 .btn-menu-active {
-	background-color: rgba(0, 122, 255, 0.12) !important;
-	color: var(--alas-apple-accent) !important;
-	font-weight: 600 !important;
-	box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.1) !important;
+    background-color: rgba(0, 122, 255, 0.12) !important; /* 激活态背景 */
+    color: var(--alas-apple-accent) !important;
+    font-weight: 600 !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.1) !important; /* 内描边 */
 }
 
 .btn-menu-active:hover {
-	background-color: rgba(0, 122, 255, 0.18) !important;
+    background-color: rgba(0, 122, 255, 0.18) !important;
 }
 
+/* 隐藏 Bootstrap-select 插件的默认下拉按钮 */
 .bootstrap-select .btn.dropdown-toggle,
 .bootstrap-select .filter-option,
 .bootstrap-select .dropdown-toggle {
-	display: none !important;
+    display: none !important;
 }
 
-/* --- 7.3 复选框（iOS 开关样式）--- */
+/* --- 7.4 复选框（iOS 开关样式) --- */
 input[type="checkbox"] {
-	width: 50px;
-	height: 25px;
-	appearance: none;
-	background-color: var(--alas-toggle-bg-off);
-	border-radius: 25px;
-	border: none;
-	position: relative;
-	cursor: pointer;
-	transition: background-color 0.2s ease, transform 0.15s ease;
-	will-change: background-color, transform;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: var(--button-width) !important;
+    height: var(--button-height) !important;
+    background-color: var(--alas-toggle-bg-off) !important;
+    border-radius: 999px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    transition: 0.3s all ease-in-out !important;
+    border: none !important;
+    outline: none !important;
+	
 }
 
-input[type="checkbox"]:hover {
-	transform: scale(1.05);
-}
-
-input[type="checkbox"]:active {
-	transform: scale(0.98);
-}
-
+/* 滑块：::before 实现 */
 input[type="checkbox"]::before {
-	content: "";
-	position: absolute;
-	top: 2px;
-	left: 2px;
-	height: 21px;
-	width: 21px;
-	background-color: #fff;
-	border-radius: 50%;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-	will-change: transform;
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: var(--button-toggle-offset) !important;
+    width: var(--toggle-diameter) !important;
+    height: var(--toggle-diameter) !important;
+    background-color: #fff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 3px 8px rgba(0,0,0,0.1) !important;
+    transition: 0.3s all ease-in-out !important;
 }
 
+/* 开启状态：背景变色 + 滑块右移 */
 input[type="checkbox"]:checked {
-	background-color: var(--alas-toggle-bg-on);
+    background-color: var(--alas-toggle-bg-on) !important;
 }
-
 input[type="checkbox"]:checked::before {
-	transform: translateX(25px);
+    left: calc(100% - var(--toggle-diameter) - var(--button-toggle-offset)) !important;
 }
 
-/* 参数容器对齐修复 */
-[id^="pywebio-scope-arg_container-"] {
-	align-items: center !important;
-	margin: 0;
+/* ====================== 核心效果：按压变宽（参考效果精髓） ====================== */
+input[type="checkbox"]:active::before {
+    width: var(--toggle-wider) !important;
 }
-
-[id^="pywebio-scope-arg_container-"]>*:first-child {
-	display: grid !important;
-	grid-auto-flow: row !important;
-	gap: 4px !important;
-}
-
-[id^="pywebio-scope-arg_container-"]>*:first-child>*[style*="--arg-title--"] {
-	margin: 0 !important;
-}
-
-[id^="pywebio-scope-arg_container-"]>*:first-child>*[style*="--arg-help--"] {
-	margin: 0 !important;
-	font-size: 0.8rem !important;
-	color: var(--alas-apple-text-secondary) !important;
-}
-
-[id^="pywebio-scope-arg_container-"]>*:last-child {
-	align-self: center !important;
+input[type="checkbox"]:checked:active::before {
+    left: calc(100% - var(--toggle-wider) - var(--button-toggle-offset)) !important;
 }
 
 /* ==========================================
-   8. 菜单样式
+   8. 菜单样式 (Menu Styles)
+   折叠菜单、菜单项的交互与视觉样式优化
    ========================================== */
 
-/* 菜单按钮 */
+/* 菜单按钮（增强版） */
 .btn-menu {
-	border-radius: 8px !important;
-	margin: 2px 8px !important;
-	padding: 8px 12px !important;
-	color: var(--alas-apple-text-muted) !important;
-	border: none !important;
-	background-color: transparent !important;
-	text-align: left !important;
-	width: calc(100% - 16px) !important;
-	display: block !important;
-	font-size: 14px !important;
-	font-weight: 500 !important;
-	letter-spacing: -0.01em !important;
-	transition: background-color var(--ease-spring-fast), color var(--ease-spring-fast), transform var(--ease-spring-fast) !important;
-	position: relative !important;
-	overflow: hidden !important;
-	will-change: transform, background-color, color;
+    border-radius: 8px !important;
+    margin: 2px 8px !important;
+    padding: 8px 12px !important;
+    color: var(--alas-apple-text-muted) !important;
+    border: none !important;
+    background-color: transparent !important;
+    text-align: left !important;
+    width: calc(100% - 16px) !important;
+    display: block !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.01em !important;
+    transition: background-color var(--ease-spring-fast), color var(--ease-spring-fast), transform var(--ease-spring-fast) !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
+/* 菜单按钮左侧指示线（hover 显示） */
 .btn-menu::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: -10px;
-	width: 4px;
-	height: 60%;
-	background-color: var(--alas-apple-accent);
-	border-radius: 4px;
-	opacity: 0;
-	transition: all 0.3s var(--ease-ios-smooth);
-	transform: translateY(-50%);
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    width: 4px;
+    height: 60%;
+    background-color: var(--alas-apple-accent);
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease, left 0.2s ease;
+    transform: translateY(-50%);
 }
 
 .btn-menu:hover::before {
-	opacity: 0.5;
-	left: 0;
+    opacity: 0.5;
+    left: 0; /* hover 时滑入 */
 }
 
 .btn-menu:hover {
-	background-color: rgba(0, 122, 255, 0.08) !important;
-	color: var(--alas-apple-accent) !important;
-	transform: translateX(4px);
+    background-color: rgba(0, 122, 255, 0.08) !important;
+    color: var(--alas-apple-accent) !important;
+    transform: translateX(4px);
 }
 
 .btn-menu:active {
-	transform: scale(0.97) translateX(2px);
-	transition: transform 0.1s var(--ease-ios-bounce);
+    transform: scale(0.97) translateX(2px); /* 点击收缩 */
+    transition: transform 0.1s var(--ease-ios-bounce);
 }
 
-/* 菜单内按钮 */
+/* 菜单内按钮样式重置 */
 #pywebio-scope-menu .btn-menu {
-	background-color: transparent !important;
-	border-radius: 8px !important;
-	border: none !important;
-	box-shadow: none !important;
+    background-color: transparent !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 #pywebio-scope-menu .btn-menu:hover {
-	background-color: rgba(0, 122, 255, 0.08) !important;
+    background-color: rgba(0, 122, 255, 0.08) !important;
 }
 
-/* 激活菜单项 */
+/* 激活态菜单项 */
 .btn-menu-active {
-	padding: 8px 12px 8px 18px !important;
-	border: none !important;
-	border-radius: 8px !important;
-	color: var(--alas-apple-accent) !important;
-	background-color: rgba(0, 122, 255, 0.12) !important;
-	font-weight: 600 !important;
-	position: relative !important;
-	overflow: visible !important;
-	transition: background-color var(--ease-spring-fast), color var(--ease-spring-fast) !important;
+    padding: 8px 12px 8px 18px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: var(--alas-apple-accent) !important;
+    background-color: rgba(0, 122, 255, 0.12) !important;
+    font-weight: 600 !important;
+    position: relative !important;
+    overflow: visible !important;
+    transition: background-color var(--ease-spring-fast), color var(--ease-spring-fast) !important;
 }
 
+/* 激活态左侧指示线（常驻） */
 .btn-menu-active::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 6px;
-	width: 4px;
-	height: 60%;
-	background-color: var(--alas-apple-accent);
-	border-radius: 4px;
-	opacity: 1;
-	transform: translateY(-50%);
-}
-
-.btn-menu-active::after {
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 10%;
-	width: 80%;
-	height: 60%;
-	background: radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
-	pointer-events: none;
-	filter: blur(6px);
-	z-index: 0;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 6px;
+    width: 4px;
+    height: 60%;
+    background-color: var(--alas-apple-accent);
+    border-radius: 4px;
+    opacity: 1;
+    transform: translateY(-50%);
 }
 
 .btn-menu-active:hover {
-	background-color: rgba(0, 122, 255, 0.18) !important;
-	color: var(--alas-apple-accent) !important;
+    background-color: rgba(0, 122, 255, 0.18) !important;
+    color: var(--alas-apple-accent) !important;
 }
 
+/* 菜单内激活态按钮 */
 #pywebio-scope-menu .btn-menu-active {
-	background-color: rgba(0, 122, 255, 0.12) !important;
-	border: none !important;
-	color: var(--alas-apple-accent) !important;
-	padding-left: 18px !important;
-	transition: all 0.3s var(--ease-ios-smooth) !important;
+    background-color: rgba(0, 122, 255, 0.12) !important;
+    border: none !important;
+    color: var(--alas-apple-accent) !important;
+    padding-left: 18px !important;
+    transition: color 0.2s ease, padding-left 0.2s ease, background-color 0.2s ease !important;
 }
 
 #pywebio-scope-menu .btn-menu-active::before {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: 6px;
-	width: 4px;
-	height: 60%;
-	background-color: var(--alas-apple-accent);
-	border-radius: 4px;
-	opacity: 1;
-	transform: translateY(-50%);
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 6px;
+    width: 4px;
+    height: 60%;
+    background-color: var(--alas-apple-accent);
+    border-radius: 4px;
+    opacity: 1;
+    transform: translateY(-50%);
 }
 
 #pywebio-scope-menu .btn-menu-active:hover {
-	background-color: rgba(0, 122, 255, 0.18) !important;
-	color: var(--alas-apple-accent) !important;
+    background-color: rgba(0, 122, 255, 0.18) !important;
+    color: var(--alas-apple-accent) !important;
 }
 
-/* 子菜单项 */
+/* 子菜单项（缩进+小号字体） */
 details .btn-menu {
-	margin-left: 16px !important;
-	width: calc(100% - 24px) !important;
-	font-size: 13px !important;
-	color: var(--alas-apple-text-tertiary) !important;
+    margin-left: 16px !important;
+    width: calc(100% - 24px) !important;
+    font-size: 13px !important;
+    color: var(--alas-apple-text-tertiary) !important;
 }
 
 details .btn-menu-active {
-	color: var(--alas-apple-accent) !important;
-	padding-left: 22px !important;
+    color: var(--alas-apple-accent) !important;
+    padding-left: 22px !important;
 }
 
 details .btn-menu-active::before {
-	left: 10px;
+    left: 10px; /* 子菜单激活态指示线右移 */
 }
 
 /* 折叠菜单标题 */
 details {
-	transition: all var(--ease-spring-normal);
+    transition: color 0.2s ease;
 }
 
 details>summary {
-	color: var(--alas-apple-text-tertiary) !important;
-	font-size: 13px !important;
-	font-weight: 600 !important;
-	text-transform: none !important;
-	letter-spacing: normal !important;
-	padding: 14px 16px 6px 16px !important;
-	margin: 0 !important;
-	list-style: none !important;
-	cursor: default;
-	user-select: none;
-	transition: color var(--ease-spring-fast);
-	position: relative;
+    color: var(--alas-apple-text-tertiary) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    padding: 14px 16px 6px 16px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    cursor: default;
+    user-select: none; /* 禁止文本选中 */
+    transition: color var(--ease-spring-fast);
+    position: relative;
 }
 
 details>summary:hover {
-	color: var(--alas-apple-text) !important;
+    color: var(--alas-apple-text) !important;
 }
 
 details>summary::-webkit-details-marker {
-	display: none !important;
+    display: none !important; /* 隐藏原生折叠图标 */
 }
 
+/* 折叠菜单自定义箭头 */
 details>summary::after {
-	content: '';
-	position: absolute;
-	right: 16px;
-	top: 50%;
-	transform: translateY(-50%) rotate(0deg);
-	width: 8px;
-	height: 8px;
-	border-right: 2px solid var(--alas-apple-text-secondary);
-	border-bottom: 2px solid var(--alas-apple-text-secondary);
-	transition: transform var(--ease-spring-fast);
-	opacity: 0.6;
+    content: '';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--alas-apple-text-secondary);
+    border-bottom: 2px solid var(--alas-apple-text-secondary);
+    transition: transform var(--ease-spring-fast);
+    opacity: 0.6;
 }
 
+/* 展开时箭头旋转 */
 details[open]>summary::after {
-	transform: translateY(-50%) rotate(45deg);
+    transform: translateY(-50%) rotate(45deg);
 }
 
 /* ==========================================
-   9. 表格样式
+   9. 表格样式 (Table Styles)
+   数据表格的视觉优化，匹配 Apple 简约风格
    ========================================== */
 
 /* 统计板块容器 */
 #pywebio-scope-opsi_stats,
 #pywebio-scope-ap_chart,
 #pywebio-scope-ship_exp_table {
-	background-color: var(--alas-apple-card-bg) !important;
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border-radius: var(--radius-lg) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	padding: var(--spacing-md) !important;
-	margin: 0 0 var(--spacing-md) 0 !important;
-	transition: box-shadow var(--transition-normal);
-	animation: ios-slide-up var(--ease-spring-normal) both;
-	will-change: transform, opacity;
+    background-color: var(--alas-apple-card-bg) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--alas-apple-glass-border) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
+    padding: var(--spacing-md) !important;
+    margin: 0 0 var(--spacing-md) 0 !important;
+    transition: box-shadow var(--transition-normal);
 }
 
+/* 表格容器 hover 增强阴影 */
 #pywebio-scope-opsi_stats:hover,
 #pywebio-scope-ap_chart:hover,
 #pywebio-scope-ship_exp_table:hover {
-	box-shadow: var(--alas-apple-shadow-md) !important;
+    box-shadow: var(--alas-apple-shadow-md) !important;
 }
 
+/* 逐次动画延迟（视觉层次） */
 #pywebio-scope-opsi_stats {
-	animation-delay: 0.05s;
+    animation-delay: 0.05s;
 }
 
 #pywebio-scope-ap_chart {
-	animation-delay: 0.10s;
+    animation-delay: 0.10s;
 }
 
 #pywebio-scope-ship_exp_table {
-	animation-delay: 0.15s;
+    animation-delay: 0.15s;
 }
 
-/* 表格样式 */
+/* 表格基础样式 */
 #pywebio-scope-opsi_stats table,
 #pywebio-scope-ship_exp_table table {
-	width: 100% !important;
-	border-collapse: separate !important;
-	border-spacing: 0 !important;
-	margin: var(--spacing-md) 0 !important;
+    width: 100% !important;
+    border-collapse: separate !important; /* 分离边框，支持圆角 */
+    border-spacing: 0 !important;
+    margin: var(--spacing-md) 0 !important;
 }
 
+/* 表格表头 */
 #pywebio-scope-opsi_stats th,
 #pywebio-scope-ship_exp_table th {
-	background-color: var(--alas-apple-bg) !important;
-	color: var(--alas-apple-text-secondary) !important;
-	font-weight: 600 !important;
-	font-size: 12px !important;
-	text-transform: uppercase !important;
-	letter-spacing: 0.05em !important;
-	padding: var(--spacing-sm) var(--spacing-md) !important;
-	text-align: left !important;
-	border: none !important;
-	border-bottom: 2px solid var(--alas-apple-border) !important;
+    background-color: var(--alas-apple-bg) !important;
+    color: var(--alas-apple-text-secondary) !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important; /* 大写字母 */
+    letter-spacing: 0.05em !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    text-align: left !important;
+    border: none !important;
+    border-bottom: 2px solid var(--alas-apple-border) !important;
 }
 
+/* 表头圆角 */
 #pywebio-scope-opsi_stats th:first-child,
 #pywebio-scope-ship_exp_table th:first-child {
-	border-top-left-radius: var(--radius-sm) !important;
+    border-top-left-radius: var(--radius-sm) !important;
 }
 
 #pywebio-scope-opsi_stats th:last-child,
 #pywebio-scope-ship_exp_table th:last-child {
-	border-top-right-radius: var(--radius-sm) !important;
+    border-top-right-radius: var(--radius-sm) !important;
 }
 
+/* 表格单元格 */
 #pywebio-scope-opsi_stats td,
 #pywebio-scope-ship_exp_table td {
-	padding: var(--spacing-md) !important;
-	color: var(--alas-apple-text) !important;
-	font-size: 14px !important;
-	border: none !important;
-	border-bottom: 1px solid var(--alas-apple-border) !important;
-	background-color: transparent !important;
+    padding: var(--spacing-md) !important;
+    color: var(--alas-apple-text) !important;
+    font-size: 14px !important;
+    border: none !important;
+    border-bottom: 1px solid var(--alas-apple-border) !important;
+    background-color: transparent !important;
 }
 
+/* 最后一行单元格取消下边框 */
 #pywebio-scope-opsi_stats tr:last-child td,
 #pywebio-scope-ship_exp_table tr:last-child td {
-	border-bottom: none !important;
+    border-bottom: none !important;
 }
 
+/* 表格行 hover 效果 */
 #pywebio-scope-opsi_stats tr,
 #pywebio-scope-ship_exp_table tr {
-	transition: background-color var(--transition-fast) var(--ease-ios-smooth);
-	will-change: background-color;
+    transition: background-color var(--transition-fast) var(--ease-ios-smooth);
 }
 
 #pywebio-scope-opsi_stats tr:hover td,
 #pywebio-scope-ship_exp_table tr:hover td {
-	background-color: rgba(0, 122, 255, 0.06) !important;
+    background-color: rgba(0, 122, 255, 0.06) !important; /* hover 浅蓝背景 */
 }
 
-/* 统计板块文本 */
+/* 统计板块标题文本 */
 #pywebio-scope-opsi_stats>div:first-child,
 #pywebio-scope-ship_exp_table>div:first-child {
-	font-size: 16px !important;
-	font-weight: 600 !important;
-	color: var(--alas-apple-text) !important;
-	margin-bottom: var(--spacing-md) !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--alas-apple-text) !important;
+    margin-bottom: var(--spacing-md) !important;
 }
 
+/* 表格行间距 */
 #pywebio-scope-opsi_stats .pywebio-row,
 #pywebio-scope-ship_exp_table .pywebio-row {
-	margin: var(--spacing-md) 0 !important;
-	gap: var(--spacing-sm) !important;
+    margin: var(--spacing-md) 0 !important;
+    gap: var(--spacing-sm) !important;
 }
 
 /* 更新信息板块 */
 #pywebio-scope-updater_info,
 #pywebio-scope-updater_detail {
-	background-color: transparent !important;
-	backdrop-filter: blur(16px) saturate(180%);
-	-webkit-backdrop-filter: blur(16px) saturate(180%);
-	border-radius: var(--radius-lg) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	box-shadow: var(--alas-apple-shadow) !important;
-	padding: var(--spacing-md) !important;
-	margin-bottom: var(--spacing-md) !important;
-	position: relative !important;
+    background-color: transparent !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid var(--alas-apple-glass-border) !important;
+    box-shadow: var(--alas-apple-shadow) !important;
+    padding: var(--spacing-md) !important;
+    margin-bottom: var(--spacing-md) !important;
+    position: relative !important;
 }
 
+/* Updater 毛玻璃覆盖层（增强效果） */
 #pywebio-scope-updater_info::before,
 #pywebio-scope-updater_detail::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	border-radius: inherit;
-	background-color: rgba(255, 255, 255, 0.55);
-	pointer-events: none;
-	z-index: 0;
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+    z-index: 0;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
 }
 
+/* 提升子元素层级，避免被覆盖层遮挡 */
 #pywebio-scope-updater_info>*,
 #pywebio-scope-updater_detail>* {
-	position: relative !important;
-	z-index: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* ==========================================
-   10. 日志区域
+   10. 日志区域 (Log Area)
+   日志展示容器样式，优化可读性
    ========================================== */
 
+.container-log {
+    display: block !important;
+    opacity: 1 !important;
+    padding: 20px !important;
+    margin: 10px !important;
+    min-height: 240px !important; /* 最小高度，保证可读性 */
+}
+
 #pywebio-scope-log {
-	font-family: 'JetBrains Mono NL', monospace !important;
-	font-size: 13px !important;
-	background-color: var(--alas-apple-card-bg) !important;
-	backdrop-filter: blur(20px) saturate(180%) !important;
-	-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-	border: 1px solid var(--alas-apple-glass-border) !important;
-	border-radius: var(--radius-lg) !important;
-	padding: 20px !important;
-	line-height: 1.6;
-	box-shadow: var(--alas-apple-shadow-md) !important;
+    font-family: var(--alas-font-mono), monospace !important; /* 等宽字体 */
+    font-size: 13px !important;
+    padding: 20px !important;
+    line-height: 1.6; /* 行高优化，提升可读性 */
+}
+
+/* ---------- 水印样式 (Watermark) ---------- */
+/* 版本号水印 - 右下角 */
+#pywebio-scope-log-container::before {
+    content: var(--version); 
+    position: absolute;
+    bottom: 1.4rem;
+    right: 8px;
+    font-size: 1.2rem;
+    font-weight: normal;
+    color: var(--color-text-watermark);
+    opacity: 0.5;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+    font-family: var(--alas-font-mono);
+    line-height: 1;
+    margin-bottom: 16px;
+    margin-right: 5px;
+}
+
+/* 设备ID水印 - 版本号下方 */
+#pywebio-scope-log-container::after {
+    content: var(--device-id);
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 1.2rem;
+    font-weight: normal;
+    color: var(--color-text-watermark);
+    opacity: 0.5;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 999;
+    font-family: var(--alas-font-mono);
+    line-height: 1;
+    margin-bottom: 16px;
+    margin-right: 5px;
 }
 
 /* ==========================================
    11. 动画定义
    ========================================== */
 
-/* 弹性缩放动画 */
-@keyframes ios-spring-scale {
-	0% {
-		transform: scale(0.95);
-		opacity: 0;
-	}
-
-	50% {
-		transform: scale(1.02);
-	}
-
-	100% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
-/* 弹性弹入动画 */
-@keyframes ios-bounce-in {
-	0% {
-		transform: scale(0.3);
-		opacity: 0;
-	}
-
-	20% {
-		transform: scale(1.1);
-	}
-
-	40% {
-		transform: scale(0.9);
-	}
-
-	60% {
-		transform: scale(1.03);
-	}
-
-	80% {
-		transform: scale(0.97);
-	}
-
-	100% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
-/* 淡入上滑动画 */
-@keyframes ios-slide-up {
-	0% {
-		transform: translateY(20px);
-		opacity: 0;
-	}
-
-	100% {
-		transform: translateY(0);
-		opacity: 1;
-	}
-}
-
-/* 淡入缩放动画 */
-@keyframes ios-fade-scale {
-	0% {
-		transform: scale(0.9);
-		opacity: 0;
-	}
-
-	100% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
-/* 脉冲动画 */
-@keyframes ios-pulse {
-
-	0%,
-	100% {
-		transform: scale(1);
-	}
-
-	50% {
-		transform: scale(1.05);
-	}
-}
-
-/* 呼吸动画 */
-@keyframes ios-breathe {
-
-	0%,
-	100% {
-		opacity: 1;
-	}
-
-	50% {
-		opacity: 0.85;
-	}
-}
-
-/* 渐变流动动画 */
-@keyframes gradient-flow {
-	0% {
-		background-position: 0% 50%;
-	}
-
-	50% {
-		background-position: 100% 50%;
-	}
-
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
-/* 渐变脉冲动画 */
-@keyframes gradient-pulse {
-
-	0%,
-	100% {
-		background-size: 200% 200%;
-		background-position: left center;
-	}
-
-	50% {
-		background-size: 200% 200%;
-		background-position: right center;
-	}
-}
-
-/* 光泽扫过动画 */
-@keyframes shimmer {
-	0% {
-		background-position: -200% 0;
-	}
-
-	100% {
-		background-position: 200% 0;
-	}
-}
-
-/* 涟漪扩散动画 */
-@keyframes ripple {
-	0% {
-		transform: scale(0);
-		opacity: 0.6;
-	}
-
-	100% {
-		transform: scale(2.5);
-		opacity: 0;
-	}
-}
-
 /* 旋转加载动画 */
 @keyframes ios-spin {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	100% {
-		transform: rotate(360deg);
-	}
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
 }
 
-/* 加载状态 */
+/* 加载状态类 */
 .loading,
 .spinner {
-	animation: ios-spin 1s linear infinite;
+    animation: ios-spin 1s linear infinite; /* 匀速旋转 */
 }
 
 /* ==========================================
-   12. 工具类
+   12. 媒体查询 (Media Queries)
+   适配系统偏好设置，提升可访问性
    ========================================== */
 
-/* 标题样式 */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-weight: 600 !important;
-	color: var(--alas-apple-text);
-	margin-bottom: var(--spacing-md) !important;
-}
-
-/* 任务分组分隔线 */
-.hr-task-group-text {
-	font-size: 11px !important;
-	font-weight: 600 !important;
-	color: var(--alas-apple-text-secondary) !important;
-	text-transform: uppercase;
-	letter-spacing: 0.02em;
-	margin-top: var(--spacing-lg) !important;
-	margin-bottom: var(--spacing-sm) !important;
-}
-
-.hr-task-group-line {
-	border-top: 1px solid var(--alas-apple-border) !important;
-}
-
-/* 动画延迟工具类 */
-.anim-delay-1 {
-	animation-delay: 0.04s;
-}
-
-.anim-delay-2 {
-	animation-delay: 0.08s;
-}
-
-.anim-delay-3 {
-	animation-delay: 0.12s;
-}
-
-.anim-delay-4 {
-	animation-delay: 0.16s;
-}
-
-.anim-delay-5 {
-	animation-delay: 0.20s;
-}
-
-.anim-delay-6 {
-	animation-delay: 0.24s;
-}
-
-.anim-delay-7 {
-	animation-delay: 0.28s;
-}
-
-.anim-delay-8 {
-	animation-delay: 0.32s;
-}
-
-.anim-delay-9 {
-	animation-delay: 0.36s;
-}
-
-.anim-delay-10 {
-	animation-delay: 0.40s;
-}
-
-.anim-delay-11 {
-	animation-delay: 0.44s;
-}
-
-.anim-delay-12 {
-	animation-delay: 0.48s;
-}
-
-.anim-delay-13 {
-	animation-delay: 0.52s;
-}
-
-.anim-delay-14 {
-	animation-delay: 0.56s;
-}
-
-.anim-delay-15 {
-	animation-delay: 0.60s;
-}
-
-/* 特定按钮修复 */
-button[style*="--menu-Overview--"] {
-	border-left: none !important;
-}
-
-/* ==========================================
-   13. 媒体查询
-   ========================================== */
-
-/* 减少动画偏好支持 */
+/* 减少动画偏好支持（适配系统设置） */
 @media (prefers-reduced-motion: reduce) {
-
-	*,
-	*::before,
-	*::after {
-		animation-duration: 0.01ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
-	}
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important; /* 禁用动画 */
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important; /* 禁用过渡 */
+    }
 }
