@@ -414,7 +414,7 @@ html body *:not(#pywebio-scope-log):not(#pywebio-scope-log *):not(.CodeMirror-li
     border: var(--card-border) !important;
     box-shadow: var(--card-shadow) !important;
     padding: var(--spacing-md) !important;
-    margin-bottom: var(--spacing-md) !important;
+    margin-bottom: var(--spacing-sm) !important;
     transition: var(--card-transition);
 }
 
@@ -432,6 +432,61 @@ html body *:not(#pywebio-scope-log):not(#pywebio-scope-log *):not(.CodeMirror-li
 .container-log:hover,
 #pywebio-scope-groups>*:not(#pywebio-scope-navigator):hover {
     box-shadow: var(--card-shadow-hover) !important;
+}
+
+/*	Daemon Overview 专用修复
+	修复"半自动点击"等 Daemon 页面卡片嵌套方框问题*/
+
+/* _daemon 容器：去除卡片装饰，作为纯布局容器 */
+#pywebio-scope-_daemon {
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* _daemon_upper 容器：同上 */
+#pywebio-scope-_daemon_upper {
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: var(--spacing-sm) !important;
+}
+
+/* daemon-overview 内的 groups 容器：透明背景，无嵌套边框 */
+#pywebio-scope-daemon-overview #pywebio-scope-groups {
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: var(--spacing-sm) !important;
+    margin: 0 !important;
+    overflow-y: auto;
+}
+
+/* daemon-overview 内的配置组卡片：保留毛玻璃效果但移除边框，避免嵌套感 */
+#pywebio-scope-daemon-overview [id^="pywebio-scope-group_"] {
+    background-color: var(--card-bg-medium) !important;
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--alas-apple-shadow-xs) !important;
+    padding: var(--spacing-md) !important;
+    margin-bottom: var(--spacing-sm) !important;
+}
+
+/* daemon-overview 内配置组卡片 hover：仅增强轻微阴影 */
+#pywebio-scope-daemon-overview [id^="pywebio-scope-group_"]:hover {
+    box-shadow: var(--alas-apple-shadow) !important;
 }
 
 /* 日志区域内部元素透明，保留等宽字体 */
@@ -1201,7 +1256,7 @@ details[open]>summary::after {
     font-family: var(--alas-font-mono);
     line-height: 1;
     margin-bottom: 16px;
-    margin-right: 5px;
+    margin-right: 8px;
 }
 
 /* 设备ID水印 - 版本号下方 */
@@ -1220,7 +1275,7 @@ details[open]>summary::after {
     font-family: var(--alas-font-mono);
     line-height: 1;
     margin-bottom: 16px;
-    margin-right: 5px;
+    margin-right: 8px;
 }
 
 /* ==========================================
