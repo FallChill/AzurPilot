@@ -10,7 +10,7 @@ from module.config.config_generated import GeneratedConfig
 from module.config.config_manual import ManualConfig, OutputConfig
 from module.config.config_updater import ConfigUpdater, ensure_time, get_server_next_update, nearest_future
 from module.config.deep import deep_get, deep_set
-from module.config.utils import DEFAULT_TIME, dict_to_kv, filepath_config, get_os_reset_remain, path_to_arg, is_good_gpu
+from module.config.utils import DEFAULT_TIME, dict_to_kv, filepath_config, get_os_reset_remain, path_to_arg, is_good_gpu, read_file as read_raw_file
 from module.config.watcher import ConfigWatcher
 from module.exception import RequestHumanTakeover, ScriptError
 from module.logger import logger
@@ -124,56 +124,25 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
         self.save()
 
     def load(self):
+        # 读取磁盘原始数据，用于检测 config_update 是否补全了新任务
+        raw = read_raw_file(filepath_config(self.config_name))
         self.data = self.read_file(self.config_name)
         self.config_override()
-        self._fill_missing_tasks()
+
+        # 若检测到磁盘文件中没有的新任务，自动启用 Event/Raid/Coalition 类并触发持久化
+        if isinstance(raw, dict):
+            new_tasks = [t for t in self.data if t not in raw]
+            if new_tasks:
+                logger.info(f'配置补全: 检测到新任务 {new_tasks}，将写入磁盘')
+                for task in new_tasks:
+                    if (task.startswith('Event') or task.startswith('Raid')
+                            or task.startswith('Coalition')):
+                        deep_set(self.data, keys=f'{task}.Scheduler.Enable', value=True)
+                        logger.info(f'配置补全: 自动启用新任务 "{task}"')
+                self.modified['_config_needs_save'] = True
 
         for path, value in self.modified.items():
             deep_set(self.data, keys=path, value=value)
-
-    def _fill_missing_tasks(self):
-        """
-        补全旧配置文件中缺失的任务定义。
-        当新版本添加了新任务时（如 Event3），旧配置文件中不会包含这些任务的配置。
-        此方法从 args 模板中补全这些缺失的任务，确保所有新任务都能正常使用。
-        """
-        has_filled = False
-        try:
-            # 获取完整的配置模板（args 包含所有已定义的任务）
-            template = self.args
-            
-            # 遍历模板中的所有任务
-            for task_name in template.keys():
-                # 如果旧配置中缺少这个任务，从模板中补全
-                if task_name not in self.data:
-                    logger.info(f'配置补全: 添加缺失的任务定义 "{task_name}"')
-                    # 从模板中复制任务的全部配置
-                    self.data[task_name] = copy.deepcopy(template[task_name])
-                    has_filled = True
-                else:
-                    # 如果任务存在，检查是否有缺失的分组（如 Scheduler, Campaign 等）
-                    for group_name in template[task_name].keys():
-                        if group_name not in self.data[task_name]:
-                            logger.debug(f'配置补全: 添加缺失的分组 "{task_name}.{group_name}"')
-                            self.data[task_name][group_name] = copy.deepcopy(template[task_name][group_name])
-                            has_filled = True
-                        else:
-                            # 如果分组存在，检查是否有缺失的参数
-                            for arg_name in template[task_name][group_name].keys():
-                                if arg_name not in self.data[task_name][group_name]:
-                                    logger.debug(f'配置补全: 添加缺失的参数 "{task_name}.{group_name}.{arg_name}"')
-                                    self.data[task_name][group_name][arg_name] = copy.deepcopy(
-                                        template[task_name][group_name][arg_name]
-                                    )
-                                    has_filled = True
-            
-            # 如果有补全内容，标记一个虚拟修改以确保 save() 会保存新配置
-            if has_filled:
-                self.modified['_config_filled'] = True
-                logger.info('配置已补全，将在保存时更新到文件')
-        except Exception as e:
-            # 如果补全过程出现错误，记录日志但不中断，保证兼容性
-            logger.warning(f'配置补全过程出现错误: {e}')
 
     def bind(self, func, func_list=None):
         """
@@ -319,8 +288,8 @@ class AzurLaneConfig(ConfigUpdater, ManualConfig, GeneratedConfig, ConfigWatcher
             return False
 
         for path, value in self.modified.items():
-            # 忽略虚拟的补全标记，不要写入文件
-            if path == '_config_filled':
+            # 忽略内部标记，不写入文件
+            if path in ('_config_filled', '_config_needs_save'):
                 continue
             deep_set(self.data, keys=path, value=value)
 
