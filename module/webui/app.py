@@ -1419,6 +1419,13 @@ class AlasGUI(Frame):
                             "log-bar-btns",
                             [
                                 put_scope("log_scroll_btn"),
+                                put_button(
+                                    label="截图预览",
+                                    onclick=lambda: run_js(
+                                        f"window.alasToggleLivePreview({json.dumps(self.alas_name)});"
+                                    ),
+                                    color="off",
+                                ),
                             ],
                         ),
                     ],
@@ -1527,7 +1534,6 @@ class AlasGUI(Frame):
             server_options = output_kwargs.get(f"option_{server}")
             if output_kwargs["widget_type"] == "select" and isinstance(server_options, list) and server_options:
                 options = server_options
-            
             output_kwargs["options"] = options
             if (
                 task == "GemsFarming"
@@ -1758,6 +1764,13 @@ class AlasGUI(Frame):
                             "log-bar-btns",
                             [
                                 put_scope("log_scroll_btn"),
+                                put_button(
+                                    label="截图预览",
+                                    onclick=lambda: run_js(
+                                        f"window.alasToggleLivePreview({json.dumps(self.alas_name)});"
+                                    ),
+                                    color="off",
+                                ),
                                 put_scope("dashboard_btn"),
                             ],
                         ),
@@ -2169,6 +2182,13 @@ class AlasGUI(Frame):
                 "log-bar-btns",
                 [
                     put_scope("log_scroll_btn"),
+                    put_button(
+                        label="截图预览",
+                        onclick=lambda: run_js(
+                            f"window.alasToggleLivePreview({json.dumps(self.alas_name)});"
+                        ),
+                        color="off",
+                    ),
                 ],
             )
 
