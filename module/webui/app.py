@@ -1527,7 +1527,6 @@ class AlasGUI(Frame):
             server_options = output_kwargs.get(f"option_{server}")
             if output_kwargs["widget_type"] == "select" and isinstance(server_options, list) and server_options:
                 options = server_options
-            
             output_kwargs["options"] = options
             if (
                 task == "GemsFarming"
