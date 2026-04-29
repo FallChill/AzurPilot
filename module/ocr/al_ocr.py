@@ -1,4 +1,7 @@
 import os
+import gc
+import threading
+import time
 import numpy as np
 import cv2
 from PIL import Image
@@ -17,18 +20,46 @@ def handle_ocr_error(e):
     raise RequestHumanTakeover
 
 
-try:
-    from rapidocr import RapidOCR, OCRVersion
-except Exception as e:
-    handle_ocr_error(e)
+RapidOCR = None
+OCRVersion = None
 
 
-config_name = os.environ.get("ALAS_CONFIG_NAME")
-config = AzurLaneConfig(config_name)
-USE_GPU = config.ocr_device == 'gpu'
+def ensure_ocr_dependencies():
+    global RapidOCR, OCRVersion
+    if RapidOCR is not None and OCRVersion is not None:
+        return
+
+    try:
+        from rapidocr import RapidOCR as _RapidOCR, OCRVersion as _OCRVersion
+    except Exception as e:
+        handle_ocr_error(e)
+    RapidOCR = _RapidOCR
+    OCRVersion = _OCRVersion
+
+
+config_name = None
+config = None
+USE_GPU = False
+OCR_IDLE_TIMEOUT = float(os.environ.get("ALAS_OCR_IDLE_TIMEOUT", "300"))
+
+
+def get_config():
+    global config_name, config
+    current_config_name = os.environ.get("ALAS_CONFIG_NAME") or "alas"
+    if config is None or config_name != current_config_name:
+        config_name = current_config_name
+        config = AzurLaneConfig(config_name)
+    return config
+
+
+def refresh_ocr_device():
+    global USE_GPU
+    USE_GPU = get_config().ocr_device == 'gpu'
+    return USE_GPU
 
 class CnModel:
     def __init__(self):
+        ensure_ocr_dependencies()
         self.params = {
             "Global.use_det": False,
             "Global.use_cls": False,
@@ -44,6 +75,7 @@ class CnModel:
 
 class EnModel:
     def __init__(self):
+        ensure_ocr_dependencies()
         self.params = {
             "Global.use_det": False,
             "Global.use_cls": False,
@@ -59,6 +91,7 @@ class EnModel:
 
 class JpModel:
     def __init__(self):
+        ensure_ocr_dependencies()
         self.params = {
             "Global.use_det": False,
             "Global.use_cls": False,
@@ -74,6 +107,7 @@ class JpModel:
 
 class TwModel:
     def __init__(self):
+        ensure_ocr_dependencies()
         self.params = {
             "Global.use_det": False,
             "Global.use_cls": False,
@@ -87,25 +121,138 @@ class TwModel:
         self.model = RapidOCR(params=self.params)
 
 
-try:
-    cn_model = CnModel()
-    en_model = EnModel()
-    jp_model = JpModel()
-    tw_model = TwModel()
-except Exception as e:
-    handle_ocr_error(e)
+class OcrModelManager:
+    MODEL_CLASSES = {
+        "cn": CnModel,
+        "en": EnModel,
+        "jp": JpModel,
+        "tw": TwModel,
+    }
+    NAME_ALIASES = {
+        "zhcn": "cn",
+    }
+
+    def __init__(self, idle_timeout=OCR_IDLE_TIMEOUT):
+        self.idle_timeout = max(0, idle_timeout)
+        self._models = {}
+        self._last_used = {}
+        self._in_use = {}
+        self._timers = {}
+        self._lock = threading.RLock()
+
+    def _normalize_name(self, name):
+        return self.NAME_ALIASES.get(name, name)
+
+    def _load_locked(self, name):
+        if name in self._models:
+            return self._models[name]
+
+        refresh_ocr_device()
+        logger.info(f"Loading OCR model: {name}, USE_GPU={USE_GPU}")
+        try:
+            model = self.MODEL_CLASSES.get(name, EnModel)().model
+        except Exception as e:
+            handle_ocr_error(e)
+
+        self._models[name] = model
+        self._last_used[name] = time.monotonic()
+        self._in_use.setdefault(name, 0)
+        return model
+
+    def ensure_loaded(self, name):
+        name = self._normalize_name(name)
+        with self._lock:
+            self._load_locked(name)
+            self._schedule_unload_locked(name)
+
+    def acquire(self, name):
+        name = self._normalize_name(name)
+        with self._lock:
+            model = self._load_locked(name)
+            self._in_use[name] = self._in_use.get(name, 0) + 1
+            self._last_used[name] = time.monotonic()
+            return name, model
+
+    def release(self, name):
+        name = self._normalize_name(name)
+        with self._lock:
+            self._in_use[name] = max(0, self._in_use.get(name, 0) - 1)
+            self._last_used[name] = time.monotonic()
+            self._schedule_unload_locked(name)
+
+    def request_unload(self, names=None, delay=None):
+        with self._lock:
+            if names is None:
+                names = list(self._models.keys())
+            for name in names:
+                name = self._normalize_name(name)
+                if name in self._models:
+                    if delay is not None:
+                        self._last_used[name] = (
+                            time.monotonic()
+                            - max(0, self.idle_timeout - max(0, delay))
+                        )
+                    self._schedule_unload_locked(name, delay=delay)
+
+    def unload_all(self, force=False):
+        with self._lock:
+            for timer in self._timers.values():
+                timer.cancel()
+            self._timers.clear()
+            if force:
+                self._models.clear()
+                self._last_used.clear()
+                self._in_use.clear()
+                gc.collect()
+            else:
+                self.request_unload(delay=0)
+
+    def _schedule_unload_locked(self, name, delay=None):
+        if name not in self._models:
+            return
+
+        timer = self._timers.pop(name, None)
+        if timer is not None:
+            timer.cancel()
+
+        delay = self.idle_timeout if delay is None else max(0, delay)
+        timer = threading.Timer(delay, self._unload_if_idle, args=(name,))
+        timer.daemon = True
+        self._timers[name] = timer
+        timer.start()
+
+    def _unload_if_idle(self, name):
+        with self._lock:
+            self._timers.pop(name, None)
+            if name not in self._models:
+                return
+
+            if self._in_use.get(name, 0):
+                self._schedule_unload_locked(name)
+                return
+
+            idle_time = time.monotonic() - self._last_used.get(name, 0)
+            if idle_time < self.idle_timeout:
+                self._schedule_unload_locked(name, delay=self.idle_timeout - idle_time)
+                return
+
+            logger.info(f"Unloading idle OCR model: {name}")
+            del self._models[name]
+            self._last_used.pop(name, None)
+            self._in_use.pop(name, None)
+            gc.collect()
+
+
+OCR_MODEL_MANAGER = OcrModelManager()
 
 def reset_ocr_model():
-    global cn_model, en_model, jp_model, tw_model, USE_GPU
-    USE_GPU = config.ocr_device == 'gpu'
+    refresh_ocr_device()
     logger.info(f"Resetting OCR models, USE_GPU={USE_GPU}")
-    try:
-        cn_model = CnModel()
-        en_model = EnModel()
-        jp_model = JpModel()
-        tw_model = TwModel()
-    except Exception as e:
-        handle_ocr_error(e)
+    OCR_MODEL_MANAGER.unload_all(force=True)
+
+
+def release_ocr_models(names=None, delay=None):
+    OCR_MODEL_MANAGER.request_unload(names=names, delay=delay)
 
 
 class AlOcr:
@@ -119,21 +266,16 @@ class AlOcr:
         )
 
     def init(self):
-        # We fetch the current global instance instead of assigning a fixed one at construction.
-        # This allows reset_ocr_model() to work for objects initialized AFTER reset.
-        if self.name in ["cn", "zhcn"]:
-            self.model = cn_model.model
-        elif self.name == "jp":
-            self.model = jp_model.model
-        elif self.name == "tw":
-            self.model = tw_model.model
-        else:
-            self.model = en_model.model
+        OCR_MODEL_MANAGER.ensure_loaded(self.name)
         self._model_loaded = True
 
     def _ensure_loaded(self):
-        if not self._model_loaded:
-            self.init()
+        self.init()
+
+    def _acquire_model(self):
+        name, model = OCR_MODEL_MANAGER.acquire(self.name)
+        self._model_loaded = True
+        return name, model
 
     def _save_debug_image(self, img, result):
         folder = "ocr_debug"
@@ -186,10 +328,10 @@ class AlOcr:
 
     def ocr(self, img_fp):
         logger.debug(f"[VERBOSE] AlOcr.ocr: Ensure loaded...")
-        self._ensure_loaded()
+        model_name, model = self._acquire_model()
 
         try:
-            res = self.model(img_fp)
+            res = model(img_fp)
             txt = ""
             if hasattr(res, "txts") and res.txts:
                 txt = res.txts[0]
@@ -199,25 +341,30 @@ class AlOcr:
         except Exception as e:
             logger.error(f"AlOcr.ocr exception: {e}")
             raise
+        finally:
+            OCR_MODEL_MANAGER.release(model_name)
 
     def ocr_for_single_line(self, img_fp):
         return self.ocr(img_fp)
 
     def ocr_for_single_lines(self, img_list):
-        self._ensure_loaded()
+        model_name, model = self._acquire_model()
         results = []
-        for i, img in enumerate(img_list):
-            try:
-                res = self.model(img)
-                txt = ""
-                if hasattr(res, "txts") and res.txts:
-                    txt = res.txts[0]
+        try:
+            for i, img in enumerate(img_list):
+                try:
+                    res = model(img)
+                    txt = ""
+                    if hasattr(res, "txts") and res.txts:
+                        txt = res.txts[0]
 
-                results.append(txt)
-                self._save_debug_image(img, txt)
-            except Exception as e:
-                logger.error(f"AlOcr.ocr_for_single_lines exception on image {i}: {e}")
-                raise
+                    results.append(txt)
+                    self._save_debug_image(img, txt)
+                except Exception as e:
+                    logger.error(f"AlOcr.ocr_for_single_lines exception on image {i}: {e}")
+                    raise
+        finally:
+            OCR_MODEL_MANAGER.release(model_name)
         return results
 
     def set_cand_alphabet(self, cand_alphabet):
