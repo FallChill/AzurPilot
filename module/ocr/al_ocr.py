@@ -2,10 +2,6 @@ import os
 import gc
 import threading
 import time
-import numpy as np
-import cv2
-from PIL import Image
-
 from module.exception import RequestHumanTakeover
 from module.logger import logger
 from module.config.config import AzurLaneConfig
@@ -20,27 +16,56 @@ def handle_ocr_error(e):
     raise RequestHumanTakeover
 
 
-RapidOCR = None
 OCRVersion = None
+ParseParams = None
+TextRecInput = None
+TextRecognizer = None
+LoadImage = None
+DEFAULT_CFG_PATH = None
 
 
 def ensure_ocr_dependencies():
-    global RapidOCR, OCRVersion
-    if RapidOCR is not None and OCRVersion is not None:
+    global OCRVersion, ParseParams, TextRecInput, TextRecognizer, LoadImage, DEFAULT_CFG_PATH
+    if TextRecognizer is not None:
         return
 
     try:
-        from rapidocr import RapidOCR as _RapidOCR, OCRVersion as _OCRVersion
+        from rapidocr import OCRVersion as _OCRVersion
+        from rapidocr.ch_ppocr_rec import TextRecInput as _TextRecInput
+        from rapidocr.ch_ppocr_rec import TextRecognizer as _TextRecognizer
+        from rapidocr.main import DEFAULT_CFG_PATH as _DEFAULT_CFG_PATH
+        from rapidocr.utils.load_image import LoadImage as _LoadImage
+        from rapidocr.utils.parse_parameters import ParseParams as _ParseParams
     except Exception as e:
         handle_ocr_error(e)
-    RapidOCR = _RapidOCR
     OCRVersion = _OCRVersion
+    ParseParams = _ParseParams
+    TextRecInput = _TextRecInput
+    TextRecognizer = _TextRecognizer
+    LoadImage = _LoadImage
+    DEFAULT_CFG_PATH = _DEFAULT_CFG_PATH
+
+
+class RecOnlyOCR:
+    def __init__(self, params):
+        ensure_ocr_dependencies()
+        cfg = ParseParams.load(DEFAULT_CFG_PATH)
+        cfg = ParseParams.update_batch(cfg, params)
+        cfg.Rec.engine_cfg = cfg.EngineConfig[cfg.Rec.engine_type.value]
+        cfg.Rec.font_path = cfg.Global.font_path
+
+        self.load_img = LoadImage()
+        self.text_rec = TextRecognizer(cfg.Rec)
+
+    def __call__(self, img):
+        img = self.load_img(img)
+        return self.text_rec(TextRecInput(img=img))
 
 
 config_name = None
 config = None
 USE_GPU = False
-OCR_IDLE_TIMEOUT = float(os.environ.get("ALAS_OCR_IDLE_TIMEOUT", "120"))
+OCR_IDLE_TIMEOUT = float(os.environ.get("ALAS_OCR_IDLE_TIMEOUT", "60"))
 
 
 def get_config():
@@ -61,64 +86,48 @@ class CnModel:
     def __init__(self):
         ensure_ocr_dependencies()
         self.params = {
-            "Global.use_det": False,
-            "Global.use_cls": False,
-            "Det.model_path": None,
-            "Cls.model_path": None,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
             "Rec.model_path": "bin/ocr_models/zh-CN/alocr-zh-cn-v3.dtk.onnx",
             "Rec.rec_keys_path": "bin/ocr_models/zh-CN/cn.txt",
             "EngineConfig.onnxruntime.use_dml": USE_GPU
         }
-        self.model = RapidOCR(params=self.params)
+        self.model = RecOnlyOCR(params=self.params)
 
 
 class EnModel:
     def __init__(self):
         ensure_ocr_dependencies()
         self.params = {
-            "Global.use_det": False,
-            "Global.use_cls": False,
-            "Det.model_path": None,
-            "Cls.model_path": None,
             "Rec.ocr_version": OCRVersion.PPOCRV4,
             "Rec.model_path": "bin/ocr_models/en-US/alocr-en-us-v2.6.nvc.onnx",
             "Rec.rec_keys_path": "bin/ocr_models/en-US/en.txt",
             "EngineConfig.onnxruntime.use_dml": USE_GPU
         }
-        self.model = RapidOCR(params=self.params)
+        self.model = RecOnlyOCR(params=self.params)
 
 
 class JpModel:
     def __init__(self):
         ensure_ocr_dependencies()
         self.params = {
-            "Global.use_det": False,
-            "Global.use_cls": False,
-            "Det.model_path": None,
-            "Cls.model_path": None,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
             "Rec.model_path": "bin/ocr_models/JP/JP.onnx",
             "Rec.rec_keys_path": "bin/ocr_models/JP/ppocrv5_dict.txt",
             "EngineConfig.onnxruntime.use_dml": USE_GPU
         }
-        self.model = RapidOCR(params=self.params)
+        self.model = RecOnlyOCR(params=self.params)
 
 
 class TwModel:
     def __init__(self):
         ensure_ocr_dependencies()
         self.params = {
-            "Global.use_det": False,
-            "Global.use_cls": False,
-            "Det.model_path": None,
-            "Cls.model_path": None,
             "Rec.ocr_version": OCRVersion.PPOCRV5,
             "Rec.model_path": "bin/ocr_models/TW/TW.onnx",
             "Rec.rec_keys_path": "bin/ocr_models/TW/ppocrv5_dict.txt",
             "EngineConfig.onnxruntime.use_dml": USE_GPU
         }
-        self.model = RapidOCR(params=self.params)
+        self.model = RecOnlyOCR(params=self.params)
 
 
 class OcrModelManager:
@@ -278,53 +287,7 @@ class AlOcr:
         return name, model
 
     def _save_debug_image(self, img, result):
-        folder = "ocr_debug"
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        # Get current time for filename uniqueness and sorting
-        import time
-
-        now = int(time.time() * 1000)
-        # Clean result for filename
-        res_clean = str(result).replace("\n", " ").replace("\r", " ").strip()
-        # Remove invalid filename characters, keep some safe ones
-        res_clean = "".join(
-            [c for c in res_clean if c.isalnum() or c in (" ", "_", "-")]
-        ).strip()
-        if not res_clean:
-            res_clean = "empty"
-
-        filename = f"{self.name}_{res_clean}_{now}.png"
-        filepath = os.path.join(folder, filename)
-
-        try:
-            if isinstance(img, np.ndarray):
-                cv2.imwrite(filepath, img)
-            elif isinstance(img, Image.Image):
-                img.save(filepath)
-            elif isinstance(img, str) and os.path.exists(img):
-                import shutil
-
-                shutil.copy(img, filepath)
-
-            # Limit count to 100
-            files = [
-                os.path.join(folder, f)
-                for f in os.listdir(folder)
-                if os.path.isfile(os.path.join(folder, f))
-            ]
-            if len(files) > 100:
-                files.sort(key=os.path.getmtime)
-                # Keep the last 100
-                for f in files[:-100]:
-                    try:
-                        os.remove(f)
-                    except:
-                        pass
-        except Exception as e:
-            # We don't want to crash the main process due to debug saving failure
-            logger.warning(f"Failed to save OCR debug image: {e}")
+        return
 
     def ocr(self, img_fp):
         logger.debug(f"[VERBOSE] AlOcr.ocr: Ensure loaded...")

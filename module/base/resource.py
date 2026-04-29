@@ -1,3 +1,4 @@
+import gc
 import re
 
 import module.config.server as server
@@ -117,7 +118,7 @@ def release_resources(next_task=''):
             'jp': 'jp',
             'tw': 'tw',
         }
-        release_ocr_models(names=[model_names[model] for model in models], delay=30)
+        release_ocr_models(names=[model_names[model] for model in models], delay=15)
         for model in models:
             del_cached_property(OCR_MODEL, model)
 
@@ -148,5 +149,5 @@ def release_resources(next_task=''):
     for attr in attr_list:
         del_cached_property(ASSETS, attr)
 
-    # Useless in most cases, but just call it
-    # gc.collect()
+    # Release ndarray buffers whose references were dropped above.
+    gc.collect()
