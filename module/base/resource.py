@@ -117,7 +117,7 @@ def release_resources(next_task=''):
             'jp': 'jp',
             'tw': 'tw',
         }
-        release_ocr_models(names=[model_names[model] for model in models], delay=60)
+        release_ocr_models(names=[model_names[model] for model in models], delay=30)
         for model in models:
             del_cached_property(OCR_MODEL, model)
 

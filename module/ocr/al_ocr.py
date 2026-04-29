@@ -40,7 +40,7 @@ def ensure_ocr_dependencies():
 config_name = None
 config = None
 USE_GPU = False
-OCR_IDLE_TIMEOUT = float(os.environ.get("ALAS_OCR_IDLE_TIMEOUT", "300"))
+OCR_IDLE_TIMEOUT = float(os.environ.get("ALAS_OCR_IDLE_TIMEOUT", "120"))
 
 
 def get_config():
