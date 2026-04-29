@@ -19,6 +19,7 @@ from module.config.config import AzurLaneConfig, TaskEnd
 from module.config.deep import deep_get, deep_set
 from module.exception import *
 from module.logger import logger
+from module.memory_profiler import start_memory_profiler
 from module.notify import handle_notify
 
 
@@ -745,6 +746,9 @@ class AzurLaneAutoScript:
     def loop(self):
         logger.set_file_logger(self.config_name)
         logger.info(f'启动调度器循环: {self.config_name}')
+        memory_profiler = start_memory_profiler(self.config_name)
+        if memory_profiler is not None:
+            logger.info(f'内存分析已启用: {memory_profiler.log_file}')
 
         # 初始化计数器
         consecutive_global_failures = 0
@@ -800,11 +804,15 @@ class AzurLaneAutoScript:
 
                 # 运行
                 logger.info(f'调度器: 开始任务 `{task}`')
+                if memory_profiler is not None:
+                    memory_profiler.set_task(task, 'start')
                 self.device.stuck_record_clear()
                 self.device.click_record_clear()
                 logger.hr(task, level=0)
                 success = self.run(inflection.underscore(task))
                 logger.info(f'调度器: 结束任务 `{task}`')
+                if memory_profiler is not None:
+                    memory_profiler.set_task(task, 'end')
                 self.is_first_task = False
 
                 # 检查失败
@@ -856,6 +864,8 @@ class AzurLaneAutoScript:
             # 捕获全局异常并执行重启
             except Exception as e:
                 consecutive_global_failures += 1
+                if memory_profiler is not None:
+                    memory_profiler.sample('global_exception')
                 self.is_first_task = False
                 logger.error("调度器循环中发生意外的全局异常！")
                 import traceback
