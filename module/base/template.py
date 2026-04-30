@@ -81,7 +81,7 @@ class Template(Resource):
                 self._image_luma = []
                 for image in self.image:
                     luma = rgb2luma(image)
-                    self.image_luma.append(luma)
+                    self._image_luma.append(luma)
             else:
                 self._image_luma = rgb2luma(self.image)
 
