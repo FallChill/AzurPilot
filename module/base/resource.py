@@ -1,4 +1,3 @@
-import gc
 import re
 
 import module.config.server as server
@@ -103,7 +102,6 @@ def release_resources(next_task=''):
     else:
         # Release only when using per-instance OCR
         from module.ocr.ocr import OCR_MODEL
-        from module.ocr.al_ocr import release_ocr_models
         if 'Opsi' in next_task or 'commission' in next_task:
             # OCR models will be used soon, don't release
             models = []
@@ -112,13 +110,6 @@ def release_resources(next_task=''):
             models = ['cnocr', 'jp', 'tw']
         else:
             models = ['azur_lane', 'cnocr', 'jp', 'tw']
-        model_names = {
-            'azur_lane': 'en',
-            'cnocr': 'cn',
-            'jp': 'jp',
-            'tw': 'tw',
-        }
-        release_ocr_models(names=[model_names[model] for model in models], delay=15)
         for model in models:
             del_cached_property(OCR_MODEL, model)
 
@@ -149,5 +140,5 @@ def release_resources(next_task=''):
     for attr in attr_list:
         del_cached_property(ASSETS, attr)
 
-    # Release ndarray buffers whose references were dropped above.
-    gc.collect()
+    # Useless in most cases, but just call it
+    # gc.collect()
