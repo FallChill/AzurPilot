@@ -72,8 +72,14 @@ class GitManager(DeployConfig):
                 logger.error(f'Failed to remove .git directory: {e}')
                 raise
 
-        logger.info(f'Re-cloning repository: {repo} branch: {branch}')
-        self.execute(f'"{self.git}" clone --branch "{branch}" --single-branch "{repo}" .')
+        logger.info(f'Initializing repository: {repo} branch: {branch}')
+        self.execute(f'"{self.git}" init')
+        # Check if remote exists before adding
+        self.execute(f'"{self.git}" remote add "{source}" "{repo}"', allow_failure=True)
+        # Set remote URL just in case it already exists
+        self.execute(f'"{self.git}" remote set-url "{source}" "{repo}"')
+        self.execute(f'"{self.git}" fetch "{source}" "{branch}"')
+        self.execute(f'"{self.git}" reset --hard "{source}/{branch}"')
 
     def git_repository_init(
             self, repo, source='origin', branch='master',
