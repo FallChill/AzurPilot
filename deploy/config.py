@@ -1,4 +1,7 @@
 import copy
+import os
+import subprocess
+import sys
 from typing import Optional, Union
 
 from deploy.logger import logger
@@ -181,7 +184,10 @@ class DeployConfig(ConfigModel):
         if not output:
             command = command + ' >nul 2>nul'
         logger.info(command)
-        error_code = os.system(command)
+        if sys.platform == 'win32':
+            error_code = os.system(f'"{command}"')
+        else:
+            error_code = os.system(command)
         if error_code:
             if allow_failure:
                 logger.info(f"[ allowed failure ], error_code: {error_code}")
