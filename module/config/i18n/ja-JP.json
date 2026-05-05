@@ -4707,6 +4707,20 @@
       "name": "エクスペリエンスが最後にチェックされた時間 (自動的に記録されます)",
       "help": "タスクが繰り返し実行されるのを防ぐために、最後のチェック時刻が記録されます。チェック間隔は 1 日です。この値は自動的に記録されるため、通常は手動で変更する必要はありません。"
     },
+    "CheckInterval": {
+      "name": "OpsiCheckLeveling.CheckInterval.name",
+      "help": "OpsiCheckLeveling.CheckInterval.help"
+    },
+    "EnableCustomCheck": {
+      "name": "OpsiCheckLeveling.EnableCustomCheck.name",
+      "help": "OpsiCheckLeveling.EnableCustomCheck.help",
+      "True": "True",
+      "False": "False"
+    },
+    "CustomCheckPositions": {
+      "name": "OpsiCheckLeveling.CustomCheckPositions.name",
+      "help": "OpsiCheckLeveling.CustomCheckPositions.help"
+    },
     "DelayAfterFull": {
       "name": "目標レベルに達するまでミッションは延期されます",
       "help": "完全な経験が検出されると、このタスクは指定された時間延期されます。"

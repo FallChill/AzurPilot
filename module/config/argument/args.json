@@ -14059,6 +14059,22 @@
         "value": "2020-01-01 00:00:00",
         "validate": "datetime"
       },
+      "CheckInterval": {
+        "type": "input",
+        "value": 24
+      },
+      "EnableCustomCheck": {
+        "type": "checkbox",
+        "value": false,
+        "option": [
+          true,
+          false
+        ]
+      },
+      "CustomCheckPositions": {
+        "type": "input",
+        "value": ""
+      },
       "DelayAfterFull": {
         "type": "checkbox",
         "value": false

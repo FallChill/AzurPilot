@@ -748,6 +748,9 @@ class GeneratedConfig:
     # Group `OpsiCheckLeveling`
     OpsiCheckLeveling_TargetLevel = 0
     OpsiCheckLeveling_LastRun = datetime.datetime(2020, 1, 1, 0, 0)
+    OpsiCheckLeveling_CheckInterval = 24
+    OpsiCheckLeveling_EnableCustomCheck = False  # True, False
+    OpsiCheckLeveling_CustomCheckPositions = None
     OpsiCheckLeveling_DelayAfterFull = False
 
     # Group `OpsiScheduling`

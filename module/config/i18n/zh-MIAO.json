@@ -4707,6 +4707,20 @@
       "name": "上次检查经验时间(自动) (´・ω・`)",
       "help": "防重复间隔1天，自动记录喵。"
     },
+    "CheckInterval": {
+      "name": "OpsiCheckLeveling.CheckInterval.name",
+      "help": "OpsiCheckLeveling.CheckInterval.help"
+    },
+    "EnableCustomCheck": {
+      "name": "OpsiCheckLeveling.EnableCustomCheck.name",
+      "help": "OpsiCheckLeveling.EnableCustomCheck.help",
+      "True": "True",
+      "False": "False"
+    },
+    "CustomCheckPositions": {
+      "name": "OpsiCheckLeveling.CustomCheckPositions.name",
+      "help": "OpsiCheckLeveling.CustomCheckPositions.help"
+    },
     "DelayAfterFull": {
       "name": "到达目标等级后推迟该任务 (｡•̀ᴗ-)✧",
       "help": "检测到满经验后将本任务推迟指定时间喵。"
