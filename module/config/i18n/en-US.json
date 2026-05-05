@@ -4707,6 +4707,20 @@
       "name": "Last EXP Check Time (auto-recorded)",
       "help": "Records the time of last check to prevent repeated runs, check interval is 1 day. This value is auto-recorded and generally does not need manual modification."
     },
+    "CheckInterval": {
+      "name": "OpsiCheckLeveling.CheckInterval.name",
+      "help": "OpsiCheckLeveling.CheckInterval.help"
+    },
+    "EnableCustomCheck": {
+      "name": "OpsiCheckLeveling.EnableCustomCheck.name",
+      "help": "OpsiCheckLeveling.EnableCustomCheck.help",
+      "True": "True",
+      "False": "False"
+    },
+    "CustomCheckPositions": {
+      "name": "OpsiCheckLeveling.CustomCheckPositions.name",
+      "help": "OpsiCheckLeveling.CustomCheckPositions.help"
+    },
     "DelayAfterFull": {
       "name": "Delay Task After Reaching Target Level",
       "help": "When full experience is detected, this task will be delayed for the specified duration."

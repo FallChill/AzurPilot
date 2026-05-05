@@ -1198,6 +1198,13 @@ OpsiSirenBug:
 OpsiCheckLeveling:
   TargetLevel: 0
   LastRun: 2020-01-01 00:00:00
+  CheckInterval: 24
+  EnableCustomCheck:
+    type: checkbox
+    value: false
+    option: [true, false]
+  CustomCheckPositions:
+    value: ''
   DelayAfterFull: false
 OpsiScheduling:
   UseSmartSchedulingOperationCoinsPreserve:
