@@ -202,6 +202,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -279,6 +280,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -356,6 +358,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -448,6 +451,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -527,6 +531,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -606,6 +611,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -684,6 +690,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -761,6 +768,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -838,6 +846,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -919,6 +928,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -973,6 +983,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1029,6 +1040,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1080,6 +1092,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1162,6 +1175,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1243,6 +1257,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1324,6 +1339,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1405,6 +1421,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1486,6 +1503,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1563,6 +1581,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1643,6 +1662,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -1694,6 +1714,7 @@
     },
     "StopCondition": {
       "OilLimit": 1000,
+      "CoinLimit": 0,
       "RunCount": 0,
       "MapAchievement": "non_stop",
       "StageIncrease": false,
@@ -2560,7 +2581,7 @@
       "SirenBug_DailyCount": 0,
       "SirenBug_DailyCountRecord": "2020-01-01 00:00:00",
       "SirenBug_CountLimit": 10,
-      "SirenBug_CrossDay": false,
+      "SirenBug_CrossDay": true,
       "SirenBug_AutoDisable": false
     },
     "OpsiTarget": {
@@ -2605,7 +2626,7 @@
       "SirenBug_DailyCount": 0,
       "SirenBug_DailyCountRecord": "2020-01-01 00:00:00",
       "SirenBug_CountLimit": 10,
-      "SirenBug_CrossDay": false,
+      "SirenBug_CrossDay": true,
       "SirenBug_AutoDisable": false
     },
     "OpsiFleet": {

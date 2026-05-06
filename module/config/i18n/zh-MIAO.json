@@ -1055,6 +1055,10 @@
       "name": "石油低于 X 后推迟 (´；ω；｀)",
       "help": "石油不足时歇一歇，等回复再出喵~"
     },
+    "CoinLimit": {
+      "name": "StopCondition.CoinLimit.name",
+      "help": "StopCondition.CoinLimit.help"
+    },
     "RunCount": {
       "name": "出击次数大于 X 停止 (・ω・)ノ",
       "help": "每运行一次减一，到零停止。0为无限喵。"

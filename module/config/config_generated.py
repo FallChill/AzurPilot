@@ -181,6 +181,7 @@ class GeneratedConfig:
 
     # Group `StopCondition`
     StopCondition_OilLimit = 1000
+    StopCondition_CoinLimit = 0
     StopCondition_RunCount = 0
     StopCondition_MapAchievement = 'non_stop'  # non_stop, non_stop_clear_all, 100_percent_clear, map_3_stars, threat_safe, threat_safe_without_3_stars
     StopCondition_StageIncrease = False
@@ -742,7 +743,7 @@ class GeneratedConfig:
     OpsiSirenBug_SirenBug_DailyCount = 0
     OpsiSirenBug_SirenBug_DailyCountRecord = datetime.datetime(2020, 1, 1, 0, 0)
     OpsiSirenBug_SirenBug_CountLimit = 10
-    OpsiSirenBug_SirenBug_CrossDay = False
+    OpsiSirenBug_SirenBug_CrossDay = True
     OpsiSirenBug_SirenBug_AutoDisable = False
 
     # Group `OpsiCheckLeveling`
