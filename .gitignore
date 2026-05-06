@@ -1,5 +1,8 @@
 ### AzurLaneAutoScript
 log
+.claude/
+.cursor/
+/webapp
 config/backup/*
 config/*.ini
 !config/template.ini
