@@ -4436,7 +4436,7 @@
     },
     "Filter": {
       "name": "商店过滤器",
-      "help": "参考文档 https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/reward_shop_filter_string"
+      "help": "支持 战役信息记录仪(LoggerUnlock), 隐秘海域信息记录仪(HiddenZoneDataLogger)\n参考文档 https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/reward_shop_filter_string 你可以自行设置：LoggerUnlock > HiddenZoneDataLogger > LoggerAbyssal > LoggerObscure > Book > Coin > Fragment 来购买战役信息记录仪和隐秘海域信息记录仪。"
     }
   },
   "OpsiDaily": {
