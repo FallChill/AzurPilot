@@ -1056,8 +1056,8 @@
       "help": "燃料が少なすぎる場合はタスクを延期し、燃料が十分になったら出撃を続行します"
     },
     "CoinLimit": {
-      "name": "StopCondition.CoinLimit.name",
-      "help": "StopCondition.CoinLimit.help"
+      "name": "資金がXを超えたら停止",
+      "help": "資金がこの数値を超えていることが確認された場合、現在のタスクを停止します。\n0は制限なしを意味します"
     },
     "RunCount": {
       "name": "出撃回数がXを超えると停止する",
