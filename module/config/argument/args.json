@@ -13786,7 +13786,7 @@
     "OpsiSirenBug": {
       "SirenResearch_Enable": {
         "type": "checkbox",
-        "value": false
+        "value": true
       },
       "SirenBug_Enable": {
         "type": "checkbox",
@@ -13826,7 +13826,7 @@
       },
       "DisableTaskSwitchDuringBug": {
         "type": "checkbox",
-        "value": false,
+        "value": true,
         "option": [
           true,
           false
@@ -13843,7 +13843,7 @@
       },
       "SirenBug_CountLimit": {
         "type": "input",
-        "value": 0
+        "value": 10
       },
       "SirenBug_CrossDay": {
         "type": "checkbox",
@@ -13942,7 +13942,7 @@
       },
       "OperationCoinsPreserve": {
         "type": "input",
-        "value": 100000
+        "value": 40000
       },
       "MinimumActionPointReserve": {
         "type": "input",
@@ -13950,7 +13950,7 @@
       },
       "ExecuteFixedPatrolScan": {
         "type": "checkbox",
-        "value": false
+        "value": true
       },
       "Cl1Filter": {
         "type": "textarea",
@@ -13964,7 +13964,7 @@
     "OpsiSirenBug": {
       "SirenResearch_Enable": {
         "type": "checkbox",
-        "value": false
+        "value": true
       },
       "SirenBug_Enable": {
         "type": "checkbox",
@@ -14004,7 +14004,7 @@
       },
       "DisableTaskSwitchDuringBug": {
         "type": "checkbox",
-        "value": false,
+        "value": true,
         "option": [
           true,
           false
@@ -14021,7 +14021,7 @@
       },
       "SirenBug_CountLimit": {
         "type": "input",
-        "value": 0
+        "value": 10
       },
       "SirenBug_CrossDay": {
         "type": "checkbox",
@@ -14129,7 +14129,7 @@
     "OpsiScheduling": {
       "UseSmartSchedulingOperationCoinsPreserve": {
         "type": "checkbox",
-        "value": false,
+        "value": true,
         "option": [
           true,
           false
@@ -14137,15 +14137,15 @@
       },
       "OperationCoinsPreserve": {
         "type": "input",
-        "value": 0
+        "value": 40000
       },
       "ActionPointPreserve": {
         "type": "input",
-        "value": 500
+        "value": 200
       },
       "OperationCoinsReturnThreshold": {
         "type": "input",
-        "value": 0
+        "value": 20000
       },
       "EnableMeowfficerFarming": {
         "type": "checkbox",
