@@ -275,8 +275,8 @@
       "help": ""
     },
     "OpsiHazard1Leveling": {
-      "name": "赛博股票",
-      "help": "使用本功能前务必观看教程视频，否则后果自负"
+      "name": "侵蚀1练级",
+      "help": "此功能开放了大量配置，默认配置已经可以满足大部分需求，配置前请确保你已了解侵蚀1的基础原理，后果自负"
     },
     "OpsiScheduling": {
       "name": "智能调度+",
@@ -1054,6 +1054,10 @@
     "OilLimit": {
       "name": "石油低于 X 后推迟",
       "help": "石油过低时推迟任务，石油充足后继续出击"
+    },
+    "CoinLimit": {
+      "name": "物资大于 X 后停止",
+      "help": "物资大于该数值后停止当前任务\n0 表示不限制物资"
     },
     "RunCount": {
       "name": "出击次数大于 X 后停止",
@@ -4432,7 +4436,7 @@
     },
     "Filter": {
       "name": "商店过滤器",
-      "help": "参考文档 https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/reward_shop_filter_string"
+      "help": "支持 战役信息记录仪(LoggerUnlock), 隐秘海域信息记录仪(HiddenZoneDataLogger)\n参考文档 https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/reward_shop_filter_string 你可以自行设置：LoggerUnlock > HiddenZoneDataLogger > LoggerAbyssal > LoggerObscure > Book > Coin > Fragment 来购买战役信息记录仪和隐秘海域信息记录仪。"
     }
   },
   "OpsiDaily": {

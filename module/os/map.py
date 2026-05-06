@@ -2329,7 +2329,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                         target=self.notify_push,
                         kwargs={
                             "title": "[Alas] 塞壬Bug利用 - 完成",
-                            "content": f"已完成塞壬研究装置Bug利用\\n目标区域: {target_zone} ({zone_type_text})\\n已返回侵蚀一区域"
+                            "content": f"已完成塞壬研究装置Bug利用\n目标区域: {target_zone} ({zone_type_text})\n已返回侵蚀一区域"
                         }
                     ).start()
             except Exception as notify_err:
@@ -2420,7 +2420,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                         target=self.notify_push,
                         kwargs={
                             "title": "[Alas] 塞壬Bug利用 - 失败",
-                            "content": f"塞壬研究装置BUG利用失败\\n错误: {str(e)}\\n请检查日志"
+                            "content": f"塞壬研究装置BUG利用失败\n错误: {str(e)}\n请检查日志"
                         }
                     ).start()
             except Exception as notify_err:
