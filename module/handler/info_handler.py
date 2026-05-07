@@ -1,6 +1,4 @@
 from scipy import signal
-import difflib
-import re
 
 from module.base.base import ModuleBase
 from module.base.button import Button
@@ -11,8 +9,6 @@ from module.handler.assets import *
 from module.logger import logger
 from module.os_handler.assets import CLICK_SAFE_AREA as OS_CLICK_SAFE_AREA
 from module.ui_white.assets import POPUP_CANCEL_WHITE, POPUP_CONFIRM_WHITE, POPUP_SINGLE_WHITE
-from module.base.decorator import cached_property
-from module.ocr.ocr import Ocr
 
 
 def info_letter_preprocess(image):
@@ -391,37 +387,6 @@ class InfoHandler(ModuleBase):
         return False
     
 
-    @cached_property
-    def siren_ocr(self):
-        # Siren research device OCR.
-        # Since options are dynamically detected, we initialize with empty buttons and update them on the fly.
-        return Ocr([], lang='cnocr', name='SIREN_DEVICE_OCR')
-
-    def _is_siren_device(self, options):
-        templates = ['消耗1个塞壬能源存储器尝试探测隐藏的敌人', '消耗2个特别兑换凭证尝试探测隐藏的资源']
-
-        self.siren_ocr.buttons = options[:2]
-        results = self.siren_ocr.ocr(self.device.image)
-        if not isinstance(results, list):
-            results = [results]
-
-        # 第三个选项过短，不做判断
-        for i, text in enumerate(results):
-            template = templates[i]
-
-            # 删除特殊字符
-            text = re.sub(r'[^\u4e00-\u9fa5a-zA-Z0-9]', '', text)
-
-            similarity = difflib.SequenceMatcher(None, text, template).ratio()
-            if similarity < 0.7:
-                logger.info(f'[Story] 相似度: {similarity}，不认为是塞壬研究装置')
-                return False
-            logger.info(f'[Story] 相似度: {similarity}，选项{i}验证通过')
-
-        logger.info('[Story] 通过所有验证，认为是塞壬研究装置')
-        return True
-
-
     def story_skip(self, drop=None):
         """
         2023.09.14 Story options changed with big white options in the middle,
@@ -446,8 +411,8 @@ class InfoHandler(ModuleBase):
                 self._story_option_confirm.reset()
             elif options_count == self._story_option_record:
                 if self._story_option_confirm.reached():
-                    # 检查是否是塞壬研究装置(3个选项时才检查)
-                    is_siren_device = options_count == 3 and self._is_siren_device(options)
+                    # 当前塞壬研究装置固定为 5 个选项
+                    is_siren_device = options_count == 5
                     
                     # 设置标志位供外部检查 (map.py)
                     self.is_siren_device_confirmed = is_siren_device
@@ -457,26 +422,14 @@ class InfoHandler(ModuleBase):
                         usage = self.config.OS_SIREN_DEVICE_USAGE
                         logger.attr('OS_SIREN_DEVICE_USAGE', usage)
                         if usage == 'never':
-                            select = options[2]
-                            logger.info('[Story] 点击第3个选项')
-                        elif usage in ('use_first_twice', 'use_first_once'):
-                            # 策略A: 探测隐藏的敌人（两次第1个选项）
-                            select = options[0]
-                            logger.info('[Story] 点击第1个选项')
-                            
-                            if usage == 'use_first_twice':
-                                self.config.OS_SIREN_DEVICE_USAGE = 'use_first_once'
-                            elif usage == 'use_first_once':
-                                self.config.OS_SIREN_DEVICE_USAGE = 'never'
+                            select = options[-1]
+                            logger.info(f'[Story] 点击第{options_count}个选项')
+                        elif usage == 'use_until_destroyed' and options_count >= 4:
+                            select = options[3]
+                            logger.info('[Story] 点击第4个选项')
                         else:
-                            # 策略B: 探测隐藏的资源（两次第2个选项）
-                            select = options[1]
-                            logger.info('[Story] 点击第2个选项')
-                            
-                            if usage == 'use_twice':
-                                self.config.OS_SIREN_DEVICE_USAGE = 'use_once'
-                            elif usage == 'use_once':
-                                self.config.OS_SIREN_DEVICE_USAGE = 'never'
+                            select = options[-1]
+                            logger.info(f'[Story] 未知塞壬装置处理方法，点击第{options_count}个选项')
                     else:
                         # 普通剧情:按配置的索引点击
                         try:
