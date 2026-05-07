@@ -422,8 +422,12 @@ class InfoHandler(ModuleBase):
                         break
         
         if len(matched_buttons) >= 3:
+            task = self.config.task.command
+            if task not in ('OpsiHazard1Leveling', 'OpsiMeowfficerFarming'):
+                task = 'OpsiHazard1Leveling'
+            
             siren_research_enabled = self.config.cross_get(
-                keys='OpsiSirenBug.SirenResearch_Enable',
+                keys=f'{task}.OpsiSirenBug.SirenResearch_Enable',
                 default=False
             )
             
@@ -436,7 +440,7 @@ class InfoHandler(ModuleBase):
                     return options[-1]
             
             siren_mode = self.config.cross_get(
-                keys='OpsiSirenBug.Siren_Mode',
+                keys=f'{task}.OpsiSirenBug.Siren_Mode',
                 default='resource'
             )
             
