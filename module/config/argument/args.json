@@ -13871,6 +13871,14 @@
       "SirenResearch_Enable": {
         "type": "checkbox",
         "value": true
+      },
+      "Siren_Mode": {
+        "type": "select",
+        "value": "resource",
+        "option": [
+          "resource",
+          "enemy"
+        ]
       }
     },
     "OpsiTarget": {
@@ -13984,6 +13992,14 @@
       "SirenResearch_Enable": {
         "type": "checkbox",
         "value": true
+      },
+      "Siren_Mode": {
+        "type": "select",
+        "value": "resource",
+        "option": [
+          "resource",
+          "enemy"
+        ]
       }
     },
     "OpsiFleet": {

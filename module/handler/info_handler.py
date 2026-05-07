@@ -419,17 +419,32 @@ class InfoHandler(ModuleBase):
                     
                     # 根据检测结果选择点击哪个选项
                     if is_siren_device:
-                        usage = self.config.OS_SIREN_DEVICE_USAGE
-                        logger.attr('OS_SIREN_DEVICE_USAGE', usage)
-                        if usage == 'never':
-                            select = options[-1]
-                            logger.info(f'[Story] 点击第{options_count}个选项')
-                        elif usage == 'use_until_destroyed' and options_count >= 4:
-                            select = options[3]
-                            logger.info('[Story] 点击第4个选项')
+                        # 检查是否启用塞壬研究装置
+                        siren_research_enabled = self.config.cross_get(
+                            keys='OpsiSirenBug.SirenResearch_Enable',
+                            default=False
+                        )
+                        
+                        if siren_research_enabled:
+                            # 读取Siren_Mode配置
+                            siren_mode = self.config.cross_get(
+                                keys='OpsiSirenBug.Siren_Mode',
+                                default='resource'
+                            )
+                            
+                            # 根据模式选择对应选项
+                            if siren_mode == 'enemy':
+                                # 选择第3个选项：反复尝试探测隐藏的敌人
+                                select = options[2]
+                                logger.info('[Story] 选择反复尝试探测隐藏的敌人')
+                            else:  # 'resource'
+                                # 选择第4个选项：反复尝试探测隐藏的资源
+                                select = options[3]
+                                logger.info('[Story] 选择反复尝试探测隐藏的资源')
                         else:
+                            # 未启用塞壬研究装置，选择离开
                             select = options[-1]
-                            logger.info(f'[Story] 未知塞壬装置处理方法，点击第{options_count}个选项')
+                            logger.info('[Story] 塞壬研究装置未启用，选择离开')
                     else:
                         # 普通剧情:按配置的索引点击
                         try:
