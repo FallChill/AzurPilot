@@ -336,9 +336,9 @@ class InfoHandler(ModuleBase):
         Returns:
             list[Button]: List of story options, from upper to bottom. If no option found, return an empty list.
         """
-        # Area to detect the options, should include at least 3 options.
-        story_option_area = (330, 200, 980, 465)
-        story_detect_area = (330, 200, 355, 465)
+        # Area to detect the options, measured from the 5-option siren research device popup.
+        story_option_area = (277, 130, 1003, 545)
+        story_detect_area = (330, 130, 355, 545)
         story_option_color = (247, 247, 247)
 
         image = color_similarity_2d(self.image_crop(story_detect_area, copy=False), color=story_option_color)
@@ -372,6 +372,7 @@ class InfoHandler(ModuleBase):
             buttons.append(
                 Button(area=area, color=story_option_color, button=area, name=f'STORY_OPTION_{n + 1}_OF_{total}'))
 
+        buttons = sorted(buttons, key=lambda button: button.button[1])
         return buttons
 
     def _is_story_black(self):
@@ -406,6 +407,8 @@ class InfoHandler(ModuleBase):
             options = self._story_option_buttons_2()
             options_count = len(options)
             logger.attr('Story_options', options_count)
+            if options_count:
+                logger.attr('Story_option_buttons', [option.button for option in options])
             if not options_count:
                 self._story_option_record = 0
                 self._story_option_confirm.reset()
