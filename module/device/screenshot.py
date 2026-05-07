@@ -35,28 +35,7 @@ class Screenshot(Adb, WSA, DroidCast, AScreenCap, Scrcpy, NemuIpc, LDOpenGL):
     _minicap_uninstalled = False
     _screenshot_interval = Timer(0.1)
     _last_save_time = {}
-    _resize_method_idx = 0
     image: np.ndarray
-
-    cv_interpolation_methods = [cv2.INTER_LANCZOS4, cv2.INTER_AREA]
-    pillow_interpolation_methods = [Image.LANCZOS, Image.BICUBIC]
-
-    @cached_property
-    def _resize_methods_list(self):
-        cv_methods = [('cv', m) for m in self.cv_interpolation_methods]
-        pillow_methods = [('pillow', m) for m in self.pillow_interpolation_methods]
-        result = []
-        for cv_method, pillow_method in zip_longest(cv_methods, pillow_methods, fillvalue=None):
-            if cv_method:
-                result.append(cv_method)
-            if pillow_method:
-                result.append(pillow_method)
-        return result
-
-    def get_next_resize_method(self):
-        method_type, interp = self._resize_methods_list[self._resize_method_idx]
-        self._resize_method_idx = (self._resize_method_idx + 1) % len(self._resize_methods_list)
-        return method_type, interp
 
     @cached_property
     def screenshot_methods(self):
@@ -96,13 +75,7 @@ class Screenshot(Adb, WSA, DroidCast, AScreenCap, Scrcpy, NemuIpc, LDOpenGL):
 
             width, height = image_size(self.image)
             if width != 1280 or height != 720:
-                method_type, interp = self.get_next_resize_method()
-                if method_type == 'cv':
-                    self.image = cv2.resize(self.image, (1280, 720), interpolation=interp)
-                else:
-                    self.image = np.array(
-                        Image.fromarray(self.image).resize((1280, 720), resample=interp)
-                    )
+                self.image = cv2.resize(self.image, (1280, 720), interpolation=cv2.INTER_LANCZOS4)
 
             if self.config.Emulator_ScreenshotDedithering:
                 # This will take 40-60ms
