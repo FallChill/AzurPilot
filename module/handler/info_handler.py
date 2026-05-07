@@ -7,7 +7,14 @@ from module.base.utils import *
 from module.exception import GameNotRunningError
 from module.handler.assets import *
 from module.logger import logger
-from module.os_handler.assets import CLICK_SAFE_AREA as OS_CLICK_SAFE_AREA
+from module.os_handler.assets import (
+    CLICK_SAFE_AREA as OS_CLICK_SAFE_AREA,
+    SIREN_DEVICE_ENEMY_ONCE,
+    SIREN_DEVICE_ENEMY_REPEAT,
+    SIREN_DEVICE_LEAVE,
+    SIREN_DEVICE_RESOURCE_ONCE,
+    SIREN_DEVICE_RESOURCE_REPEAT
+)
 from module.ui_white.assets import POPUP_CANCEL_WHITE, POPUP_CONFIRM_WHITE, POPUP_SINGLE_WHITE
 
 
@@ -377,16 +384,78 @@ class InfoHandler(ModuleBase):
 
     def _is_story_black(self):
         color = get_color(self.device.image, area=STORY_LETTER_BLACK.area)
-        # Story with dark background and a few rows of letters
-        # STORY_LETTER_BLACK.color is (16, 20, 16)
         if color_similar(color, STORY_LETTER_BLACK.color, threshold=10):
             return True
-        # Story with black and a few rows of letters
         if color_similar(color, (0, 0, 0), threshold=10):
             return True
 
         return False
-    
+
+    def _identify_siren_device_option(self, options):
+        """
+        Identify siren device options using template matching.
+        
+        Args:
+            options (list[Button]): List of detected story options
+            
+        Returns:
+            Button: The button to click, or None if not a siren device
+        """
+        if len(options) != 5:
+            return None
+        
+        siren_buttons = [
+            SIREN_DEVICE_ENEMY_ONCE,
+            SIREN_DEVICE_RESOURCE_ONCE,
+            SIREN_DEVICE_ENEMY_REPEAT,
+            SIREN_DEVICE_RESOURCE_REPEAT,
+            SIREN_DEVICE_LEAVE
+        ]
+        
+        matched_buttons = {}
+        for siren_button in siren_buttons:
+            if self.appear(siren_button, offset=(20, 20)):
+                for idx, option in enumerate(options):
+                    if area_cross_area(option.area, siren_button.area):
+                        matched_buttons[siren_button.name] = idx
+                        logger.attr(f'SirenDevice_{siren_button.name}', f'Option {idx + 1}')
+                        break
+        
+        if len(matched_buttons) >= 3:
+            siren_research_enabled = self.config.cross_get(
+                keys='OpsiSirenBug.SirenResearch_Enable',
+                default=False
+            )
+            
+            if not siren_research_enabled:
+                if 'SIREN_DEVICE_LEAVE' in matched_buttons:
+                    logger.info('[Story] 塞壬研究装置未启用，选择离开')
+                    return options[matched_buttons['SIREN_DEVICE_LEAVE']]
+                else:
+                    logger.info('[Story] 塞壬研究装置未启用，选择最后一个选项')
+                    return options[-1]
+            
+            siren_mode = self.config.cross_get(
+                keys='OpsiSirenBug.Siren_Mode',
+                default='resource'
+            )
+            
+            if siren_mode == 'enemy':
+                if 'SIREN_DEVICE_ENEMY_REPEAT' in matched_buttons:
+                    logger.info('[Story] 选择反复尝试探测隐藏的敌人')
+                    return options[matched_buttons['SIREN_DEVICE_ENEMY_REPEAT']]
+                elif 'SIREN_DEVICE_ENEMY_ONCE' in matched_buttons:
+                    logger.info('[Story] 选择尝试探测隐藏的敌人')
+                    return options[matched_buttons['SIREN_DEVICE_ENEMY_ONCE']]
+            else:
+                if 'SIREN_DEVICE_RESOURCE_REPEAT' in matched_buttons:
+                    logger.info('[Story] 选择反复尝试探测隐藏的资源')
+                    return options[matched_buttons['SIREN_DEVICE_RESOURCE_REPEAT']]
+                elif 'SIREN_DEVICE_RESOURCE_ONCE' in matched_buttons:
+                    logger.info('[Story] 选择尝试探测隐藏的资源')
+                    return options[matched_buttons['SIREN_DEVICE_RESOURCE_ONCE']]
+        
+        return None
 
     def story_skip(self, drop=None):
         """
@@ -414,42 +483,12 @@ class InfoHandler(ModuleBase):
                 self._story_option_confirm.reset()
             elif options_count == self._story_option_record:
                 if self._story_option_confirm.reached():
-                    # 当前塞壬研究装置固定为 5 个选项
-                    is_siren_device = options_count == 5
+                    select = self._identify_siren_device_option(options)
                     
-                    # 设置标志位供外部检查 (map.py)
+                    is_siren_device = select is not None
                     self.is_siren_device_confirmed = is_siren_device
                     
-                    # 根据检测结果选择点击哪个选项
-                    if is_siren_device:
-                        # 检查是否启用塞壬研究装置
-                        siren_research_enabled = self.config.cross_get(
-                            keys='OpsiSirenBug.SirenResearch_Enable',
-                            default=False
-                        )
-                        
-                        if siren_research_enabled:
-                            # 读取Siren_Mode配置
-                            siren_mode = self.config.cross_get(
-                                keys='OpsiSirenBug.Siren_Mode',
-                                default='resource'
-                            )
-                            
-                            # 根据模式选择对应选项
-                            if siren_mode == 'enemy':
-                                # 选择第3个选项：反复尝试探测隐藏的敌人
-                                select = options[2]
-                                logger.info('[Story] 选择反复尝试探测隐藏的敌人')
-                            else:  # 'resource'
-                                # 选择第4个选项：反复尝试探测隐藏的资源
-                                select = options[3]
-                                logger.info('[Story] 选择反复尝试探测隐藏的资源')
-                        else:
-                            # 未启用塞壬研究装置，选择离开
-                            select = options[-1]
-                            logger.info('[Story] 塞壬研究装置未启用，选择离开')
-                    else:
-                        # 普通剧情:按配置的索引点击
+                    if not is_siren_device:
                         try:
                             select = options[self.config.STORY_OPTION]
                         except IndexError:
