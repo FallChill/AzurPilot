@@ -348,18 +348,8 @@ class LDOpenGL(Platform):
         # we need to flip it vertically first
         image = cv2.flip(image, 0)
 
-        # Handle device orientation
-        if self.orientation == 1:
-            # HOME key on the right - rotate 90 degrees counterclockwise
-            # This handles the case where emulator is set to 1080x1920 but displays as 1920x1080
-            image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        elif self.orientation == 3:
-            # HOME key on the left - rotate 90 degrees clockwise
-            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-        elif self.orientation == 2:
-            # HOME key on the top - rotate 180 degrees
-            image = cv2.rotate(image, cv2.ROTATE_180)
+        # 方向处理已统一在screenshot.py的_handle_orientated_image()方法中处理，避免重复旋转
 
-        # Convert color space
+        # Convert color space from BGR to RGB
         cv2.cvtColor(image, cv2.COLOR_BGR2RGB, dst=image)
         return image
