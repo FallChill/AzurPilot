@@ -422,6 +422,20 @@ class InfoHandler(ModuleBase):
                         break
         
         if len(matched_buttons) >= 3:
+            # 检查是否已经尝试过选择选项
+            if hasattr(self, '_siren_device_retry_count'):
+                self._siren_device_retry_count += 1
+                if self._siren_device_retry_count >= 2:
+                    logger.warning('[Story] 塞壬装置资源不足，选择离开')
+                    self.siren_device_mode = None
+                    self._siren_device_retry_count = 0
+                    if 'SIREN_DEVICE_LEAVE' in matched_buttons:
+                        return options[matched_buttons['SIREN_DEVICE_LEAVE']]
+                    else:
+                        return options[-1]
+            else:
+                self._siren_device_retry_count = 1
+            
             task = self.config.task.command
             if task not in ('OpsiHazard1Leveling', 'OpsiMeowfficerFarming'):
                 task = 'OpsiHazard1Leveling'
@@ -432,6 +446,8 @@ class InfoHandler(ModuleBase):
             )
             
             if not siren_research_enabled:
+                self.siren_device_mode = None
+                self._siren_device_retry_count = 0
                 if 'SIREN_DEVICE_LEAVE' in matched_buttons:
                     logger.info('[Story] 塞壬研究装置未启用，选择离开')
                     return options[matched_buttons['SIREN_DEVICE_LEAVE']]
@@ -445,6 +461,7 @@ class InfoHandler(ModuleBase):
             )
             
             if siren_mode == 'enemy':
+                self.siren_device_mode = 'enemy'
                 if 'SIREN_DEVICE_ENEMY_REPEAT' in matched_buttons:
                     logger.info('[Story] 选择反复尝试探测隐藏的敌人')
                     return options[matched_buttons['SIREN_DEVICE_ENEMY_REPEAT']]
@@ -452,6 +469,7 @@ class InfoHandler(ModuleBase):
                     logger.info('[Story] 选择尝试探测隐藏的敌人')
                     return options[matched_buttons['SIREN_DEVICE_ENEMY_ONCE']]
             else:
+                self.siren_device_mode = 'resource'
                 if 'SIREN_DEVICE_RESOURCE_REPEAT' in matched_buttons:
                     logger.info('[Story] 选择反复尝试探测隐藏的资源')
                     return options[matched_buttons['SIREN_DEVICE_RESOURCE_REPEAT']]
@@ -459,6 +477,8 @@ class InfoHandler(ModuleBase):
                     logger.info('[Story] 选择尝试探测隐藏的资源')
                     return options[matched_buttons['SIREN_DEVICE_RESOURCE_ONCE']]
         
+        self.siren_device_mode = None
+        self._siren_device_retry_count = 0
         return None
 
     def story_skip(self, drop=None):

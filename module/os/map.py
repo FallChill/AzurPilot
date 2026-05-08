@@ -1316,9 +1316,45 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 # ========== 装置处理 ==========
                 # 选项点击已由 wait_until_walk_stable -> info_handler.story_skip 处理
                 
-                # 执行自律寻敌
-                logger.info('[装置处理] 步骤1: 执行自律寻敌')
-                self.os_auto_search_run(drop=drop)
+                # 检测选择的模式
+                siren_mode = getattr(self, 'siren_device_mode', None)
+                logger.attr('Siren_device_mode', siren_mode)
+                
+                # 如果选择了敌人模式
+                if siren_mode == 'enemy':
+                    logger.info('[装置处理] 检测到敌人模式，执行特殊处理')
+                    
+                    # 记录当前舰队
+                    current_fleet = self.fleet_selector.get()
+                    logger.info(f'[装置处理] 当前舰队: {current_fleet}')
+                    
+                    # 获取备用舰队
+                    alternative_fleet = self.get_second_fleet()
+                    logger.info(f'[装置处理] 切换到备用舰队: {alternative_fleet}')
+                    self.fleet_set(alternative_fleet)
+                    
+                    # 执行三次自律寻敌
+                    for i in range(3):
+                        logger.info(f'[装置处理] 执行第 {i + 1}/3 次自律寻敌')
+                        self.os_auto_search_run(drop=drop)
+                    
+                    # 切换回原舰队
+                    logger.info(f'[装置处理] 切换回原舰队: {current_fleet}')
+                    self.fleet_set(current_fleet)
+                
+                # 如果选择了资源模式
+                elif siren_mode == 'resource':
+                    logger.info('[装置处理] 检测到资源模式，执行标准处理')
+                    # 执行一次自律寻敌
+                    logger.info('[装置处理] 执行自律寻敌')
+                    self.os_auto_search_run(drop=drop)
+                
+                # 未知模式或资源不足
+                else:
+                    logger.info('[装置处理] 未知模式或资源不足，执行标准处理')
+                    # 执行一次自律寻敌
+                    logger.info('[装置处理] 执行自律寻敌')
+                    self.os_auto_search_run(drop=drop)
                 
                 # 标记处理
                 self._solved_map_event.add('is_scanning_device')
