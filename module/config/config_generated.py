@@ -734,6 +734,7 @@ class GeneratedConfig:
     # Group `OpsiSirenBug`
     OpsiSirenBug_SirenResearch_Enable = True
     OpsiSirenBug_Siren_Mode = 'resource'  # resource, enemy
+    OpsiSirenBug_Siren_Fleet = 0  # 0, 1, 2, 3, 4
 
     # Group `OpsiCheckLeveling`
     OpsiCheckLeveling_TargetLevel = 0

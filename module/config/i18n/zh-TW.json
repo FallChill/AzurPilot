@@ -4642,10 +4642,19 @@
       "help": "啟用後使用紫幣透過塞壬研究裝置轉換為黃幣\n需要足夠的海里數支撐紫幣消耗"
     },
     "Siren_Mode": {
-      "name": "OpsiSirenBug.Siren_Mode.name",
-      "help": "OpsiSirenBug.Siren_Mode.help",
-      "resource": "resource",
-      "enemy": "enemy"
+      "name": "與塞壬探測裝置的互動方式",
+      "help": "選擇與塞壬裝置的互動方式。探測資源消耗紫幣（特別兌換憑證），探測敵人消耗塞壬能源存儲器",
+      "resource": "反覆嘗試探測隱藏的資源",
+      "enemy": "反覆嘗試探測隱藏的敵人"
+    },
+    "Siren_Fleet": {
+      "name": "探測敵人使用的艦隊",
+      "help": "選擇探測隱藏敵人時使用的艦隊。0表示使用當前艦隊，1-4表示使用指定艦隊",
+      "0": "使用當前艦隊",
+      "1": "艦隊1",
+      "2": "艦隊2",
+      "3": "艦隊3",
+      "4": "艦隊4"
     }
   },
   "OpsiCheckLeveling": {

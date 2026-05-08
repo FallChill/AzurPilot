@@ -2571,7 +2571,8 @@
     },
     "OpsiSirenBug": {
       "SirenResearch_Enable": true,
-      "Siren_Mode": "resource"
+      "Siren_Mode": "resource",
+      "Siren_Fleet": 0
     },
     "OpsiTarget": {
       "TargetFarming": false,
@@ -2605,7 +2606,8 @@
     },
     "OpsiSirenBug": {
       "SirenResearch_Enable": true,
-      "Siren_Mode": "resource"
+      "Siren_Mode": "resource",
+      "Siren_Fleet": 0
     },
     "OpsiFleet": {
       "Fleet": 1,

@@ -1324,23 +1324,35 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 if siren_mode == 'enemy':
                     logger.info('[装置处理] 检测到敌人模式，执行特殊处理')
                     
+                    # 获取配置的舰队
+                    task = self.config.task.command
+                    if task not in ('OpsiHazard1Leveling', 'OpsiMeowfficerFarming'):
+                        task = 'OpsiHazard1Leveling'
+                    siren_fleet = self.config.cross_get(
+                        keys=f'{task}.OpsiSirenBug.Siren_Fleet',
+                        default=0
+                    )
+                    
                     # 记录当前舰队
                     current_fleet = self.fleet_selector.get()
                     logger.info(f'[装置处理] 当前舰队: {current_fleet}')
                     
-                    # 获取备用舰队
-                    alternative_fleet = self.get_second_fleet()
-                    logger.info(f'[装置处理] 切换到备用舰队: {alternative_fleet}')
-                    self.fleet_set(alternative_fleet)
+                    # 如果配置了指定舰队，切换到指定舰队
+                    if siren_fleet > 0:
+                        logger.info(f'[装置处理] 切换到指定舰队: {siren_fleet}')
+                        self.fleet_set(siren_fleet)
+                    else:
+                        logger.info('[装置处理] 使用当前舰队')
                     
                     # 执行三次自律寻敌
                     for i in range(3):
                         logger.info(f'[装置处理] 执行第 {i + 1}/3 次自律寻敌')
                         self.os_auto_search_run(drop=drop)
                     
-                    # 切换回原舰队
-                    logger.info(f'[装置处理] 切换回原舰队: {current_fleet}')
-                    self.fleet_set(current_fleet)
+                    # 如果切换了舰队，切换回原舰队
+                    if siren_fleet > 0:
+                        logger.info(f'[装置处理] 切换回原舰队: {current_fleet}')
+                        self.fleet_set(current_fleet)
                 
                 # 如果选择了资源模式
                 elif siren_mode == 'resource':

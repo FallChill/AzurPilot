@@ -4642,10 +4642,19 @@
       "help": "启用后使用紫币通过塞壬研究装置转换为黄币\n需要足够的海里数支撑紫币消耗喵。"
     },
     "Siren_Mode": {
-      "name": "OpsiSirenBug.Siren_Mode.name",
-      "help": "OpsiSirenBug.Siren_Mode.help",
-      "resource": "resource",
-      "enemy": "enemy"
+      "name": "与塞壬探测装置的互动方式喵",
+      "help": "选择与塞壬装置的互动方式喵。探测资源消耗紫币（特别兑换凭证），探测敌人消耗塞壬能源存储器喵。",
+      "resource": "反复尝试探测隐藏的资源喵",
+      "enemy": "反复尝试探测隐藏的敌人喵"
+    },
+    "Siren_Fleet": {
+      "name": "探测敌人使用的舰队喵",
+      "help": "选择探测隐藏敌人时使用的舰队喵。0表示使用当前舰队，1-4表示使用指定舰队喵。",
+      "0": "使用当前舰队喵",
+      "1": "舰队1喵",
+      "2": "舰队2喵",
+      "3": "舰队3喵",
+      "4": "舰队4喵"
     }
   },
   "OpsiCheckLeveling": {

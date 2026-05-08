@@ -1176,6 +1176,9 @@ OpsiSirenBug:
   Siren_Mode:
     value: resource
     option: [resource, enemy]
+  Siren_Fleet:
+    value: 0
+    option: [0, 1, 2, 3, 4]
 
 OpsiCheckLeveling:
   TargetLevel: 0

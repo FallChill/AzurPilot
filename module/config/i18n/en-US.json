@@ -4642,10 +4642,19 @@
       "help": "After enabling, use purple coins to convert to yellow coins through the Siren Research Device\nSufficient nautical miles are needed to sustain the purple coin consumption"
     },
     "Siren_Mode": {
-      "name": "OpsiSirenBug.Siren_Mode.name",
-      "help": "OpsiSirenBug.Siren_Mode.help",
-      "resource": "resource",
-      "enemy": "enemy"
+      "name": "Interaction Mode with Siren Detection Device",
+      "help": "Choose how to interact with Siren devices. Detecting resources costs purple coins (Special Exchange Vouchers), detecting enemies costs Siren Energy Storage",
+      "resource": "Repeatedly attempt to detect hidden resources",
+      "enemy": "Repeatedly attempt to detect hidden enemies"
+    },
+    "Siren_Fleet": {
+      "name": "Fleet for Enemy Detection",
+      "help": "Select the fleet to use when detecting hidden enemies. 0 means use current fleet, 1-4 means use specified fleet",
+      "0": "Use current fleet",
+      "1": "Fleet 1",
+      "2": "Fleet 2",
+      "3": "Fleet 3",
+      "4": "Fleet 4"
     }
   },
   "OpsiCheckLeveling": {
