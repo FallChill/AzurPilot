@@ -2378,8 +2378,6 @@
     "OpsiExplore": {
       "SpecialRadar": false,
       "ForceRun": false,
-      "IfSkipSirenResearch": 0,
-      "SkipedSirenResearch": null,
       "LastZone": 0,
       "ExploreProgress": null
     },
