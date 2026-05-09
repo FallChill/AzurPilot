@@ -13019,6 +13019,15 @@
       "NotifyOpsiMail": {
         "type": "checkbox",
         "value": true
+      },
+      "IndependentPush": {
+        "type": "checkbox",
+        "value": false
+      },
+      "OpsiOnePushConfig": {
+        "type": "textarea",
+        "value": "provider: null",
+        "mode": "yaml"
       }
     },
     "Storage": {
