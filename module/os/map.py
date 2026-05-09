@@ -25,6 +25,7 @@ from module.statistics.opsi_runtime import (
     finish_meow_search_timer,
     record_cl1_auto_search_battle,
     record_meow_auto_search_battle,
+    record_siren_research_device,
     start_meow_search_timer,
 )
 from module.os.tasks.smart_scheduling_utils import is_smart_scheduling_enabled
@@ -1192,6 +1193,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             
             # ========== 移动前检查：是否为塞壬研究装置且功能未开启 ==========
             if self._should_skip_siren_research(grid):
+                record_siren_research_device(self)
                 self._solved_map_event.add('is_scanning_device')
                 return True
             
@@ -1211,6 +1213,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 logger.hr('检测到扫描装置,开始处理', level=2)
                 logger.info(f'[地图检测] 格子 {grid} 被识别为扫描装置 (grid.is_scanning_device=True)')
                 logger.info(f'[地图检测] 移动结果: {result}')
+                record_siren_research_device(self)
 
                 # ========== 方案 B: 装置类型判断（仅在支持的模式下） ==========
                 # 检查是否在 Meowfficer 搜索模式下，并进行装置类型判断
@@ -1400,6 +1403,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             # ========== 地图选择:发现研究装置 ==========
             logger.hr('发现研究装置,开始处理', level=2)
             logger.info(f'[地图选择] 在 {grid} 位置发现研究装置')
+            record_siren_research_device(self)
             
             if not self._is_siren_research_enabled:
                 logger.warning('[配置检查] 塞壬研究装置功能已禁用,跳过处理')

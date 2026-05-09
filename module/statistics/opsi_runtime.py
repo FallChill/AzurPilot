@@ -167,7 +167,7 @@ def record_meow_auto_search_battle(
             try:
                 from module.statistics.cl1_database import db as cl1_db
 
-                cl1_db.async_add_meow_battle_time(instance_name, battle_duration)
+                cl1_db.async_add_meow_battle_time(instance_name, battle_duration, hazard_level)
             except Exception:
                 logger.debug("Failed to record meow battle time", exc_info=True)
         else:
@@ -252,3 +252,24 @@ def record_cl1_akashi_encounter(config: Any) -> int | None:
     except Exception:
         logger.exception("Failed to persist CL1 akashi monthly count")
         return None
+
+
+def record_siren_research_device(main: Any) -> None:
+    """Persist one Siren Research Device encounter for CL1 or short-meow."""
+    source = battle_source_from_config(main.config)
+    if source not in {"cl1", "meow"}:
+        return
+
+    hazard_level = meow_hazard_level_from_runtime(main) if source == "meow" else 1
+    try:
+        from module.statistics.cl1_database import db as cl1_db
+
+        cl1_db.async_add_siren_research_device(
+            instance_name_from_config(main.config),
+            source=source,
+            hazard_level=hazard_level,
+        )
+        label = "cl1" if source == "cl1" else f"meow-{hazard_level}"
+        logger.attr("siren_research_device", label)
+    except Exception:
+        logger.debug("Failed to record siren research device", exc_info=True)
