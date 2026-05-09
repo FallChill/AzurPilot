@@ -1443,7 +1443,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 
                 # 如果选择了敌人模式
                 if siren_mode == 'enemy':
-                    logger.info('[装置处理] 检测到敌人模式，执行特殊处理')
+                    logger.info('[装置处理] 敌人模式，执行特殊处理')
                     
                     # 获取配置的舰队
                     task = self.config.task.command
