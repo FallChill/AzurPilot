@@ -13846,10 +13846,6 @@
         "type": "checkbox",
         "value": false
       },
-      "SirenDetectorSearch_Enable": {
-        "type": "checkbox",
-        "value": false
-      },
       "SirenDetectorSearch_HazardLevel": {
         "type": "select",
         "value": 5,
@@ -13857,21 +13853,20 @@
           5,
           6
         ]
-      },
-      "SirenDetectorSearch_StopAfterFound": {
-        "type": "input",
-        "value": 1,
-        "validate": "^[1-4]$"
-      },
-      "SirenDetectorSearch_FoundZones": {
-        "type": "textarea",
-        "value": ""
       }
     },
     "OpsiSirenBug": {
       "SirenResearch_Enable": {
         "type": "checkbox",
         "value": true
+      },
+      "Siren_Mode": {
+        "type": "select",
+        "value": "resource",
+        "option": [
+          "resource",
+          "enemy"
+        ]
       }
     },
     "OpsiTarget": {
@@ -13985,6 +13980,14 @@
       "SirenResearch_Enable": {
         "type": "checkbox",
         "value": true
+      },
+      "Siren_Mode": {
+        "type": "select",
+        "value": "resource",
+        "option": [
+          "resource",
+          "enemy"
+        ]
       }
     },
     "OpsiFleet": {
