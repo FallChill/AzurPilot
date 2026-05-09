@@ -13019,6 +13019,15 @@
       "NotifyOpsiMail": {
         "type": "checkbox",
         "value": true
+      },
+      "IndependentPush": {
+        "type": "checkbox",
+        "value": false
+      },
+      "OpsiOnePushConfig": {
+        "type": "textarea",
+        "value": "provider: null",
+        "mode": "yaml"
       }
     },
     "Storage": {
@@ -13200,21 +13209,6 @@
       "ForceRun": {
         "type": "checkbox",
         "value": false
-      },
-      "IfSkipSirenResearch": {
-        "type": "select",
-        "value": 0,
-        "option": [
-          0,
-          6,
-          65,
-          654
-        ]
-      },
-      "SkipedSirenResearch": {
-        "type": "textarea",
-        "value": "",
-        "display": "disabled"
       },
       "LastZone": {
         "type": "input",
@@ -13858,6 +13852,17 @@
           "resource",
           "enemy"
         ]
+      },
+      "Siren_Fleet": {
+        "type": "select",
+        "value": 0,
+        "option": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
       }
     },
     "OpsiTarget": {
@@ -13978,6 +13983,17 @@
         "option": [
           "resource",
           "enemy"
+        ]
+      },
+      "Siren_Fleet": {
+        "type": "select",
+        "value": 0,
+        "option": [
+          0,
+          1,
+          2,
+          3,
+          4
         ]
       }
     },

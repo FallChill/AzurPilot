@@ -1059,6 +1059,11 @@ OpsiGeneral:
   AkashiShopFilter: |-
     ActionPoint
   NotifyOpsiMail: true
+  IndependentPush: false
+  OpsiOnePushConfig:
+    type: textarea
+    mode: yaml
+    value: "provider: null"
 OpsiAshBeacon:
   AttackMode:
     value: current
@@ -1079,13 +1084,6 @@ OpsiFleet:
 OpsiExplore:
   SpecialRadar: false
   ForceRun: false
-  IfSkipSirenResearch:
-    value: 0
-    option: [ 0, 6, 65, 654 ]
-  SkipedSirenResearch:
-    type: textarea
-    display: disabled
-    value: ""
   LastZone: 0
   ExploreProgress:
     type: textarea
@@ -1166,6 +1164,9 @@ OpsiSirenBug:
   Siren_Mode:
     value: resource
     option: [resource, enemy]
+  Siren_Fleet:
+    value: 0
+    option: [0, 1, 2, 3, 4]
 
 OpsiCheckLeveling:
   TargetLevel: 0
