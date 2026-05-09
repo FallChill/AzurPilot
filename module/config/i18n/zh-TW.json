@@ -4313,11 +4313,11 @@
     },
     "IndependentPush": {
       "name": "大世界信息獨立推送",
-      "help": "需要同時開啟「推送大世界相關資訊」功能。\n關閉時使用智慧港區設置 —> 調試設置 —> 錯誤推送設置，需要同時開啟「錯誤推送」功能。\n開啟時使用大世界推送設置，需要分離推送內容時請開啟此功能"
+      "help": "需要同時開啟「推送大世界相關資訊」功能。\n關閉時使用智慧港區設定 —> 調試設定 —> 錯誤推送設定，需要同時開啟「錯誤推送」功能。\n開啟時使用大世界推送設定，需要分離推送內容時請開啟此功能"
     },
     "OpsiOnePushConfig": {
-      "name": "大世界推送設置",
-      "help": "“大世界信息獨立推送”功能開啟時設置才生效。使用 Onepush 推送一條關於侵蝕1和短貓的資訊。配置方法見文檔：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
+      "name": "大世界推送設定",
+      "help": "“大世界信息獨立推送”功能開啟時設定才生效。使用 Onepush 推送一條關於侵蝕1和短貓的資訊。配置方法見文檔：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {
