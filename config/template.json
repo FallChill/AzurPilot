@@ -2380,8 +2380,6 @@
     "OpsiExplore": {
       "SpecialRadar": false,
       "ForceRun": false,
-      "IfSkipSirenResearch": 0,
-      "SkipedSirenResearch": null,
       "LastZone": 0,
       "ExploreProgress": null
     },
@@ -2569,7 +2567,8 @@
     },
     "OpsiSirenBug": {
       "SirenResearch_Enable": true,
-      "Siren_Mode": "resource"
+      "Siren_Mode": "resource",
+      "Siren_Fleet": 0
     },
     "OpsiTarget": {
       "TargetFarming": false,
@@ -2603,7 +2602,8 @@
     },
     "OpsiSirenBug": {
       "SirenResearch_Enable": true,
-      "Siren_Mode": "resource"
+      "Siren_Mode": "resource",
+      "Siren_Fleet": 0
     },
     "OpsiFleet": {
       "Fleet": 1,
