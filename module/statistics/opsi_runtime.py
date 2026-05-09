@@ -1,8 +1,7 @@
-"""Runtime metrics for Operation Siren tasks.
+"""大世界运行期统计入口。
 
-This module is intentionally the single place that knows how CL1 and short-meow
-runtime events become persisted statistics. Callers should report events here
-instead of importing `cl1_database` or `ship_exp_stats` directly from task code.
+这里集中处理侵蚀1与短猫任务的运行事件，把任务代码里的战斗、地图、
+塞壬研究装置等事件统一落到统计库，避免各个任务到处直接写数据库。
 """
 
 from __future__ import annotations
@@ -14,8 +13,7 @@ from typing import Any
 from module.logger import logger
 
 
-# Runtime metrics are centralized here so combat/map/task code only reports
-# domain events. Storage details stay behind this boundary.
+# 任务代码只上报领域事件，具体落库细节集中在本模块里维护。
 CL1_TASK = "OpsiHazard1Leveling"
 MEOW_TASK = "OpsiMeowfficerFarming"
 MEOW_HAZARD_LEVELS = {2, 3, 4, 5, 6}
@@ -26,7 +24,7 @@ def instance_name_from_config(config: Any, default: str = "default") -> str:
 
 
 def battle_source_from_config(config: Any) -> str | None:
-    """Return the metric source for tasks whose battles should be timed."""
+    """返回当前任务对应的统计来源。"""
     command = getattr(getattr(config, "task", None), "command", None)
     if command == CL1_TASK:
         return "cl1"
@@ -36,7 +34,7 @@ def battle_source_from_config(config: Any) -> str | None:
 
 
 def start_battle_timer(config: Any) -> str | None:
-    """Start per-battle timing and return the source needed to finish it."""
+    """开始记录单场战斗耗时，并返回结束计时需要的来源。"""
     source = battle_source_from_config(config)
     if source is None:
         return None
@@ -52,7 +50,7 @@ def start_battle_timer(config: Any) -> str | None:
 
 
 def finish_battle_timer(config: Any, source: str | None) -> float | None:
-    """Finish a previously started battle timer."""
+    """结束已经开始的单场战斗计时。"""
     if source not in {"cl1", "meow"}:
         return None
 
@@ -68,7 +66,7 @@ def finish_battle_timer(config: Any, source: str | None) -> float | None:
 
 
 def record_ap_snapshot(config: Any, ap_current: int, source: str) -> None:
-    """Persist AP timeline samples with the task source that observed them."""
+    """按来源记录行动力快照。"""
     try:
         from module.statistics.cl1_database import db as cl1_db
 
@@ -86,7 +84,7 @@ def record_cl1_auto_search_battle(
     cl1_battle_count: int,
     round_started_at: float | int | None,
 ) -> float | int | None:
-    """Record one CL1 auto-search battle and update the two-battle round timer."""
+    """记录一次侵蚀1自律战斗，并维护两战一轮的计时。"""
     instance_name = instance_name_from_config(config)
     try:
         from module.statistics.cl1_database import db as cl1_db
@@ -95,8 +93,8 @@ def record_cl1_auto_search_battle(
     except Exception:
         logger.debug("Failed to persist monthly CL1 battle increment", exc_info=True)
 
-    # CL1 consumes one sortie per two battles. Odd CL1 battle counts mark the
-    # start of a new sortie, so the next odd count closes the previous round.
+    # 侵蚀1两场战斗消耗一次出击，奇数场代表新一轮开始。
+    # 下一次奇数场到来时，上一轮的完整耗时就能闭合。
     if cl1_battle_count % 2 != 1:
         return round_started_at
 
@@ -114,7 +112,7 @@ def record_cl1_auto_search_battle(
 
 
 def meow_hazard_level_from_runtime(main: Any) -> int | None:
-    """Read the hazard level from the current zone, falling back to config."""
+    """读取短猫当前侵蚀等级，地图对象缺失时回退到配置值。"""
     hazard_level = None
     try:
         hazard_level = getattr(getattr(main, "zone", None), "hazard_level", None)
@@ -138,7 +136,7 @@ def meow_hazard_level_from_runtime(main: Any) -> int | None:
 
 
 def meow_battles_per_round(hazard_level: int | None) -> int:
-    """Return how many battles make one effective short-meow round."""
+    """返回短猫一个有效轮次包含的战斗场数。"""
     if hazard_level in {4, 5, 6}:
         return 3
     return 2
@@ -148,7 +146,7 @@ def record_meow_auto_search_battle(
     main: Any,
     battle_started_at: float | int | None,
 ) -> float:
-    """Record one short-meow battle and return the next battle timer start."""
+    """记录一次短猫战斗，并返回下一场战斗的计时起点。"""
     hazard_level = meow_hazard_level_from_runtime(main)
     instance_name = instance_name_from_config(main.config)
 
@@ -178,7 +176,7 @@ def record_meow_auto_search_battle(
 
 
 def start_meow_search_timer(main: Any) -> tuple[float, int | None]:
-    """Capture the beginning of a short-meow zone search."""
+    """记录短猫开始搜索当前海域时的时间与行动力。"""
     try:
         main.get_current_ap()
         start_ap = main._action_point_total
@@ -196,7 +194,7 @@ def finish_meow_search_timer(
     search_started_at: float,
     battle_count: int,
 ) -> float | None:
-    """Record short-meow per-round duration from a completed zone search."""
+    """按完成的海域搜索记录短猫单轮耗时。"""
     try:
         main.get_current_ap()
     except Exception:
@@ -207,8 +205,8 @@ def finish_meow_search_timer(
     battles_per_round = meow_battles_per_round(hazard_level)
     logger.debug(f"Hazard level: {hazard_level}, battles per round: {battles_per_round}")
 
-    # A search may contain multiple battles. Normalize total elapsed time back
-    # to one effective round so WebUI and scheduling use the same unit.
+    # 一次海域搜索可能包含多场战斗，需要折算回单轮耗时。
+    # WebUI 与调度逻辑都使用这个统一后的轮次单位。
     if battle_count > 0:
         rounds = battle_count / battles_per_round
         duration = duration / rounds
@@ -237,7 +235,7 @@ def finish_meow_search_timer(
 
 
 def record_cl1_akashi_encounter(config: Any) -> int | None:
-    """Persist a CL1 Akashi encounter and return the refreshed monthly count."""
+    """记录侵蚀1明石事件，并返回当月累计次数。"""
     try:
         from module.statistics.cl1_database import db as cl1_db
 
@@ -255,7 +253,7 @@ def record_cl1_akashi_encounter(config: Any) -> int | None:
 
 
 def record_siren_research_device(main: Any) -> None:
-    """Persist one Siren Research Device encounter for CL1 or short-meow."""
+    """记录一次塞壬研究装置（吊机）出现，按侵蚀1或短猫侵蚀等级拆分。"""
     source = battle_source_from_config(main.config)
     if source not in {"cl1", "meow"}:
         return
