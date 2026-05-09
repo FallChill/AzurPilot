@@ -4561,24 +4561,6 @@
     "APPreserveUntilReset": {
       "name": "OpsiMeowfficerFarming.APPreserveUntilReset.name",
       "help": "OpsiMeowfficerFarming.APPreserveUntilReset.help"
-    },
-    "SirenDetectorSearch_Enable": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_Enable.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_Enable.help"
-    },
-    "SirenDetectorSearch_HazardLevel": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_HazardLevel.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_HazardLevel.help",
-      "5": "5",
-      "6": "6"
-    },
-    "SirenDetectorSearch_StopAfterFound": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_StopAfterFound.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_StopAfterFound.help"
-    },
-    "SirenDetectorSearch_FoundZones": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_FoundZones.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_FoundZones.help"
     }
   },
   "OpsiTarget": {
@@ -4640,6 +4622,12 @@
     "SirenResearch_Enable": {
       "name": "啟用塞壬研究裝置",
       "help": "啟用後使用紫幣透過塞壬研究裝置轉換為黃幣\n需要足夠的海里數支撐紫幣消耗"
+    },
+    "Siren_Mode": {
+      "name": "OpsiSirenBug.Siren_Mode.name",
+      "help": "OpsiSirenBug.Siren_Mode.help",
+      "resource": "resource",
+      "enemy": "enemy"
     }
   },
   "OpsiCheckLeveling": {
@@ -5162,6 +5150,9 @@
       "SortieCost": "出击消耗",
       "AkashiEncounters": "遇见明石次数",
       "AkashiRate": "遇见明石概率",
+      "SirenResearchDevices": "吊机次数",
+      "SirenResearchRate": "吊机概率",
+      "HazardLevel": "侵蚀等级",
       "AverageAP": "平均体力",
       "NetAP": "净赚体力",
       "LoopEfficiency": "循环效率",

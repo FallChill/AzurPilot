@@ -2,7 +2,6 @@ import os
 import time
 from collections import deque
 from datetime import datetime
-from itertools import zip_longest
 from PIL import Image
 # 此文件定义了截图处理逻辑。
 # 管理各种截图捕获方式，并包含后台编码线程用于将图像序列化并通过 Base64 供 WebUI 实时渲染预览。
@@ -15,7 +14,7 @@ import numpy as np
 
 from module.base.decorator import cached_property
 from module.base.timer import Timer
-from module.base.utils import get_color, image_size, limit_in, save_image
+from module.base.utils import get_color, image_size, limit_in, save_image, set_template_match_non_native_720p
 from module.device.method.adb import Adb
 from module.device.method.ascreencap import AScreenCap
 from module.device.method.droidcast import DroidCast
@@ -74,8 +73,9 @@ class Screenshot(Adb, WSA, DroidCast, AScreenCap, Scrcpy, NemuIpc, LDOpenGL):
             self.image = method()
 
             width, height = image_size(self.image)
+            set_template_match_non_native_720p(width != 1280 or height != 720)
             if width != 1280 or height != 720:
-                self.image = cv2.resize(self.image, (1280, 720), interpolation=cv2.INTER_LANCZOS4)
+                self.image = self.resize_screenshot_to_720p(self.image)
 
             if self.config.Emulator_ScreenshotDedithering:
                 # This will take 40-60ms
@@ -91,6 +91,19 @@ class Screenshot(Adb, WSA, DroidCast, AScreenCap, Scrcpy, NemuIpc, LDOpenGL):
                 continue
 
         return self.image
+
+    @staticmethod
+    def resize_screenshot_to_720p(image):
+        """
+        Normalize screenshots into Alas' 1280x720 asset space.
+
+        Tested against real MuMu screenshots in 1600x900, 1920x1080,
+        2560x1440 and 3840x2160. Cubic downsampling with a small blur blend
+        was closest to native 720p overall.
+        """
+        image = cv2.resize(image, (1280, 720), interpolation=cv2.INTER_CUBIC)
+        blur = cv2.GaussianBlur(image, (0, 0), sigmaX=1.0, sigmaY=1.0)
+        return cv2.addWeighted(image, 0.90, blur, 0.10, 0)
 
     @property
     def has_cached_image(self):
@@ -290,5 +303,3 @@ class Screenshot(Adb, WSA, DroidCast, AScreenCap, Scrcpy, NemuIpc, LDOpenGL):
         else:
             self._screen_black_checked = True
             return True
-
-
