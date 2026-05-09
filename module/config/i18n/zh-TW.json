@@ -4307,10 +4307,6 @@
       "name": "商店過濾器",
       "help": "預設只購買體力nanoda。如果要購買紫幣，設定為 'ActionPoint > PurpleCoins'"
     },
-    "NotifyOpsiMail": {
-      "name": "推送大世界相關資訊",
-      "help": "推送關於侵蝕1和短貓的資訊，需要同時開啟“錯誤推送”功能，由於資訊較多，可能會比較吵"
-    },
     "OpsiOnePushConfig": {
       "name": "大世界推送設置",
       "help": "使用 Onepush 推送一條關於侵蝕1和短貓的資訊。配置方法見文檔：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"

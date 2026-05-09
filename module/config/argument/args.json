@@ -13016,10 +13016,6 @@
         "type": "textarea",
         "value": "ActionPoint"
       },
-      "NotifyOpsiMail": {
-        "type": "checkbox",
-        "value": true
-      },
       "OpsiOnePushConfig": {
         "type": "textarea",
         "value": "provider: null",

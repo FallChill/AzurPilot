@@ -105,13 +105,13 @@ class CoinTaskMixin:
         if not is_smart_scheduling_enabled(self.config):
             return False
         # 检查是否启用推送大世界相关邮件
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return False
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return False
         
         # 检查是否配置了推送
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
             return False
         
         # 获取实例名称并格式化标题
@@ -753,15 +753,15 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not is_smart_scheduling_enabled(self.config):
             return
         
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return
 
         if not self._can_send_ap_notification('_last_ap_coins_insufficient_notification_time'):
             return
         
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送")
             return
         
         instance_name = getattr(self.config, 'config_name', 'Alas')
@@ -783,15 +783,15 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not is_smart_scheduling_enabled(self.config):
             return
         
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return
 
         if not self._can_send_ap_notification('_last_ap_insufficient_notification_time'):
             return
         
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送")
             return
         
         instance_name = getattr(self.config, 'config_name', 'Alas')
@@ -874,12 +874,12 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not is_smart_scheduling_enabled(self.config):
             return
         
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return
         
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送")
             return
         
         instance_name = getattr(self.config, 'config_name', 'Alas')
@@ -923,15 +923,15 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not is_smart_scheduling_enabled(self.config):
             return
         
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return
 
         if not self._can_send_ap_notification('_last_ap_threshold_notification_time'):
             return
         
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送")
             return
         
         instance_name = getattr(self.config, 'config_name', 'Alas')

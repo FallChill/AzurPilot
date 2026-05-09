@@ -50,13 +50,13 @@ class CoinTaskMixin:
         if not is_smart_scheduling_enabled(self.config):
             return
         # Check if Opsi mail notification is enabled
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
+        # if not self.config.OpsiGeneral_NotifyOpsiMail:
+        #     return
         
         # Check if push config is properly set
         push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
+            # logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
             return
         
         # Get instance name and format title
