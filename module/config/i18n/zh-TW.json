@@ -4307,9 +4307,17 @@
       "name": "商店過濾器",
       "help": "預設只購買體力nanoda。如果要購買紫幣，設定為 'ActionPoint > PurpleCoins'"
     },
+    "NotifyOpsiMail": {
+      "name": "推送大世界相關資訊",
+      "help": "推送關於侵蝕1和短貓的資訊，需要同時開啟“錯誤推送”功能，由於資訊較多，可能會比較吵"
+    },
+    "IndependentPush": {
+      "name": "大世界信息獨立推送",
+      "help": "需要同時開啟「推送大世界相關資訊」功能。\n關閉時使用智慧港區設置 —> 調試設置 —> 錯誤推送設置，需要同時開啟「錯誤推送」功能。\n開啟時使用大世界推送設置，需要分離推送內容時請開啟此功能"
+    },
     "OpsiOnePushConfig": {
       "name": "大世界推送設置",
-      "help": "使用 Onepush 推送一條關於侵蝕1和短貓的資訊。配置方法見文檔：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
+      "help": "“大世界信息獨立推送”功能開啟時設置才生效。使用 Onepush 推送一條關於侵蝕1和短貓的資訊。配置方法見文檔：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {
@@ -4562,23 +4570,11 @@
       "name": "OpsiMeowfficerFarming.APPreserveUntilReset.name",
       "help": "OpsiMeowfficerFarming.APPreserveUntilReset.help"
     },
-    "SirenDetectorSearch_Enable": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_Enable.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_Enable.help"
-    },
     "SirenDetectorSearch_HazardLevel": {
       "name": "OpsiMeowfficerFarming.SirenDetectorSearch_HazardLevel.name",
       "help": "OpsiMeowfficerFarming.SirenDetectorSearch_HazardLevel.help",
       "5": "5",
       "6": "6"
-    },
-    "SirenDetectorSearch_StopAfterFound": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_StopAfterFound.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_StopAfterFound.help"
-    },
-    "SirenDetectorSearch_FoundZones": {
-      "name": "OpsiMeowfficerFarming.SirenDetectorSearch_FoundZones.name",
-      "help": "OpsiMeowfficerFarming.SirenDetectorSearch_FoundZones.help"
     }
   },
   "OpsiTarget": {
@@ -4640,6 +4636,12 @@
     "SirenResearch_Enable": {
       "name": "啟用塞壬研究裝置",
       "help": "啟用後使用紫幣透過塞壬研究裝置轉換為黃幣\n需要足夠的海里數支撐紫幣消耗"
+    },
+    "Siren_Mode": {
+      "name": "OpsiSirenBug.Siren_Mode.name",
+      "help": "OpsiSirenBug.Siren_Mode.help",
+      "resource": "resource",
+      "enemy": "enemy"
     }
   },
   "OpsiCheckLeveling": {
@@ -5162,6 +5164,9 @@
       "SortieCost": "出击消耗",
       "AkashiEncounters": "遇见明石次数",
       "AkashiRate": "遇见明石概率",
+      "SirenResearchDevices": "吊机次数",
+      "SirenResearchRate": "吊机概率",
+      "HazardLevel": "侵蚀等级",
       "AverageAP": "平均体力",
       "NetAP": "净赚体力",
       "LoopEfficiency": "循环效率",

@@ -4307,9 +4307,17 @@
       "name": "商店过滤器",
       "help": "默认只购买体力nanoda。如果要购买紫币，设置为 'ActionPoint > PurpleCoins'"
     },
+    "NotifyOpsiMail": {
+      "name": "推送大世界相关信息",
+      "help": "推送关于侵蚀1和短猫的信息，由于信息较多，可能会比较吵"
+    },
+    "IndependentPush": {
+      "name": "大世界信息独立推送",
+      "help": "需要同时开启“推送大世界相关信息”功能。\n关闭时使用智慧港区设置 —> 调试设置 —> 错误推送设置，需要同时开启“错误推送”功能。\n开启时使用大世界推送设置，需要分离推送内容时请开启此功能"
+    },
     "OpsiOnePushConfig": {
       "name": "大世界推送设置",
-      "help": "使用 Onepush 推送一条关于侵蚀1和短猫的信息。配置方法见文档：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
+      "help": "“大世界信息独立推送”功能开启时设置才生效。使用 Onepush 推送一条关于侵蚀1和短猫的信息。配置方法见文档：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {
@@ -4562,23 +4570,11 @@
       "name": "月底重置强制消耗行动力",
       "help": "在大世界重置前，自动将保留行动力设为0，以确保存余行动力被消耗。建议配合侵蚀1练级使用。"
     },
-    "SirenDetectorSearch_Enable": {
-      "name": "自动寻找塞壬探测装置",
-      "help": "在短猫相接任务中自动寻找塞壬探测装置，并记录找到的海域\n仅在中心海域中寻找，不会在其他区域寻找"
-    },
     "SirenDetectorSearch_HazardLevel": {
       "name": "塞壬探测装置侵蚀等级",
       "help": "在中心海域中按顺时针出击特定侵蚀等级的海域来寻找塞壬探测装置\n中心海域只有五和六级海域\n注意：只在中心海域（region 5）中选择，不会选择其他区域的海域",
       "5": "5",
       "6": "6"
-    },
-    "SirenDetectorSearch_StopAfterFound": {
-      "name": "寻找 X 个塞壬探测装置后停止",
-      "help": "寻找并记录到指定数量的塞壬探测装置后，停止搜索并回到正常短猫流程。\n统计和停止条件按当前所选侵蚀等级（5级/6级）分别计算，不会混算。\n警告：此项最小值为 1，不可填写 0。\n中心海域中 5 级海域有 4 个，6 级海域有 4 个。填写数量不能大于当前所选侵蚀等级的实际海域数量（最大 4）。"
-    },
-    "SirenDetectorSearch_FoundZones": {
-      "name": "已找到的塞壬探测装置海域",
-      "help": "已找到的塞壬探测装置海域，会按侵蚀等级分开记录并分开排除。若对应海域的塞壬探测装置已经被使用，可手动删除该海域记录。"
     }
   },
   "OpsiTarget": {
@@ -4640,6 +4636,12 @@
     "SirenResearch_Enable": {
       "name": "启用塞壬研究装置",
       "help": "启用后使用紫币通过塞壬研究装置转换为黄币\n需要足够的海里数支撑紫币消耗"
+    },
+    "Siren_Mode": {
+      "name": "与塞壬探测装置的互动方式",
+      "help": "选择与塞壬装置的互动方式。互动时探测资源对应选择第一个选项，探测敌人对应选择第二个选项",
+      "resource": "反复尝试探测隐藏的资源",
+      "enemy": "反复尝试探测隐藏的敌人"
     }
   },
   "OpsiCheckLeveling": {
@@ -5162,6 +5164,9 @@
       "SortieCost": "出击消耗",
       "AkashiEncounters": "遇见明石次数",
       "AkashiRate": "遇见明石概率",
+      "SirenResearchDevices": "吊机次数",
+      "SirenResearchRate": "吊机概率",
+      "HazardLevel": "侵蚀等级",
       "AverageAP": "平均体力",
       "NetAP": "净赚体力",
       "LoopEfficiency": "循环效率",
