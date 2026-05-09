@@ -138,6 +138,7 @@ class OSMapOperation(MapOrderHandler, MissionHandler, PortHandler, StorageHandle
     def get_zone_name(self):
         # For TW only
         ocr = Ocr(MAP_NAME, lang='tw', letter=(198, 215, 239), threshold=127, name='OCR_OS_MAP_NAME')
+        name = ocr.ocr(self.device.image)
         name = name.replace(' ', '')
         # Normalize various dashes to standard hyphen
         import re
