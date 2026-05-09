@@ -4310,6 +4310,10 @@
     "NotifyOpsiMail": {
       "name": "Push Operation Siren notifications",
       "help": "Push notifications about Corrosion 1 and Meowfficer farming. Requires the \"Error Push\" function to be enabled. May be noisy due to high volume of messages."
+    },
+    "OpsiOnePushConfig": {
+      "name": "Operation Siren notifications push settings",
+      "help": "Use Onepush to push a message about Erosion 1 and Short Cat. See the document for configuration method: https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {

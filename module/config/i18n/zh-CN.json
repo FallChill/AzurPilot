@@ -4310,6 +4310,10 @@
     "NotifyOpsiMail": {
       "name": "推送大世界相关信息",
       "help": "推送关于侵蚀1和短猫的信息，需要同时开启“错误推送”功能，由于信息较多，可能会比较吵"
+    },
+    "OpsiOnePushConfig": {
+      "name": "大世界推送设置",
+      "help": "使用 Onepush 推送一条关于侵蚀1和短猫的信息。配置方法见文档：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {

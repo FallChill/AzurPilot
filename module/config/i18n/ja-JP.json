@@ -4310,6 +4310,10 @@
     "NotifyOpsiMail": {
       "name": "セイレーン作戦関連情報をプッシュ",
       "help": "侵食1とショートキャットの情報をプッシュするには、同時に「エラープッシュ」機能をオンにする必要があります。情報量が多いので騒がしいかもしれません。"
+    },
+    "OpsiOnePushConfig": {
+      "name": "大世界プッシュ通知設定",
+      "help": "Onepushを使用して、侵食1と短毛猫に関する情報を1つプッシュします。設定方法はドキュメントを参照してください：https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/Onepush-configuration-%5BCN%5D"
     }
   },
   "OpsiAshBeacon": {

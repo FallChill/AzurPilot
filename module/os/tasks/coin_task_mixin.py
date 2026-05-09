@@ -42,7 +42,7 @@ class CoinTaskMixin:
             
         Notes:
             - Only works when smart scheduling is enabled
-            - Requires Error_OnePushConfig to be set in config
+            - Requires OpsiGeneral_OpsiOnePushConfig to be set in config
             - Uses onepush library to send notifications
             - Title will be formatted as "[Alas <instance_name>] original_title"
         """
@@ -54,7 +54,7 @@ class CoinTaskMixin:
             return
         
         # Check if push config is properly set
-        push_config = self.config.Error_OnePushConfig
+        push_config = self.config.OpsiGeneral_OpsiOnePushConfig
         if not self._is_push_config_valid(push_config):
             logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
             return
@@ -69,7 +69,7 @@ class CoinTaskMixin:
         try:
             from module.notify import handle_notify as notify_handle_notify
             success = notify_handle_notify(
-                self.config.Error_OnePushConfig,
+                self.config.OpsiGeneral_OpsiOnePushConfig,
                 title=formatted_title,
                 content=content
             )

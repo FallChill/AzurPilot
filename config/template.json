@@ -2323,7 +2323,8 @@
       "RepairPackThreshold": 0.9,
       "DoRandomMapEvent": true,
       "AkashiShopFilter": "ActionPoint",
-      "NotifyOpsiMail": true
+      "NotifyOpsiMail": true,
+      "OpsiOnePushConfig": "provider: null"
     },
     "Storage": {
       "Storage": {}

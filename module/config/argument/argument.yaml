@@ -1059,6 +1059,10 @@ OpsiGeneral:
   AkashiShopFilter: |-
     ActionPoint
   NotifyOpsiMail: true
+  OpsiOnePushConfig:
+    type: textarea
+    mode: yaml
+    value: "provider: null"
 OpsiAshBeacon:
   AttackMode:
     value: current

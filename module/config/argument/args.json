@@ -13019,6 +13019,11 @@
       "NotifyOpsiMail": {
         "type": "checkbox",
         "value": true
+      },
+      "OpsiOnePushConfig": {
+        "type": "textarea",
+        "value": "provider: null",
+        "mode": "yaml"
       }
     },
     "Storage": {

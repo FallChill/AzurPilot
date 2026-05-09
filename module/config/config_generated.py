@@ -650,6 +650,7 @@ class GeneratedConfig:
     OpsiGeneral_DoRandomMapEvent = True
     OpsiGeneral_AkashiShopFilter = 'ActionPoint'
     OpsiGeneral_NotifyOpsiMail = True
+    OpsiGeneral_OpsiOnePushConfig = 'provider: null'
 
     # Group `OpsiAshBeacon`
     OpsiAshBeacon_AttackMode = 'current'  # current, current_dossier
