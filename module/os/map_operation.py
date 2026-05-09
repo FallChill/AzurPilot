@@ -150,6 +150,7 @@ class OSMapOperation(MapOrderHandler, MissionHandler, PortHandler, StorageHandle
         # For CN only
         ocr = Ocr(MAP_NAME, lang='cnocr', letter=(214, 231, 255), threshold=127, name='OCR_OS_MAP_NAME')
         name = ocr.ocr(self.device.image)
+        name = name.replace(' ', '')
         name = name.strip('\\/-—–－')
         self.is_zone_name_hidden = '安全' in name
         if '-' in name:
