@@ -1,8 +1,11 @@
 name: AI Issue Labeler
 
 on:
+  workflow_dispatch:
   issues:
-    types: [opened, edited]
+    types:
+      - opened
+      - edited
 
 permissions:
   contents: read
@@ -16,9 +19,17 @@ jobs:
   label:
     if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
 
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install OpenAI SDK
+        run: npm install openai
+
       - name: Analyze issue and apply labels
         uses: actions/github-script@v9
         env:
@@ -28,12 +39,21 @@ jobs:
         with:
           retries: 2
           script: |
+            const OpenAI = require("openai");
+
             const issue = context.payload.issue;
 
             if (!process.env.AI_API_KEY) {
               core.setFailed("Missing secret: AI_API_KEY");
               return;
             }
+
+            const client = new OpenAI({
+              apiKey: process.env.AI_API_KEY,
+              baseURL: process.env.AI_BASE_URL,
+              timeout: 120000,
+              maxRetries: 2
+            });
 
             const LABELS = [
               {
@@ -134,7 +154,6 @@ jobs:
               }
             ];
 
-            // 这些标签不建议让 AI 自动打：需要项目维护者判断，或更适合定时/人工流程。
             const MANUAL_ONLY_LABELS = new Set([
               "duplicate / 重复",
               "fixed awaiting feedback / 已修复等待反馈",
@@ -145,14 +164,15 @@ jobs:
               "LOW priority / 低优先级",
               "no response / 无回复",
               "outdated / 已过期",
+              "python",
               "wontfix / 不做",
-              "需要修改 / Request changes",
-              "python"
+              "需要修改 / Request changes"
             ]);
 
             const allowedLabels = LABELS.filter(
               (label) => !MANUAL_ONLY_LABELS.has(label.name)
             );
+
             const allowedLabelNames = new Set(
               allowedLabels.map((label) => label.name)
             );
@@ -176,16 +196,6 @@ jobs:
               repoLabels.map((label) => label.name)
             );
 
-            const missingConfiguredLabels = [...allowedLabelNames].filter(
-              (name) => !existingRepoLabelNames.has(name)
-            );
-
-            if (missingConfiguredLabels.length > 0) {
-              core.warning(
-                `These configured labels do not exist in the repository and will be ignored: ${missingConfiguredLabels.join(", ")}`
-              );
-            }
-
             const availableLabels = allowedLabels.filter((label) =>
               existingRepoLabelNames.has(label.name)
             );
@@ -207,7 +217,8 @@ jobs:
 
             Output rules:
             - Return strict JSON only.
-            - Use this exact schema: {"labels":["label name"]}
+            - Use this exact schema:
+              {"labels":["label name"]}
             - Use exact label names from the allowed list.
             - Choose 1 to 4 labels.
             - Do not create new labels.
@@ -215,13 +226,14 @@ jobs:
 
             Classification rules:
             - Usually choose one main category when applicable:
-              bug / 缺陷
-              feature request / 功能请求
-              asking a question / 提问
-              gameplay discussion / 游戏玩法讨论
-              sharing / 分享
-              documentation / 文档
-              optimization / 优化
+              - bug / 缺陷
+              - feature request / 功能请求
+              - asking a question / 提问
+              - gameplay discussion / 游戏玩法讨论
+              - sharing / 分享
+              - documentation / 文档
+              - optimization / 优化
+
             - Add a server label only when the server is clearly stated.
             - Use wrong settings or usages / 错误设置或错误使用 for incorrect configuration or usage.
             - Use misunderstandings / 理解偏差 for misunderstanding a feature or option.
@@ -245,74 +257,62 @@ jobs:
             ${body}
             `;
 
-            const response = await fetch(
-              `${process.env.AI_BASE_URL.replace(/\/$/, "")}/chat/completions`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${process.env.AI_API_KEY}`
-                },
-                body: JSON.stringify({
-                  model: process.env.AI_MODEL,
-                  temperature: 0,
-                  max_tokens: 300,
-                  messages: [
-                    {
-                      role: "system",
-                      content: systemPrompt
-                    },
-                    {
-                      role: "user",
-                      content: userPrompt
-                    }
-                  ]
-                })
-              }
-            );
+            let completion;
 
-            const rawResponseText = await response.text();
-
-            if (!response.ok) {
-              core.setFailed(
-                `AI API request failed: HTTP ${response.status} ${response.statusText}\n${rawResponseText}`
-              );
-              return;
-            }
-
-            let data;
             try {
-              data = JSON.parse(rawResponseText);
+              completion = await client.chat.completions.create({
+                model: process.env.AI_MODEL,
+                temperature: 0,
+                max_tokens: 300,
+                response_format: {
+                  type: "json_object"
+                },
+                messages: [
+                  {
+                    role: "system",
+                    content: systemPrompt
+                  },
+                  {
+                    role: "user",
+                    content: userPrompt
+                  }
+                ]
+              });
             } catch (error) {
-              core.setFailed(`AI API returned invalid JSON: ${rawResponseText}`);
+              core.setFailed(`AI request failed: ${error.message}`);
               return;
             }
 
-            const modelText = data?.choices?.[0]?.message?.content ?? "";
+            const modelText =
+              completion?.choices?.[0]?.message?.content ?? "";
+
+            core.info(`Model output: ${modelText}`);
 
             function extractJsonObject(text) {
               const cleaned = text
                 .replace(/```json/gi, "")
                 .replace(/```/g, "")
-                .replace(/<think>[\s\S]*?<\/think>/gi, "")
+                .replace(/<think>[\\s\\S]*?<\\/think>/gi, "")
                 .trim();
 
               const start = cleaned.indexOf("{");
               const end = cleaned.lastIndexOf("}");
 
               if (start === -1 || end === -1 || end <= start) {
-                throw new Error(`No JSON object found in model output: ${cleaned}`);
+                throw new Error(
+                  `No JSON object found in model output: ${cleaned}`
+                );
               }
 
               return JSON.parse(cleaned.slice(start, end + 1));
             }
 
             let parsed;
+
             try {
               parsed = extractJsonObject(modelText);
             } catch (error) {
-              core.warning(`Failed to parse model output: ${error.message}`);
-              core.info(`Raw model output: ${modelText}`);
+              core.setFailed(`Failed to parse model JSON: ${error.message}`);
               return;
             }
 
