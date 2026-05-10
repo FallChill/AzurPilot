@@ -96,8 +96,7 @@ class CoinTaskMixin:
             
         Notes:
             - 仅在启用智能调度时生效
-            - 需要在配置中设置 OpsiGeneral_OpsiOnePushConfig或Error_OnePushConfig 才能发送推送
-            - 使用 onepush 库发送通知到配置的推送渠道
+            - 启动器推送和 OnePush 推送分别由各自配置控制
             - 标题会自动格式化为 "[Alas <实例名>] 原标题" 的形式
 
         Returns:
@@ -106,8 +105,10 @@ class CoinTaskMixin:
         # 检查是否启用智能调度
         if not is_smart_scheduling_enabled(self.config):
             return False
-        # 检查是否启用推送大世界相关邮件
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
+
+        launcher_enabled = getattr(self.config, 'OpsiGeneral_LauncherPush', True)
+        onepush_enabled = bool(getattr(self.config, 'OpsiGeneral_NotifyOpsiMail', False))
+        if not launcher_enabled and not onepush_enabled:
             return False
 
         # 获取实例名称并格式化标题
@@ -118,7 +119,7 @@ class CoinTaskMixin:
             formatted_title = f"[Alas <{instance_name}>] {title}"
 
         webui_success = False
-        if getattr(self.config, 'OpsiGeneral_LauncherPush', True):
+        if launcher_enabled:
             try:
                 from module.notify import notify_webui
                 webui_success = notify_webui(
@@ -131,7 +132,10 @@ class CoinTaskMixin:
             except Exception as e:
                 logger.error(f"启动器推送通知异常: {e}")
 
-        # 检查是否配置了 OnePush。Windows 本地推送不依赖 OnePush 配置。
+        if not onepush_enabled:
+            return webui_success
+
+        # 检查是否配置了 OnePush。启动器推送不依赖 OnePush 配置。
         push_config = (
             self.config.OpsiGeneral_OpsiOnePushConfig
             if self.config.OpsiGeneral_IndependentPush
@@ -144,7 +148,7 @@ class CoinTaskMixin:
         try:
             from module.notify import handle_notify as notify_handle_notify
             success = notify_handle_notify(
-                self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig,
+                push_config,
                 title=formatted_title,
                 content=content
             )
@@ -773,9 +777,6 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         """
         if not is_smart_scheduling_enabled(self.config):
             return
-        
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
 
         if not self._can_send_ap_notification('_last_ap_coins_insufficient_notification_time'):
             return
@@ -790,9 +791,6 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         发送行动力低于最低保留的通知
         """
         if not is_smart_scheduling_enabled(self.config):
-            return
-        
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
             return
 
         if not self._can_send_ap_notification('_last_ap_insufficient_notification_time'):
@@ -870,10 +868,7 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         """
         if not is_smart_scheduling_enabled(self.config):
             return
-        
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
-            return
-        
+
         self.notify_push(
             title="[Alas] 智能调度 - 切换至黄币补充任务",
             content=(f"黄币 {yellow_coins} 低于保留值 {cl1_preserve}\n"
@@ -906,9 +901,6 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
             content (str): 通知内容
         """
         if not is_smart_scheduling_enabled(self.config):
-            return
-        
-        if not self.config.OpsiGeneral_NotifyOpsiMail:
             return
 
         if not self._can_send_ap_notification('_last_ap_threshold_notification_time'):
