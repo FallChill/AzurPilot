@@ -195,7 +195,10 @@ class Combat(Combat_, MapEventHandler):
 
     def _handle_single_battle_status(self, status_button, status_letter, drop):
         if self.appear(status_button, interval=self.battle_status_click_interval):
-            logger.warning(f'Battle Status {status_letter}')
+            if status_letter == 'S':
+                logger.info(f'Battle Status {status_letter}')
+            else:
+                logger.warning(f'Battle Status {status_letter}')
             if drop:
                 drop.handle_add(self)
             else:
