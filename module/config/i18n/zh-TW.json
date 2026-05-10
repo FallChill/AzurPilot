@@ -5178,7 +5178,7 @@
       "MeowRounds": "出击轮次",
       "AvgMeowRoundTime": "平均一轮短猫时长",
       "MeowLootTitle": "短猫相接收获",
-      "NoMeowDataNotice": "暂无数据，请将\"大世界掉落截图\"设置为\"上传\"",
+      "NoMeowDataNotice": "暫無本地短貓收穫數據，完成一次短貓相接後會自動生成",
       "MeowAdvanceAdviceTitle": "短猫提前开始建议",
       "CurrentAP": "当前AP: {value}",
       "ApPerRound": "每轮消耗: {value} AP",
