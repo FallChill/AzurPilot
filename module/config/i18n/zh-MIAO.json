@@ -590,15 +590,15 @@
     },
     "LlmApiKey": {
       "name": "LLM 的 API Key (。・ω・。)",
-      "help": "OpenAI兼容接口的密钥喵。"
+      "help": "请自行前往 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 购买模型服务并获取 API Key 喵。"
     },
     "LlmApiBase": {
       "name": "LLM API Base (・ω・｀)",
-      "help": "OpenAI兼容接口的基础URL喵。"
+      "help": "填写模型服务提供商的 OpenAI 兼容 Base URL，可参考 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 的接入说明喵。"
     },
     "LlmModel": {
       "name": "LLM 模型选择 (∩・ω・)∩",
-      "help": "使用的模型名，比如 gpt-4o-mini 喵。"
+      "help": "填写已购买服务支持的模型名称，请以 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 平台展示为准喵。"
     }
   },
   "Optimization": {
