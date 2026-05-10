@@ -13030,6 +13030,10 @@
         "type": "checkbox",
         "value": true
       },
+      "LauncherPush": {
+        "type": "checkbox",
+        "value": true
+      },
       "IndependentPush": {
         "type": "checkbox",
         "value": false

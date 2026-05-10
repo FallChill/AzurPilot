@@ -1201,7 +1201,7 @@ class AlasGUI(Frame):
                             padding: 0 !important;
                         }
                     </style>
-                    <div id="commission_income_container" style="padding: 0; width: 100%; box-sizing: border-box;">
+                    <div id="commission_income_container" class="commission-income-summary" style="padding: 0; width: 100%; box-sizing: border-box;">
                     '''
 
                     html += f'<div style="font-size: 1rem; font-weight: 500; color: inherit; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(128, 128, 128, 0.2);">{t("Gui.Stat.CommissionIncomeTitle")}</div>'
@@ -1222,7 +1222,7 @@ class AlasGUI(Frame):
                         ) if icon_path else f'<div style="width: 12px; height: 12px; border-radius: 50%; background: {row["color"]}; flex-shrink: 0;"></div>'
                         
                         html += f'''
-                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(128, 128, 128, 0.05); border-radius: 6px; border: 1px solid rgba(128, 128, 128, 0.15);">
+                        <div class="commission-income-metric-card" style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(128, 128, 128, 0.05); border-radius: 6px; border: 1px solid rgba(128, 128, 128, 0.15);">
                             {icon_html}
                             <div style="display: flex; flex-direction: column; gap: 1px;">
                                 <span style="font-size: 0.78rem; opacity: 0.65;">{display_name}</span>
@@ -1243,11 +1243,11 @@ class AlasGUI(Frame):
                         {'label': t("Gui.Stat.CommissionIncomeMonth"), 'value': 'month', 'color': 'primary' if period == 'month' else 'secondary'},
                     ], onclick=on_period_click, small=True, scope="commission_income")
 
-                    html2 = '<div style="width: 100% !important; max-width: none !important; display: block !important; box-sizing: border-box;">'
+                    html2 = '<div class="commission-income-table-wrap" style="width: 100% !important; max-width: none !important; display: block !important; box-sizing: border-box;">'
                     if not has_data:
                         html2 += f'<p style="margin: 12px 0; opacity: 0.6; font-size: 13px;">{t("Gui.Stat.CommissionIncomeNoData")}</p>'
                     else:
-                        html2 += '<table style="width: 100% !important; max-width: none !important; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; display: table;">'
+                        html2 += '<table class="commission-income-table" style="width: 100% !important; max-width: none !important; border-collapse: collapse; font-size: 0.85rem; table-layout: fixed; display: table;">'
                         html2 += '<colgroup><col style="width: 40%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"></colgroup>'
                         html2 += '<thead><tr>'
                         html2 += f'<th style="text-align: left; padding: 8px 10px; background: rgba(128, 128, 128, 0.1); border-bottom: 1px solid rgba(128, 128, 128, 0.2); font-weight: 500; opacity: 0.8; font-size: 0.8rem;">{t("Gui.Stat.CommissionIncomeHeaderItem")}</th>'
@@ -1281,7 +1281,7 @@ class AlasGUI(Frame):
 
                     put_button(t("Gui.Stat.Refresh"), onclick=_render_commission_income, color="secondary", small=True, scope="commission_income")
 
-                    html3 = '<div style="width: 100% !important; max-width: none !important; display: block !important; box-sizing: border-box;">'
+                    html3 = '<div class="commission-income-recent" style="width: 100% !important; max-width: none !important; display: block !important; box-sizing: border-box;">'
                     if recent:
                         html3 += f'<div style="height: 1px; background: rgba(128, 128, 128, 0.2); margin: 24px 0;"></div>'
                         html3 += f'<div style="font-size: 0.9rem; font-weight: 500; color: inherit; margin-bottom: 10px;">{t("Gui.Stat.CommissionIncomeRecentTitle")}</div>'
@@ -1320,7 +1320,7 @@ class AlasGUI(Frame):
                                 )
                             items_str = ''.join(item_parts) if item_parts else '<span style="opacity: 0.6;">--</span>'
                             html3 += (
-                                f'<div style="display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(128, 128, 128, 0.1);">'
+                                f'<div class="commission-income-recent-row" style="display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(128, 128, 128, 0.1);">'
                                 f'<span style="opacity: 0.65; min-width: 80px; font-size: 12px;">{time_str}</span>'
                                 f'<span style="flex: 1;">{items_str}</span>'
                                 f'</div>'

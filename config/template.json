@@ -2324,6 +2324,7 @@
       "DoRandomMapEvent": true,
       "AkashiShopFilter": "ActionPoint",
       "NotifyOpsiMail": true,
+      "LauncherPush": true,
       "IndependentPush": false,
       "OpsiOnePushConfig": "provider: null"
     },

@@ -1059,6 +1059,7 @@ OpsiGeneral:
   AkashiShopFilter: |-
     ActionPoint
   NotifyOpsiMail: true
+  LauncherPush: true
   IndependentPush: false
   OpsiOnePushConfig:
     type: textarea

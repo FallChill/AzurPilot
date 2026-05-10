@@ -4309,7 +4309,11 @@
     },
     "NotifyOpsiMail": {
       "name": "Push Operation Siren notifications",
-      "help": "Push notifications about Corrosion 1 and Meowfficer farming. Requires the \"Error Push\" function to be enabled. May be noisy due to high volume of messages."
+      "help": "Send notifications about Corrosion 1 and Meowfficer farming through OnePush. Launcher notifications are controlled separately by \"Launcher notifications\". May be noisy due to high message volume."
+    },
+    "LauncherPush": {
+      "name": "Launcher notifications",
+      "help": "Send Operation Siren notifications to the launcher and Windows notification channel. Disabling this only affects launcher notifications and does not affect OnePush."
     },
     "IndependentPush": {
       "name": "Independent push of Siren Operation information",
