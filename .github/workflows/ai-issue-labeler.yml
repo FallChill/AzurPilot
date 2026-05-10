@@ -290,9 +290,9 @@ jobs:
 
             function extractJsonObject(text) {
               const cleaned = text
-                .replace(/```json/gi, "")
-                .replace(/```/g, "")
-                .replace(/<think>[\s\S]*?<\/think>/gi, "")
+                .replace(new RegExp("```json", "gi"), "")
+                .replace(new RegExp("```", "g"), "")
+                .replace(new RegExp("<think>[\\s\\S]*?</think>", "gi"), "")
                 .trim();
 
               const start = cleaned.indexOf("{");
