@@ -7,6 +7,16 @@ from deploy.utils import *
 
 
 class GitManager(DeployConfig):
+    GIT_CLEAN_EXCLUDES = (
+        'config/',
+        'log/',
+        'screenshots/',
+        'toolkit/',
+        '.venv/',
+        'venv/',
+        '.env',
+    )
+
     @cached_property
     def git(self):
         exe = self.filepath('GitExecutable')
@@ -23,6 +33,13 @@ class GitManager(DeployConfig):
             logger.info(f'Removed file: {file}')
         except FileNotFoundError:
             logger.info(f'File not found: {file}')
+
+    def git_clean(self):
+        """
+        Remove untracked repository leftovers while keeping runtime/user data.
+        """
+        excludes = ' '.join([f'-e "{item}"' for item in self.GIT_CLEAN_EXCLUDES])
+        self.execute(f'"{self.git}" clean -ffdx {excludes}')
 
     def git_repository_check(self):
         """
@@ -58,10 +75,10 @@ class GitManager(DeployConfig):
 
     def git_repository_repair(self, repo, source='origin', branch='master'):
         """
-        .git 缺失或损坏时，删除 .git 目录并重新 clone 仓库。
+        .git 缺失或损坏时，重建 Git 元数据并强制覆盖仓库文件。
         """
         logger.hr('Git Repository Repair', 1)
-        logger.warning('Attempting to repair git repository by re-cloning')
+        logger.warning('Attempting to repair git repository by forced reset')
 
         if os.path.isdir('./.git'):
             logger.info('Removing corrupted .git directory')
@@ -80,6 +97,7 @@ class GitManager(DeployConfig):
         self.execute(f'"{self.git}" remote set-url "{source}" "{repo}"')
         self.execute(f'"{self.git}" fetch "{source}" "{branch}"')
         self.execute(f'"{self.git}" reset --hard "{source}/{branch}"')
+        self.git_clean()
 
     def git_repository_init(
             self, repo, source='origin', branch='master',
@@ -140,6 +158,7 @@ class GitManager(DeployConfig):
         else:
             self.execute(f'"{self.git}" reset --hard "{source}/{branch}"')
             self.execute(f'"{self.git}" pull --ff-only "{source}" "{branch}"')
+            self.git_clean()
 
         logger.hr('Show Version', 1)
         self.execute(f'"{self.git}" --no-pager log --no-merges -1')

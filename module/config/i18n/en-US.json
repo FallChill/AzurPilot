@@ -589,16 +589,16 @@
       "help": "Error.LlmAnalysis.help"
     },
     "LlmApiKey": {
-      "name": "Error.LlmApiKey.name",
-      "help": "Error.LlmApiKey.help"
+      "name": "LLM API Key",
+      "help": "Purchase model service and get an API key from https://platform.deepseek.com/ or https://platform.xiaomimimo.com/."
     },
     "LlmApiBase": {
-      "name": "Error.LlmApiBase.name",
-      "help": "Error.LlmApiBase.help"
+      "name": "LLM API Base",
+      "help": "Enter the provider's OpenAI-compatible Base URL. Refer to https://platform.deepseek.com/ or https://platform.xiaomimimo.com/ for setup instructions."
     },
     "LlmModel": {
-      "name": "Error.LlmModel.name",
-      "help": "Error.LlmModel.help"
+      "name": "LLM Model",
+      "help": "Enter a model name supported by your purchased service, as shown on https://platform.deepseek.com/ or https://platform.xiaomimimo.com/."
     }
   },
   "Optimization": {
@@ -1754,6 +1754,10 @@
       "only_05_hour": "0.5 hour + when no project available",
       "only_no_project": "When no project available",
       "do_not_use": "Do not use"
+    },
+    "CubePreserve": {
+      "name": "Preserve X Cubes",
+      "help": "When current cubes are less than or equal to this value, Research will temporarily skip projects that consume cubes.\n0 disables this protection."
     },
     "UseCoin": {
       "name": "Use Coins",

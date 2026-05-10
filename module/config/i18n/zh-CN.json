@@ -590,15 +590,15 @@
     },
     "LlmApiKey": {
       "name": "LLM API Key",
-      "help": "OpenAI 兼容接口的 API Key。"
+      "help": "请自行前往 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 购买模型服务并获取 API Key。"
     },
     "LlmApiBase": {
       "name": "LLM API Base",
-      "help": "OpenAI 兼容接口的 Base URL。"
+      "help": "填写模型服务提供商的 OpenAI 兼容 Base URL，可参考 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 的接入说明。"
     },
     "LlmModel": {
       "name": "LLM 模型",
-      "help": "使用的 LLM 模型名称，例如 gpt-4o-mini。"
+      "help": "填写已购买服务支持的模型名称，请以 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 平台展示为准。"
     }
   },
   "Optimization": {
@@ -1754,6 +1754,10 @@
       "only_05_hour": "0.5小时+无项目可做时",
       "only_no_project": "无项目可做时",
       "do_not_use": "不使用"
+    },
+    "CubePreserve": {
+      "name": "保留 X 个魔方",
+      "help": "当当前魔方数量小于等于该值时，科研暂时不选择消耗魔方的项目。\n0 表示关闭。"
     },
     "UseCoin": {
       "name": "使用物资",
