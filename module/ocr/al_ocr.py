@@ -26,7 +26,7 @@ except Exception as e:
     handle_ocr_error(e)
 
 
-config_name = os.environ.get("ALAS_CONFIG_NAME")
+config_name = os.environ.get("ALAS_CONFIG_NAME") or "alas"
 config = AzurLaneConfig(config_name)
 
 

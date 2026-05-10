@@ -5178,7 +5178,7 @@
       "MeowRounds": "Meow Rounds",
       "AvgMeowRoundTime": "Avg Meow Round Time",
       "MeowLootTitle": "Meow Session Loot",
-      "NoMeowDataNotice": "No data yet. Set \"OpSi drop screenshot\" to \"Upload\" first.",
+      "NoMeowDataNotice": "No local Meowfficer farming loot data yet. It will be generated automatically after a run.",
       "MeowAdvanceAdviceTitle": "Meow Early Start Advice",
       "CurrentAP": "Current AP: {value}",
       "ApPerRound": "AP per round: {value} AP",

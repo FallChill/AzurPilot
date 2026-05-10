@@ -1309,19 +1309,20 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                             self.globe_goto(prev, types='DANGEROUS')
                             continue
                 break
-            
-            if drop.count <= 1:
-                drop.clear()
 
             drop.set_combat_count(self._auto_search_battle_count)
 
-        # Rescan
-        self._solved_map_event = set()
-        self._solved_fleet_mechanism = False
-        if question:
-            self.clear_question(drop=drop)
-        if rescan:
-            self.map_rescan(rescan_mode=rescan, drop=drop)
+            # Rescan needs to stay inside the drop context. Some OpSi rewards
+            # appear only while clearing question marks or rescanning the map.
+            self._solved_map_event = set()
+            self._solved_fleet_mechanism = False
+            if question:
+                self.clear_question(drop=drop)
+            if rescan:
+                self.map_rescan(rescan_mode=rescan, drop=drop)
+
+            if drop.count <= 1:
+                drop.clear()
 
         return finished_combat
 
