@@ -86,6 +86,7 @@ class AzurStats:
     LOCAL_MEOW_CSV = './log/azurstat_meowofficer_farming.csv'
     LOCAL_GENRES = {'opsi_meowfficer_farming'}
     _local_lock = threading.Lock()
+    _record_lock = threading.Lock()
 
     def __init__(self, config):
         """
@@ -348,9 +349,9 @@ class AzurStats:
             save_thread.start()
 
         if local:
-            local_thread = threading.Thread(
-                target=self._record_local, args=(image, genre, filename, combat_count))
-            local_thread.start()
+            logger.info(f'Local AzurStats parse start, genre={genre}')
+            with self._record_lock:
+                self._record_local(image, genre, filename, combat_count)
 
         return True
 
@@ -366,12 +367,16 @@ class AzurStats:
         Returns:
             DropImage:
         """
+        method_value = None
         if isinstance(method, bool):
             save = save or method
             method = None
         if method is not None:
-            method = str(method)
-            save = save or 'save' in method
+            method_value = str(method)
+            save = save or 'save' in method_value
         if local is None:
-            local = genre in self.LOCAL_GENRES
+            if method_value is None:
+                local = genre in self.LOCAL_GENRES
+            else:
+                local = 'upload' in method_value and genre in self.LOCAL_GENRES
         return DropImage(stat=self, genre=genre, save=save, local=local, info=info)
