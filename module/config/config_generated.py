@@ -650,6 +650,7 @@ class GeneratedConfig:
     OpsiGeneral_DoRandomMapEvent = True
     OpsiGeneral_AkashiShopFilter = 'ActionPoint'
     OpsiGeneral_NotifyOpsiMail = True
+    OpsiGeneral_LauncherPush = True
     OpsiGeneral_IndependentPush = False
     OpsiGeneral_OpsiOnePushConfig = 'provider: null'
 

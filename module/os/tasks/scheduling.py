@@ -110,19 +110,37 @@ class CoinTaskMixin:
         if not self.config.OpsiGeneral_NotifyOpsiMail:
             return False
 
-        # 检查是否配置了推送
-        push_config = self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig
-        if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
-            return False
-        
         # 获取实例名称并格式化标题
         instance_name = getattr(self.config, 'config_name', 'Alas')
         if title.startswith('[Alas]'):
             formatted_title = f"[Alas <{instance_name}>]{title[6:]}"
         else:
             formatted_title = f"[Alas <{instance_name}>] {title}"
-        
+
+        webui_success = False
+        if getattr(self.config, 'OpsiGeneral_LauncherPush', True):
+            try:
+                from module.notify import notify_webui
+                webui_success = notify_webui(
+                    instance_name,
+                    title=formatted_title,
+                    content=content
+                )
+                if webui_success:
+                    logger.info(f"启动器推送通知成功: {formatted_title}")
+            except Exception as e:
+                logger.error(f"启动器推送通知异常: {e}")
+
+        # 检查是否配置了 OnePush。Windows 本地推送不依赖 OnePush 配置。
+        push_config = (
+            self.config.OpsiGeneral_OpsiOnePushConfig
+            if self.config.OpsiGeneral_IndependentPush
+            else self.config.Error_OnePushConfig
+        )
+        if not self._is_push_config_valid(push_config):
+            logger.warning("推送配置未设置或 provider 为 null，跳过 OnePush 推送。请在 Alas 设置 -> 错误处理 -> OnePush 配置中设置有效的推送渠道。")
+            return webui_success
+
         try:
             from module.notify import handle_notify as notify_handle_notify
             success = notify_handle_notify(
@@ -132,13 +150,12 @@ class CoinTaskMixin:
             )
             if success:
                 logger.info(f"推送通知成功: {formatted_title}")
-                return True
             else:
                 logger.warning(f"推送通知失败: {formatted_title}")
-                return False
+            return bool(success or webui_success)
         except Exception as e:
             logger.error(f"推送通知异常: {e}")
-            return False
+            return webui_success
     
     def _is_push_config_valid(self, push_config):
         """
@@ -763,22 +780,10 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not self._can_send_ap_notification('_last_ap_coins_insufficient_notification_time'):
             return
         
-        push_config = self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig
-        if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
-            return
-        
-        instance_name = getattr(self.config, 'config_name', 'Alas')
-        formatted_title = f"[Alas <{instance_name}>] 智能调度 - 黄币与行动力双重不足"
-        
-        try:
-            from module.notify import handle_notify as notify_handle_notify
-            content = f"黄币 {yellow_coins} 低于保留值 {cl1_preserve}\n行动力 {current_ap} 不足 (需要 {meow_ap_preserve})\n推迟任务"
-            success = notify_handle_notify(push_config, title=formatted_title, content=content)
-            if success:
-                logger.info(f"推送通知成功: {formatted_title}")
-        except Exception as e:
-            logger.error(f"推送通知异常: {e}")
+        self.notify_push(
+            title="[Alas] 智能调度 - 黄币与行动力双重不足",
+            content=f"黄币 {yellow_coins} 低于保留值 {cl1_preserve}\n行动力 {current_ap} 不足 (需要 {meow_ap_preserve})\n推迟任务"
+        )
     
     def _notify_ap_insufficient(self, current_ap, min_reserve):
         """
@@ -793,22 +798,10 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not self._can_send_ap_notification('_last_ap_insufficient_notification_time'):
             return
         
-        push_config = self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig
-        if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
-            return
-        
-        instance_name = getattr(self.config, 'config_name', 'Alas')
-        formatted_title = f"[Alas <{instance_name}>] 智能调度 - 行动力不足"
-        
-        try:
-            from module.notify import handle_notify as notify_handle_notify
-            content = f"当前行动力 {current_ap} 低于最低保留 {min_reserve}，推迟任务"
-            success = notify_handle_notify(push_config, title=formatted_title, content=content)
-            if success:
-                logger.info(f"推送通知成功: {formatted_title}")
-        except Exception as e:
-            logger.error(f"推送通知异常: {e}")
+        self.notify_push(
+            title="[Alas] 智能调度 - 行动力不足",
+            content=f"当前行动力 {current_ap} 低于最低保留 {min_reserve}，推迟任务"
+        )
     
     def _switch_to_coin_task(self, yellow_coins, current_ap, cl1_preserve, meow_ap_preserve):
         """
@@ -881,24 +874,12 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not self.config.OpsiGeneral_NotifyOpsiMail:
             return
         
-        push_config = self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig
-        if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
-            return
-        
-        instance_name = getattr(self.config, 'config_name', 'Alas')
-        formatted_title = f"[Alas <{instance_name}>] 智能调度 - 切换至黄币补充任务"
-        
-        try:
-            from module.notify import handle_notify as notify_handle_notify
-            content = (f"黄币 {yellow_coins} 低于保留值 {cl1_preserve}\n"
-                      f"行动力: {current_ap} (需要 {meow_ap_preserve})\n"
-                      f"切换至{task_names}获取黄币")
-            success = notify_handle_notify(push_config, title=formatted_title, content=content)
-            if success:
-                logger.info(f"推送通知成功: {formatted_title}")
-        except Exception as e:
-            logger.error(f"推送通知异常: {e}")
+        self.notify_push(
+            title="[Alas] 智能调度 - 切换至黄币补充任务",
+            content=(f"黄币 {yellow_coins} 低于保留值 {cl1_preserve}\n"
+                     f"行动力: {current_ap} (需要 {meow_ap_preserve})\n"
+                     f"切换至{task_names}获取黄币")
+        )
     
     def _execute_hazard1_leveling(self, yellow_coins, current_ap):
         """
@@ -933,26 +914,7 @@ class OpsiScheduling(CoinTaskMixin, OSMap):
         if not self._can_send_ap_notification('_last_ap_threshold_notification_time'):
             return
         
-        push_config = self.config.OpsiGeneral_OpsiOnePushConfig if self.config.OpsiGeneral_IndependentPush else self.config.Error_OnePushConfig
-        if not self._is_push_config_valid(push_config):
-            logger.warning("推送配置未设置或 provider 为 null，跳过推送")
-            return
-        
-        instance_name = getattr(self.config, 'config_name', 'Alas')
-        if title.startswith('[Alas]'):
-            formatted_title = f"[Alas <{instance_name}>]{title[6:]}"
-        else:
-            formatted_title = f"[Alas <{instance_name}>] {title}"
-        
-        try:
-            from module.notify import handle_notify as notify_handle_notify
-            success = notify_handle_notify(push_config, title=formatted_title, content=content)
-            if success:
-                logger.info(f"推送通知成功: {formatted_title}")
-            else:
-                logger.warning(f"推送通知失败: {formatted_title}")
-        except Exception as e:
-            logger.error(f"推送通知异常: {e}")
+        self.notify_push(title=title, content=content)
 
     # ========== 短猫提前开始计算 ==========
 
