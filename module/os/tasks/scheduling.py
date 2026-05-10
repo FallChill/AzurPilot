@@ -122,13 +122,18 @@ class CoinTaskMixin:
         if launcher_enabled:
             try:
                 from module.notify import notify_webui
-                webui_success = notify_webui(
-                    instance_name,
-                    title=formatted_title,
+                launcher_title, launcher_content = self._format_launcher_notification(
+                    instance_name=instance_name,
+                    title=title,
                     content=content
                 )
+                webui_success = notify_webui(
+                    instance_name,
+                    title=launcher_title,
+                    content=launcher_content
+                )
                 if webui_success:
-                    logger.info(f"启动器推送通知成功: {formatted_title}")
+                    logger.info(f"启动器推送通知成功: {launcher_title}")
             except Exception as e:
                 logger.error(f"启动器推送通知异常: {e}")
 
@@ -160,6 +165,40 @@ class CoinTaskMixin:
         except Exception as e:
             logger.error(f"推送通知异常: {e}")
             return webui_success
+
+    def _format_launcher_notification(self, instance_name, title, content):
+        """
+        启动器通知走更轻一点的本地文案，OnePush 仍保留原始标题和正文。
+        """
+        plain_title = title.strip()
+        for prefix in ('[Alas info]', '[Alas]'):
+            if plain_title.startswith(prefix):
+                plain_title = plain_title[len(prefix):].strip()
+                break
+        if not plain_title:
+            plain_title = '大世界有新消息'
+
+        if '行动力出现变化' in plain_title:
+            launcher_title = f"{instance_name} 行动力动了一下喵~"
+        elif '行动力不足' in plain_title or '行动力低于最低保留' in plain_title:
+            launcher_title = f"{instance_name} 大世界行动力不够喵~"
+        elif '黄币与行动力双重不足' in plain_title:
+            launcher_title = f"{instance_name} 大世界补给和行动力都告急喵~"
+        elif '切换' in plain_title:
+            launcher_title = f"{instance_name} 大世界要换个活干喵~"
+        elif '黄币充足' in plain_title or '凭证' in plain_title:
+            launcher_title = f"{instance_name} 大世界补给有消息喵~"
+        elif '检测' in plain_title or '报告' in plain_title or '检查' in plain_title:
+            launcher_title = f"{instance_name} 大世界检查报告来啦喵~"
+        elif '月末行动力清理' in plain_title:
+            launcher_title = f"{instance_name} 月末清理提醒喵~"
+        else:
+            launcher_title = f"{instance_name} 的大世界小铃铛响了喵~"
+
+        launcher_content = f"{plain_title}\n{content}".strip()
+        if not launcher_content.endswith(('喵', '喵~', '。', '！', '~')):
+            launcher_content = f"{launcher_content} 喵~"
+        return launcher_title, launcher_content
     
     def _is_push_config_valid(self, push_config):
         """
