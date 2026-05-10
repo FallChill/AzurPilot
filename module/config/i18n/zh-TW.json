@@ -589,16 +589,16 @@
       "help": "Error.LlmAnalysis.help"
     },
     "LlmApiKey": {
-      "name": "Error.LlmApiKey.name",
-      "help": "Error.LlmApiKey.help"
+      "name": "LLM API Key",
+      "help": "請自行前往 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 購買模型服務並取得 API Key。"
     },
     "LlmApiBase": {
-      "name": "Error.LlmApiBase.name",
-      "help": "Error.LlmApiBase.help"
+      "name": "LLM API Base",
+      "help": "填寫模型服務提供商的 OpenAI 相容 Base URL，可參考 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 的接入說明。"
     },
     "LlmModel": {
-      "name": "Error.LlmModel.name",
-      "help": "Error.LlmModel.help"
+      "name": "LLM 模型",
+      "help": "填寫已購買服務支援的模型名稱，請以 https://platform.deepseek.com/ 或 https://platform.xiaomimimo.com/ 平台展示為準。"
     }
   },
   "Optimization": {
@@ -1754,6 +1754,10 @@
       "only_05_hour": "0.5小時+無專案可做時",
       "only_no_project": "無專案可做時",
       "do_not_use": "不使用"
+    },
+    "CubePreserve": {
+      "name": "保留 X 個魔方",
+      "help": "當目前魔方數量小於等於該值時，科研暫時不選擇消耗魔方的專案。\n0 表示關閉。"
     },
     "UseCoin": {
       "name": "使用物資",
