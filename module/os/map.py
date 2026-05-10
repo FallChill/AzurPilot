@@ -8,7 +8,7 @@ import inflection
 from module.base.timer import Timer
 from module.config.config import TaskEnd
 from module.config.utils import get_os_reset_remain
-from module.exception import CampaignEnd, GameTooManyClickError, MapWalkError, RequestHumanTakeover, ScriptError
+from module.exception import CampaignEnd, GameTooManyClickError, MapDetectionError, MapWalkError, RequestHumanTakeover, ScriptError
 from module.handler.login import LoginHandler, MAINTENANCE_ANNOUNCE
 from module.logger import logger
 from module.map.map import Map
@@ -1552,7 +1552,13 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
         logger.hr('Map rescan current', level=2)
         self.map_data_init(map_=None)
         self.handle_info_bar()
-        self.update()
+        try:
+            self.update()
+        except MapDetectionError:
+            # Map is likely cleared, homography cannot detect valid tiles
+            logger.warning('MAP RESCAN CURRENT Homography failed (score below 0.8), '
+                           'map may be cleared or detection is unstable, unhandled events may be missed')
+            return False
         if self.map_rescan_current(drop=drop):
             logger.info(f'Map rescan once end, result={True}')
             return True
