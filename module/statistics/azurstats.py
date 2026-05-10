@@ -354,16 +354,17 @@ class AzurStats:
 
         return True
 
-    def new(self, genre, method='upload', info=''):
+    def new(self, genre, save=False, local=None, info=''):
         """
         Args:
             genre (str):
-            method (str): The method about save and upload image.
+            save (bool): Whether to save the image.
+            local (bool): Whether to use local processing. If None, determined by genre.
             info (str): Extra info append to filename.
 
         Returns:
             DropImage:
         """
-        save = 'save' in method
-        local = genre in self.LOCAL_GENRES
+        if local is None:
+            local = genre in self.LOCAL_GENRES
         return DropImage(stat=self, genre=genre, save=save, local=local, info=info)
