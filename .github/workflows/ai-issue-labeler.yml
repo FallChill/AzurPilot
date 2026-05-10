@@ -292,7 +292,7 @@ jobs:
               const cleaned = text
                 .replace(/```json/gi, "")
                 .replace(/```/g, "")
-                .replace(/<think>[\\s\\S]*?<\\/think>/gi, "")
+                .replace(/<think>[\s\S]*?<\/think>/gi, "")
                 .trim();
 
               const start = cleaned.indexOf("{");
