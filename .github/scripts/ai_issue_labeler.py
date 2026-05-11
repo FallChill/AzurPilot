@@ -952,11 +952,6 @@ def main():
     event = read_event()
     owner, repo = repo_parts(event, platform)
 
-    pr = resolve_pull_request(platform, event, owner, repo, token)
-    if pr:
-        apply_pull_request_triage(platform, owner, repo, pr, token)
-        return
-
     issue = resolve_issue(platform, event, owner, repo, token)
     if issue.get("pull_request"):
         print("Skipping pull request issue.")
