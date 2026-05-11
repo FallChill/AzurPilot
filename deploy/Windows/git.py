@@ -86,10 +86,10 @@ class GitManager(DeployConfig):
 
     def git_repository_repair(self, repo, source='origin', branch='master'):
         """
-        .git 缺失或损坏时，重建 Git 元数据，保留现有工作区文件。
+        .git 缺失或损坏时，删除 .git 目录并重新 clone 仓库。
         """
         logger.hr('Git Repository Repair', 1)
-        logger.warning('Attempting to repair git repository metadata without overwriting files')
+        logger.warning('Attempting to repair git repository by re-cloning')
 
         if os.path.isdir('./.git'):
             logger.info('Removing corrupted .git directory')
@@ -107,17 +107,14 @@ class GitManager(DeployConfig):
         # Set remote URL just in case it already exists
         self.execute(f'"{self.git}" remote set-url "{source}" "{repo}"')
         self.execute(f'"{self.git}" fetch "{source}" "{branch}"')
-        self.execute(f'"{self.git}" reset --mixed "{source}/{branch}"')
-        self.execute(f'"{self.git}" branch -M "{branch}"', allow_failure=True)
+        self.execute(f'"{self.git}" reset --hard "{source}/{branch}"')
 
     def git_repository_init(
             self, repo, source='origin', branch='master',
             proxy='', ssl_verify=True, keep_changes=False
     ):
-        repaired = False
         if not self.git_repository_check():
             self.git_repository_repair(repo, source=source, branch=branch)
-            repaired = True
 
         logger.hr('Git Init', 1)
         if not self.execute(f'"{self.git}" init', allow_failure=True):
@@ -168,10 +165,7 @@ class GitManager(DeployConfig):
             if os.path.exists(lock_file):
                 logger.info(f'Lock file {lock_file} exists, removing')
                 os.remove(lock_file)
-        if repaired:
-            logger.info('Repository metadata repaired; skip destructive reset and keep existing files')
-            self.execute(f'"{self.git}" pull --ff-only "{source}" "{branch}"', allow_failure=True)
-        elif keep_changes:
+        if keep_changes:
             if self.execute(f'"{self.git}" stash', allow_failure=True):
                 self.execute(f'"{self.git}" pull --ff-only "{source}" "{branch}"')
                 if self.execute(f'"{self.git}" stash pop', allow_failure=True):
