@@ -2617,6 +2617,11 @@
       "CustomCheckPositions": null,
       "DelayAfterFull": false
     },
+    "OpsiFleetAutoChange": {
+      "Enable": false,
+      "CooldownHours": 24,
+      "LastRun": "2020-01-01 00:00:00"
+    },
     "Storage": {
       "Storage": {}
     }

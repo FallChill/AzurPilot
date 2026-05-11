@@ -456,6 +456,17 @@ class OpsiHazard1Leveling(CoinTaskMixin, OSMap):
                     title="练级检查通过",
                     content=f"<{self.config.config_name}> {self.config.task} 已达到等级限制 {target_level}。",
                 )
+                
+                if self.config.OpsiFleetAutoChange_Enable:
+                    logger.info("检测到自动配队已启用，开始执行自动配队")
+                    try:
+                        from module.os.tasks.fleet_auto_change import OpsiFleetAutoChange
+                        auto_change = OpsiFleetAutoChange(config=self.config, device=self.device)
+                        auto_change.run()
+                        logger.info("自动配队执行完成")
+                    except Exception as e:
+                        logger.error(f"自动配队执行失败: {e}")
+                
                 if self.config.OpsiCheckLeveling_DelayAfterFull:
                     logger.info("所有舰船满经验后延迟任务")
                     self.config.task_delay(server_update=True)
@@ -733,6 +744,17 @@ class OpsiHazard1Leveling(CoinTaskMixin, OSMap):
                 title="自定义舰位练级检查通过",
                 content=f"<{self.config.config_name}> 自定义舰位 {', '.join(positions_full)} 已达到等级限制 {target_level}。",
             )
+            
+            if self.config.OpsiFleetAutoChange_Enable:
+                logger.info("检测到自动配队已启用，开始执行自动配队")
+                try:
+                    from module.os.tasks.fleet_auto_change import OpsiFleetAutoChange
+                    auto_change = OpsiFleetAutoChange(config=self.config, device=self.device)
+                    auto_change.run()
+                    logger.info("自动配队执行完成")
+                except Exception as e:
+                    logger.error(f"自动配队执行失败: {e}")
+            
             if self.config.OpsiCheckLeveling_DelayAfterFull:
                 logger.info("自定义舰位满经验后延迟任务")
                 self.config.task_delay(server_update=True)
