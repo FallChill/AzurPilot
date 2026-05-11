@@ -33,12 +33,9 @@ class SceneOperationSiren(SceneBase, OpsiReward, GetItems, OpsiZone):
 
     def extract_assets(self):
         zone = None
-        # cleared = -1
-        for index, image in enumerate(self.images):
+        for _, image in enumerate(self.images):
             if self.is_opsi_zone(image):
                 zone = 1
-                # zone = self.parse_opsi_zone(self.last)
-                # cleared = index
                 break
         if zone is None:
             return

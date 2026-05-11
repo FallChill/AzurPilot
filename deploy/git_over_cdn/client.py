@@ -47,6 +47,16 @@ class PrintLogger:
 
 
 class GitOverCdnClient:
+    GIT_CLEAN_EXCLUDES = (
+        'config/',
+        'log/',
+        'screenshots/',
+        'toolkit/',
+        '.venv/',
+        'venv/',
+        '.env',
+    )
+
     logger = PrintLogger()
 
     def __init__(self, url, folder, source='origin', branch='master', git='git'):
@@ -229,6 +239,13 @@ class GitOverCdnClient:
             self.git_command('stash', 'pop')
         else:
             self.git_command('reset', '--hard', f'{self.source}/{self.branch}')
+            self.git_clean()
+
+    def git_clean(self):
+        args = []
+        for item in self.GIT_CLEAN_EXCLUDES:
+            args.extend(['-e', item])
+        self.git_command('clean', '-ffdx', *args)
 
     def get_status(self):
         """

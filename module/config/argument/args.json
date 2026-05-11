@@ -2148,6 +2148,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -2642,6 +2643,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -3540,6 +3542,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -3974,6 +3977,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -4408,6 +4412,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -6760,6 +6765,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -7211,6 +7217,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -7662,6 +7669,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -8113,6 +8121,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -8554,6 +8563,7 @@
         ],
         "option_tw": [
           "event_20260417_cn",
+          "event_20201126_cn",
           "event_20220915_cn",
           "event_20260326_cn",
           "event_20220728_cn"
@@ -9657,6 +9667,14 @@
           "only_05_hour",
           "only_no_project",
           "do_not_use"
+        ]
+      },
+      "CubePreserve": {
+        "type": "input",
+        "value": 0,
+        "validate": [
+          0,
+          999999
         ]
       },
       "UseCoin": {
@@ -13017,6 +13035,10 @@
         "value": "ActionPoint"
       },
       "NotifyOpsiMail": {
+        "type": "checkbox",
+        "value": true
+      },
+      "LauncherPush": {
         "type": "checkbox",
         "value": true
       },
