@@ -51,6 +51,10 @@
     var avg = __AVG__;
     var isDetailMode = __IS_DETAIL_MODE__;
     var sources = __SOURCES__;
+    var yellowCoins = __YELLOW_COINS__;
+    var purpleCoins = __PURPLE_COINS__;
+    var coinsSources = __COINS_SOURCES__;
+    var showCoins = __SHOW_COINS__;
     var nn = chartType === 'line' ? ap.length : labels.length;
     if (nn < 1) return;
 
@@ -70,7 +74,7 @@
     ctx.scale(dpr, dpr);
     var oc = ovCv.getContext("2d");
 
-    var pad = {t: 20, r: 20, b: 52, l: 52};
+    var pad = {t: 20, r: showCoins ? 72 : 20, b: 52, l: 52};
     var gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
 
     var allMin = Infinity, allMax = -Infinity;
@@ -89,8 +93,28 @@
     allMin -= rng * 0.08;
     allMax += rng * 0.08;
 
+    var coinsMin = Infinity, coinsMax = -Infinity;
+    var yellowCoinsLen = yellowCoins ? yellowCoins.length : 0;
+    var purpleCoinsLen = purpleCoins ? purpleCoins.length : 0;
+    if (showCoins && chartType === 'line') {
+        for (var i = 0; i < yellowCoinsLen; i++) {
+            if (yellowCoins[i] < coinsMin) coinsMin = yellowCoins[i];
+            if (yellowCoins[i] > coinsMax) coinsMax = yellowCoins[i];
+        }
+        for (var i = 0; i < purpleCoinsLen; i++) {
+            if (purpleCoins[i] < coinsMin) coinsMin = purpleCoins[i];
+            if (purpleCoins[i] > coinsMax) coinsMax = purpleCoins[i];
+        }
+        if (coinsMin === Infinity) coinsMin = 0;
+        if (coinsMax === -Infinity) coinsMax = 1000;
+        var coinsRng = coinsMax - coinsMin || 1;
+        coinsMin -= coinsRng * 0.08;
+        coinsMax += coinsRng * 0.08;
+    }
+
     function xOfLine(i) { return pad.l + (i / Math.max(nn - 1, 1)) * gW; }
     function yOf(v) { return pad.t + gH - (v - allMin) / (allMax - allMin) * gH; }
+    function yOfCoins(v) { return pad.t + gH - (v - coinsMin) / (coinsMax - coinsMin) * gH; }
 
     var candleSpace = gW / nn;
     var candleW = Math.max(3, Math.min(candleSpace * 0.6, 30));
@@ -110,6 +134,16 @@
         var y = yOf(v);
         ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
         ctx.fillText(Math.round(v), pad.l - 8, y);
+    }
+
+    if (showCoins && chartType === 'line' && yellowCoinsLen > 0) {
+        ctx.fillStyle = "#ffd54f";
+        ctx.textAlign = "left";
+        for (var i = 0; i <= 5; i++) {
+            var v = coinsMin + (coinsMax - coinsMin) * (i / 5);
+            var y = yOfCoins(v);
+            ctx.fillText(Math.round(v), W - pad.r + 8, y);
+        }
     }
 
     var avgY = yOf(avg);
@@ -244,6 +278,36 @@
         drawMA(10, "#e91e63");
     }
 
+    if (showCoins && chartType === 'line' && yellowCoinsLen > 0) {
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = "round";
+        ctx.setLineDash([4, 2]);
+
+        if (yellowCoinsLen > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#ffd54f";
+            for (var i = 0; i < yellowCoinsLen; i++) {
+                var x = xOfLine(i), y = yOfCoins(yellowCoins[i]);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        if (purpleCoinsLen > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#ce93d8";
+            for (var i = 0; i < purpleCoinsLen; i++) {
+                var x = xOfLine(i), y = yOfCoins(purpleCoins[i]);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        ctx.setLineDash([]);
+    }
+
     cv.addEventListener("mousemove", function(e) {
         var rect = cv.getBoundingClientRect();
         var mx_ = e.clientX - rect.left;
@@ -304,12 +368,30 @@
                 var source = sources && sources[idx] ? sources[idx] : '-';
                 var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
 
-                setTooltipContent(tipEl, [
+                var tooltipRows = [
                     { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
                     { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
                     { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] },
                     { parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] }
-                ]);
+                ];
+
+                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen) {
+                    var yc = yellowCoins[idx];
+                    var ycDiff = idx > 0 && idx < yellowCoinsLen ? (yc - yellowCoins[idx - 1]) : 0;
+                    var ycColor = ycDiff >= 0 ? "#ef5350" : "#26a69a";
+                    var ycDiffStr = (ycDiff >= 0 ? "+" : "") + ycDiff;
+                    tooltipRows.push({ parts: [{ type: 'text', value: "黄币: " }, { type: 'bold', value: String(yc), style: { color: "#ffd54f" } }, { type: 'text', value: " (" + ycDiffStr + ")", style: { color: ycColor } }] });
+                }
+
+                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen) {
+                    var pc = purpleCoins[idx];
+                    var pcDiff = idx > 0 && idx < purpleCoinsLen ? (pc - purpleCoins[idx - 1]) : 0;
+                    var pcColor = pcDiff >= 0 ? "#ef5350" : "#26a69a";
+                    var pcDiffStr = (pcDiff >= 0 ? "+" : "") + pcDiff;
+                    tooltipRows.push({ parts: [{ type: 'text', value: "紫币: " }, { type: 'bold', value: String(pc), style: { color: "#ce93d8" } }, { type: 'text', value: " (" + pcDiffStr + ")", style: { color: pcColor } }] });
+                }
+
+                setTooltipContent(tipEl, tooltipRows);
             } else {
                 var ratio = (mx_ - pad.l) / gW;
                 var idx = Math.round(ratio * (nn - 1));
@@ -335,11 +417,29 @@
                 var dc = isUp ? "#ef5350" : "#26a69a";
                 var ds = (isUp ? "+" : "") + diff;
 
-                setTooltipContent(tipEl, [
+                var tooltipRows = [
                     { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
                     { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
                     { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
-                ]);
+                ];
+
+                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen) {
+                    var yc = yellowCoins[idx];
+                    var ycDiff = idx > 0 && idx < yellowCoinsLen ? (yc - yellowCoins[idx - 1]) : 0;
+                    var ycColor = ycDiff >= 0 ? "#ef5350" : "#26a69a";
+                    var ycDiffStr = (ycDiff >= 0 ? "+" : "") + ycDiff;
+                    tooltipRows.push({ parts: [{ type: 'text', value: "黄币: " }, { type: 'bold', value: String(yc), style: { color: "#ffd54f" } }, { type: 'text', value: " (" + ycDiffStr + ")", style: { color: ycColor } }] });
+                }
+
+                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen) {
+                    var pc = purpleCoins[idx];
+                    var pcDiff = idx > 0 && idx < purpleCoinsLen ? (pc - purpleCoins[idx - 1]) : 0;
+                    var pcColor = pcDiff >= 0 ? "#ef5350" : "#26a69a";
+                    var pcDiffStr = (pcDiff >= 0 ? "+" : "") + pcDiff;
+                    tooltipRows.push({ parts: [{ type: 'text', value: "紫币: " }, { type: 'bold', value: String(pc), style: { color: "#ce93d8" } }, { type: 'text', value: " (" + pcDiffStr + ")", style: { color: pcColor } }] });
+                }
+
+                setTooltipContent(tipEl, tooltipRows);
             }
         } else {
             var idx = Math.floor((mx_ - pad.l) / candleSpace);
