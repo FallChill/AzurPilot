@@ -1,8 +1,40 @@
 (function() {
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+    function setTooltipContent(tipEl, rows) {
+        while (tipEl.firstChild) {
+            tipEl.removeChild(tipEl.firstChild);
+        }
+        rows.forEach(function(row) {
+            var div = document.createElement('div');
+            if (row.style) {
+                Object.keys(row.style).forEach(function(k) {
+                    div.style[k] = row.style[k];
+                });
+            }
+            if (row.parts) {
+                row.parts.forEach(function(part) {
+                    if (part.type === 'text') {
+                        var span = document.createElement('span');
+                        span.textContent = part.value;
+                        if (part.style) {
+                            Object.keys(part.style).forEach(function(k) {
+                                span.style[k] = part.style[k];
+                            });
+                        }
+                        div.appendChild(span);
+                    } else if (part.type === 'bold') {
+                        var b = document.createElement('b');
+                        b.textContent = part.value;
+                        if (part.style) {
+                            Object.keys(part.style).forEach(function(k) {
+                                b.style[k] = part.style[k];
+                            });
+                        }
+                        div.appendChild(b);
+                    }
+                });
+            }
+            tipEl.appendChild(div);
+        });
     }
 
     var chartType = "__CHART_TYPE__";
@@ -245,9 +277,12 @@
             var isUp = diff >= 0;
             var dc = isUp ? "#ef5350" : "#26a69a";
             var ds = (isUp ? "+" : "") + diff;
-            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(labels[idx]) + '</div>'
-                + '<div>体力: <b style="color:#64b5f6">' + escapeHtml(String(ap[idx])) + '</b></div>'
-                + '<div>单次变化: <b style="color:' + dc + '">' + escapeHtml(ds) + '</b></div>';
+
+            setTooltipContent(tipEl, [
+                { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
+                { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
+                { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
+            ]);
         } else {
             var idx = Math.floor((mx_ - pad.l) / candleSpace);
             idx = Math.max(0, Math.min(nn - 1, idx));
@@ -286,13 +321,23 @@
                 ma10Val = (sum10/10).toFixed(1);
             }
 
-            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(labels[idx]) + '</div>'
-                + '<div>开盘: <b>' + escapeHtml(String(o)) + '</b> <span style="margin-left:8px;color:#ffeb3b">MA5(5期平均): ' + escapeHtml(ma5Val) + '</span></div>'
-                + '<div>收盘: <b style="color:' + dc + '">' + escapeHtml(String(c_)) + '</b> <span style="margin-left:8px;color:#e91e63">MA10(10期平均): ' + escapeHtml(ma10Val) + '</span></div>'
-                + '<div>最高: <b style="color:#ef5350">' + escapeHtml(String(h)) + '</b></div>'
-                + '<div>最低: <b style="color:#26a69a">' + escapeHtml(String(l)) + '</b></div>'
-                + '<div>涨跌: <b style="color:' + dc + '">' + escapeHtml(chgSign + chg) + ' (' + escapeHtml(chgSign + chgPct) + '%)</b></div>'
-                + '<div style="color:#666;margin-top:4px">数据点密度: ' + escapeHtml(String(counts[idx])) + '</div>';
+            setTooltipContent(tipEl, [
+                { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
+                { parts: [
+                    { type: 'text', value: "开盘: " },
+                    { type: 'bold', value: String(o) },
+                    { type: 'text', value: "  MA5(5期平均): " + ma5Val, style: { marginLeft: "8px", color: "#ffeb3b" } }
+                ]},
+                { parts: [
+                    { type: 'text', value: "收盘: " },
+                    { type: 'bold', value: String(c_), style: { color: dc } },
+                    { type: 'text', value: "  MA10(10期平均): " + ma10Val, style: { marginLeft: "8px", color: "#e91e63" } }
+                ]},
+                { parts: [{ type: 'text', value: "最高: " }, { type: 'bold', value: String(h), style: { color: "#ef5350" } }] },
+                { parts: [{ type: 'text', value: "最低: " }, { type: 'bold', value: String(l), style: { color: "#26a69a" } }] },
+                { parts: [{ type: 'text', value: "涨跌: " }, { type: 'bold', value: chgSign + chg + " (" + chgSign + chgPct + "%)", style: { color: dc } }] },
+                { style: { color: "#666", marginTop: "4px" }, parts: [{ type: 'text', value: "数据点密度: " + counts[idx] }] }
+            ]);
         }
 
         tipEl.style.display = "block";
@@ -312,6 +357,44 @@
 })();
 
 (function() {
+    function setTooltipContent(tipEl, rows) {
+        while (tipEl.firstChild) {
+            tipEl.removeChild(tipEl.firstChild);
+        }
+        rows.forEach(function(row) {
+            var div = document.createElement('div');
+            if (row.style) {
+                Object.keys(row.style).forEach(function(k) {
+                    div.style[k] = row.style[k];
+                });
+            }
+            if (row.parts) {
+                row.parts.forEach(function(part) {
+                    if (part.type === 'text') {
+                        var span = document.createElement('span');
+                        span.textContent = part.value;
+                        if (part.style) {
+                            Object.keys(part.style).forEach(function(k) {
+                                span.style[k] = part.style[k];
+                            });
+                        }
+                        div.appendChild(span);
+                    } else if (part.type === 'bold') {
+                        var b = document.createElement('b');
+                        b.textContent = part.value;
+                        if (part.style) {
+                            Object.keys(part.style).forEach(function(k) {
+                                b.style[k] = part.style[k];
+                            });
+                        }
+                        div.appendChild(b);
+                    }
+                });
+            }
+            tipEl.appendChild(div);
+        });
+    }
+
     var detailLabels = __DETAIL_LABELS__;
     var detailAp = __DETAIL_AP__;
     var detailSources = __DETAIL_SOURCES__;
@@ -495,10 +578,12 @@
         var source = detailSources[idx] || '-';
         var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
 
-        dtipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(detailLabels[idx]) + '</div>'
-            + '<div>体力: <b style="color:#64b5f6">' + escapeHtml(String(detailAp[idx])) + '</b></div>'
-            + '<div>变化: <b style="color:' + dc + '">' + escapeHtml(ds) + '</b></div>'
-            + '<div>来源: <b style="color:' + sourceColor + '">' + escapeHtml(source) + '</b></div>';
+        setTooltipContent(dtipEl, [
+            { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: detailLabels[idx] }] },
+            { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(detailAp[idx]), style: { color: "#64b5f6" } }] },
+            { parts: [{ type: 'text', value: "变化: " }, { type: 'bold', value: ds, style: { color: dc } }] },
+            { parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] }
+        ]);
 
         dtipEl.style.display = "block";
         var tx = px + 16;
@@ -530,48 +615,66 @@
         if (!isDragging) return;
         var dx = e.clientX - dragStartX;
         var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-        var xScale = (dW - 48 - 16) / visibleCount;
-        panOffset = Math.max(0, Math.min(detailAp.length - visibleCount, dragStartPan - dx / xScale));
+        var xScale = (dW - 64) / visibleCount;
+        var newPan = dragStartPan - dx / xScale;
+        var maxPan = Math.max(0, detailAp.length - visibleCount);
+        panOffset = Math.max(0, Math.min(maxPan, newPan));
         renderDetailChart();
     });
 
     document.addEventListener("mouseup", function() {
-        isDragging = false;
-        dcv.style.cursor = "crosshair";
+        if (isDragging) {
+            isDragging = false;
+            dcv.style.cursor = "crosshair";
+        }
     });
+
+    dcv.addEventListener("wheel", function(e) {
+        e.preventDefault();
+        var rect = dcv.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+        var newZoom = Math.max(minZoom, Math.min(maxZoom, zoomLevel * zoomFactor));
+        if (newZoom !== zoomLevel) {
+            var visibleCountBefore = Math.ceil(detailAp.length / zoomLevel);
+            var visibleCountAfter = Math.ceil(detailAp.length / newZoom);
+            var xScaleBefore = (dW - 64) / visibleCountBefore;
+            var mouseIdx = panOffset + (mx - 48) / xScaleBefore;
+            zoomLevel = newZoom;
+            var xScaleAfter = (dW - 64) / visibleCountAfter;
+            panOffset = Math.max(0, mouseIdx - (mx - 48) / xScaleAfter);
+            var maxPan = Math.max(0, detailAp.length - visibleCountAfter);
+            panOffset = Math.max(0, Math.min(maxPan, panOffset));
+            renderDetailChart();
+        }
+    }, { passive: false });
 
     var zoomInBtn = document.getElementById(detailChartId + "_zoom_in");
     var zoomOutBtn = document.getElementById(detailChartId + "_zoom_out");
-    var resetBtn = document.getElementById(detailChartId + "_reset");
+    var zoomResetBtn = document.getElementById(detailChartId + "_zoom_reset");
 
     if (zoomInBtn) {
         zoomInBtn.addEventListener("click", function() {
             zoomLevel = Math.min(maxZoom, zoomLevel * 1.5);
+            var visibleCount = Math.ceil(detailAp.length / zoomLevel);
+            var maxPan = Math.max(0, detailAp.length - visibleCount);
+            panOffset = Math.min(panOffset, maxPan);
             renderDetailChart();
         });
     }
+
     if (zoomOutBtn) {
         zoomOutBtn.addEventListener("click", function() {
             zoomLevel = Math.max(minZoom, zoomLevel / 1.5);
-            var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-            panOffset = Math.min(panOffset, Math.max(0, detailAp.length - visibleCount));
             renderDetailChart();
         });
     }
-    if (resetBtn) {
-        resetBtn.addEventListener("click", function() {
+
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener("click", function() {
             zoomLevel = 1.0;
             panOffset = 0;
             renderDetailChart();
         });
     }
-
-    dcv.addEventListener("wheel", function(e) {
-        e.preventDefault();
-        var delta = e.deltaY > 0 ? 0.9 : 1.1;
-        zoomLevel = Math.max(minZoom, Math.min(maxZoom, zoomLevel * delta));
-        var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-        panOffset = Math.min(panOffset, Math.max(0, detailAp.length - visibleCount));
-        renderDetailChart();
-    }, { passive: false });
 })();
