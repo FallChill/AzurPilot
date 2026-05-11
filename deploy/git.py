@@ -146,18 +146,43 @@ class GitManager(DeployConfig):
 
     @property
     def goc_client(self):
+        # Resolve repo first to get the actual project name
+        repo = self.resolve_repository_url(self.Repository)
+        repo_name = repo.strip('/').split('/')[-1]
         client = GitOverCdnClient(
             url=[
-                'https://vip.123pan.cn/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
-                'https://1818706573.v.123yx.com/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
+                f'https://vip.123pan.cn/1818706573/pack/LmeSzinc_{repo_name}_{self.Branch}',
+                f'https://1818706573.v.123yx.com/1818706573/pack/LmeSzinc_{repo_name}_{self.Branch}',
             ],
             folder=self.root_filepath,
             source='origin',
-            branch='master',
+            branch=self.Branch,
             git=self.git,
         )
         client.logger = logger
         return client
+
+    def resolve_repository_url(self, url):
+        """
+        Resolve 307 redirects from git.nanoda.work to get the actual git repository URL.
+        """
+        if 'git.nanoda.work' in url:
+            try:
+                import requests
+                logger.info(f'Resolving repository URL: {url}')
+                # Catch 307 redirect
+                response = requests.get(url, allow_redirects=False, timeout=10)
+                if response.status_code in [302, 307]:
+                    new_url = response.headers.get('Location')
+                    if new_url:
+                        # Strip .git suffix for consistency
+                        new_url = new_url.replace('.git', '')
+                        logger.info(f'Resolved {url} to {new_url}')
+                        return new_url
+                return url
+            except Exception as e:
+                logger.error(f'Failed to resolve {url}: {e}')
+        return url
 
     def git_install(self):
         logger.hr('Update Alas', 0)
@@ -192,8 +217,11 @@ class GitManager(DeployConfig):
             if self.goc_client.update(keep_changes=self.KeepLocalChanges):
                 return
 
+        # Resolve repository URL before any git operations
+        repo = self.resolve_repository_url(self.Repository)
+
         self.git_repository_init(
-            repo=self.Repository,
+            repo=repo,
             source='origin',
             branch=self.Branch,
             proxy=self.GitProxy,
