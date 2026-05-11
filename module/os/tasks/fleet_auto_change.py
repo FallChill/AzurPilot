@@ -97,6 +97,10 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         """
         logger.info("自动配队后运行经验检测")
         
+        if not self._ensure_return_to_os_map():
+            logger.warning("无法返回大世界地图，尝试回到主界面")
+            self._return_to_main_page()
+        
         try:
             from module.os.tasks.hazard_leveling import OpsiHazard1Leveling
             
@@ -105,6 +109,42 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
             logger.info("经验检测完成")
         except Exception as e:
             logger.warning(f"经验检测失败: {e}")
+    
+    def _ensure_return_to_os_map(self):
+        """
+        确保返回大世界地图
+        
+        Returns:
+            bool: 是否成功返回大世界地图
+        """
+        timeout = 10
+        for _ in range(timeout * 2):
+            self.device.screenshot()
+            
+            if self.appear(PORT_GOTO_SUPPLY, offset=(20, 20)):
+                logger.info("检测到仍在港口界面，退出港口")
+                self.port_quit(skip_first_screenshot=True)
+                self.wait_os_map_buttons()
+                continue
+            
+            if self.is_in_map():
+                if not self.appear(PORT_GOTO_SUPPLY, offset=(20, 20)):
+                    logger.info("已确认返回大世界地图")
+                    return True
+        
+        logger.warning("超时未能返回大世界地图")
+        return False
+    
+    def _return_to_main_page(self):
+        """回到主界面"""
+        from module.ui.page import page_main
+        logger.info("尝试回到主界面")
+        
+        try:
+            self.ui_goto(page_main)
+            logger.info("已回到主界面")
+        except Exception as e:
+            logger.warning(f"回到主界面失败: {e}")
     
     def _notify_auto_change_complete(self, custom_positions):
         """
@@ -394,7 +434,7 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         for _ in range(5):
             self.device.screenshot()
         
-        timeout = 10
+        timeout = 15
         for _ in range(timeout * 2):
             self.device.screenshot()
             
@@ -402,11 +442,12 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
                 logger.info("检测到进入港口界面，退出港口")
                 self.port_quit(skip_first_screenshot=True)
                 self.wait_os_map_buttons()
-                return
+                continue
             
-            if self.is_in_map() and not self.appear(PORT_GOTO_SUPPLY, offset=(20, 20)):
-                logger.info("已返回大世界地图")
-                return
+            if self.is_in_map():
+                if not self.appear(PORT_GOTO_SUPPLY, offset=(20, 20)):
+                    logger.info("已返回大世界地图")
+                    return
         
         logger.error("出发确认超时")
         raise ScriptError("出发确认超时，无法返回大世界地图")
