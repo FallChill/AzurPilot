@@ -49,13 +49,16 @@
     var counts = __COUNTS__;
     var ap = __AP__;
     var avg = __AVG__;
+    var isDetailMode = __IS_DETAIL_MODE__;
+    var sources = __SOURCES__;
     var nn = chartType === 'line' ? ap.length : labels.length;
     if (nn < 1) return;
 
-    var cv = document.getElementById("__CHART_ID__");
+    var chartId = "__CHART_ID__";
+    var cv = document.getElementById(chartId);
     if (!cv) return;
-    var tipEl = document.getElementById("__CHART_ID___tip");
-    var ovCv = document.getElementById("__CHART_ID___ov");
+    var tipEl = document.getElementById(chartId + "_tip");
+    var ovCv = document.getElementById(chartId + "_ov");
 
     var dpr = window.devicePixelRatio || 1;
     var W = cv.clientWidth, H = cv.clientHeight;
@@ -281,11 +284,19 @@
             var dc = isUp ? "#ef5350" : "#26a69a";
             var ds = (isUp ? "+" : "") + diff;
 
-            setTooltipContent(tipEl, [
+            var tooltipRows = [
                 { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
                 { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
                 { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
-            ]);
+            ];
+
+            if (isDetailMode && sources && sources[idx]) {
+                var source = sources[idx];
+                var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
+                tooltipRows.push({ parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] });
+            }
+
+            setTooltipContent(tipEl, tooltipRows);
         } else {
             var idx = Math.floor((mx_ - pad.l) / candleSpace);
             idx = Math.max(0, Math.min(nn - 1, idx));
@@ -357,289 +368,177 @@
         oc.setTransform(1, 0, 0, 1, 0, 0);
         oc.clearRect(0, 0, ovCv.width, ovCv.height);
     });
-})();
 
-(function() {
-    var detailLabels = __DETAIL_LABELS__;
-    var detailAp = __DETAIL_AP__;
-    var detailSources = __DETAIL_SOURCES__;
-    var detailChartId = "__DETAIL_CHART_ID__";
-    var detailDisplay = "__DETAIL_DISPLAY__";
+    if (isDetailMode) {
+        var zoomLevel = 1.0;
+        var panOffset = 0;
+        var maxZoom = 5.0;
+        var minZoom = 0.5;
 
-    if (detailDisplay === 'none' || !detailLabels || detailLabels.length === 0) return;
+        function renderDetailChart() {
+            var visibleStart = Math.max(0, Math.floor(panOffset));
+            var visibleCount = Math.ceil(nn / zoomLevel);
+            var visibleEnd = Math.min(nn, visibleStart + visibleCount);
+            var visibleNn = visibleEnd - visibleStart;
 
-    var dcv = document.getElementById(detailChartId);
-    if (!dcv) return;
-    var dtipEl = document.getElementById(detailChartId + "_tip");
-    var dovCv = document.getElementById(detailChartId + "_ov");
+            var dMin = Infinity, dMax = -Infinity;
+            for (var i = visibleStart; i < visibleEnd; i++) {
+                if (ap[i] < dMin) dMin = ap[i];
+                if (ap[i] > dMax) dMax = ap[i];
+            }
+            if (dMin === Infinity) dMin = 0;
+            if (dMax === -Infinity) dMax = 100;
+            var drng = dMax - dMin || 1;
+            dMin -= drng * 0.1;
+            dMax += drng * 0.1;
 
-    var ddpr = window.devicePixelRatio || 1;
-    var dW = dcv.clientWidth, dH = dcv.clientHeight;
-    dcv.width = dW * ddpr; dcv.height = dH * ddpr;
-    dovCv.width = dW * ddpr; dovCv.height = dH * ddpr;
-    dovCv.style.width = dW + "px"; dovCv.style.height = dH + "px";
+            ctx.fillStyle = "#1a1a2e";
+            ctx.fillRect(0, 0, W, H);
 
-    var dctx = dcv.getContext("2d");
-    dctx.scale(ddpr, ddpr);
-    var doc = dovCv.getContext("2d");
+            ctx.strokeStyle = "#2a2a3e";
+            ctx.lineWidth = 1;
+            ctx.fillStyle = "#666";
+            ctx.font = "11px -apple-system, sans-serif";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            for (var i = 0; i <= 5; i++) {
+                var v = dMin + (dMax - dMin) * (i / 5);
+                var y = pad.t + gH - (v - dMin) / (dMax - dMin) * gH;
+                ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+                ctx.fillText(Math.round(v), pad.l - 8, y);
+            }
 
-    var zoomLevel = 1.0;
-    var panOffset = 0;
-    var maxZoom = 5.0;
-    var minZoom = 0.5;
+            ctx.fillStyle = "#666";
+            ctx.font = "10px -apple-system, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
 
-    function renderDetailChart() {
-        var dnn = detailAp.length;
-        if (dnn < 1) return;
+            var xScale = gW / visibleNn;
+            function dxOf(i) { return pad.l + (i - visibleStart) * xScale; }
+            function dyOf(v) { return pad.t + gH - (v - dMin) / (dMax - dMin) * gH; }
 
-        var dpad = {t: 16, r: 16, b: 40, l: 48};
-        var dgW = dW - dpad.l - dpad.r, dgH = dH - dpad.t - dpad.b;
+            var dgrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + gH);
+            dgrad.addColorStop(0, "rgba(100,181,246,0.15)");
+            dgrad.addColorStop(1, "rgba(100,181,246,0.02)");
+            ctx.beginPath();
+            ctx.moveTo(dxOf(visibleStart), dyOf(ap[visibleStart]));
+            for (var i = visibleStart + 1; i < visibleEnd; i++) {
+                ctx.lineTo(dxOf(i), dyOf(ap[i]));
+            }
+            ctx.lineTo(dxOf(visibleEnd - 1), pad.t + gH);
+            ctx.lineTo(dxOf(visibleStart), pad.t + gH);
+            ctx.closePath();
+            ctx.fillStyle = dgrad;
+            ctx.fill();
 
-        var visibleStart = Math.max(0, Math.floor(panOffset));
-        var visibleCount = Math.ceil(dnn / zoomLevel);
-        var visibleEnd = Math.min(dnn, visibleStart + visibleCount);
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = "round";
+            for (var i = visibleStart + 1; i < visibleEnd; i++) {
+                ctx.beginPath();
+                ctx.moveTo(dxOf(i - 1), dyOf(ap[i - 1]));
+                ctx.strokeStyle = ap[i] >= ap[i - 1] ? "#ef5350" : "#26a69a";
+                ctx.lineTo(dxOf(i), dyOf(ap[i]));
+                ctx.stroke();
+            }
 
-        var dMin = Infinity, dMax = -Infinity;
-        for (var i = visibleStart; i < visibleEnd; i++) {
-            if (detailAp[i] < dMin) dMin = detailAp[i];
-            if (detailAp[i] > dMax) dMax = detailAp[i];
-        }
-        if (dMin === Infinity) dMin = 0;
-        if (dMax === -Infinity) dMax = 100;
-        var drng = dMax - dMin || 1;
-        dMin -= drng * 0.1;
-        dMax += drng * 0.1;
+            var dotInterval = Math.max(1, Math.floor(visibleNn / 50));
+            for (var i = visibleStart; i < visibleEnd; i += dotInterval) {
+                ctx.beginPath();
+                ctx.arc(dxOf(i), dyOf(ap[i]), 2.5, 0, Math.PI * 2);
+                var dotColor = (i > visibleStart && ap[i] < ap[i - 1]) ? "#26a69a" : "#ef5350";
+                ctx.fillStyle = dotColor;
+                ctx.fill();
+            }
 
-        dctx.fillStyle = "#1a1a2e";
-        dctx.fillRect(0, 0, dW, dH);
-
-        dctx.strokeStyle = "#2a2a3e";
-        dctx.lineWidth = 1;
-        dctx.fillStyle = "#666";
-        dctx.font = "10px -apple-system, sans-serif";
-        dctx.textAlign = "right";
-        dctx.textBaseline = "middle";
-        for (var i = 0; i <= 4; i++) {
-            var v = dMin + (dMax - dMin) * (i / 4);
-            var y = dpad.t + dgH - (v - dMin) / (dMax - dMin) * dgH;
-            dctx.beginPath(); dctx.moveTo(dpad.l, y); dctx.lineTo(dW - dpad.r, y); dctx.stroke();
-            dctx.fillText(Math.round(v), dpad.l - 6, y);
-        }
-
-        dctx.fillStyle = "#666";
-        dctx.font = "9px -apple-system, sans-serif";
-        dctx.textAlign = "center";
-        dctx.textBaseline = "top";
-
-        var xScale = dgW / visibleCount;
-        function dxOf(i) { return dpad.l + (i - visibleStart) * xScale; }
-        function dyOf(v) { return dpad.t + dgH - (v - dMin) / (dMax - dMin) * dgH; }
-
-        var dgrad = dctx.createLinearGradient(0, dpad.t, 0, dpad.t + dgH);
-        dgrad.addColorStop(0, "rgba(100,181,246,0.15)");
-        dgrad.addColorStop(1, "rgba(100,181,246,0.02)");
-        dctx.beginPath();
-        dctx.moveTo(dxOf(visibleStart), dyOf(detailAp[visibleStart]));
-        for (var i = visibleStart + 1; i < visibleEnd; i++) {
-            dctx.lineTo(dxOf(i), dyOf(detailAp[i]));
-        }
-        dctx.lineTo(dxOf(visibleEnd - 1), dpad.t + dgH);
-        dctx.lineTo(dxOf(visibleStart), dpad.t + dgH);
-        dctx.closePath();
-        dctx.fillStyle = dgrad;
-        dctx.fill();
-
-        dctx.lineWidth = 1.5;
-        dctx.lineJoin = "round";
-        for (var i = visibleStart + 1; i < visibleEnd; i++) {
-            dctx.beginPath();
-            dctx.moveTo(dxOf(i - 1), dyOf(detailAp[i - 1]));
-            dctx.strokeStyle = detailAp[i] >= detailAp[i - 1] ? "#ef5350" : "#26a69a";
-            dctx.lineTo(dxOf(i), dyOf(detailAp[i]));
-            dctx.stroke();
+            var labelInterval = Math.max(1, Math.floor(visibleNn / 8));
+            for (var i = visibleStart; i < visibleEnd; i += labelInterval) {
+                var lx = dxOf(i);
+                ctx.save();
+                ctx.translate(lx, H - pad.b + 8);
+                ctx.rotate(0.3);
+                ctx.fillText(labels[i], 0, 0);
+                ctx.restore();
+            }
         }
 
-        var dotInterval = Math.max(1, Math.floor(visibleCount / 50));
-        for (var i = visibleStart; i < visibleEnd; i += dotInterval) {
-            dctx.beginPath();
-            dctx.arc(dxOf(i), dyOf(detailAp[i]), 2.5, 0, Math.PI * 2);
-            var dotColor = (i > visibleStart && detailAp[i] < detailAp[i - 1]) ? "#26a69a" : "#ef5350";
-            dctx.fillStyle = dotColor;
-            dctx.fill();
-        }
-
-        var labelInterval = Math.max(1, Math.floor(visibleCount / 8));
-        for (var i = visibleStart; i < visibleEnd; i += labelInterval) {
-            var lx = dxOf(i);
-            dctx.save();
-            dctx.translate(lx, dH - dpad.b + 6);
-            dctx.rotate(0.3);
-            dctx.fillText(detailLabels[i], 0, 0);
-            dctx.restore();
-        }
-    }
-
-    renderDetailChart();
-
-    dcv.addEventListener("mousemove", function(e) {
-        var rect = dcv.getBoundingClientRect();
-        var mx = e.clientX - rect.left;
-        var my = e.clientY - rect.top;
-
-        doc.setTransform(1, 0, 0, 1, 0, 0);
-        doc.clearRect(0, 0, dovCv.width, dovCv.height);
-
-        var dpad = {t: 16, r: 16, b: 40, l: 48};
-        var dgW = dW - dpad.l - dpad.r, dgH = dH - dpad.t - dpad.b;
-
-        if (mx < dpad.l || mx > dW - dpad.r || my < dpad.t || my > dH - dpad.b) {
-            dtipEl.style.display = "none";
-            return;
-        }
-
-        doc.scale(ddpr, ddpr);
-
-        var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-        var xScale = dgW / visibleCount;
-        var idx = Math.floor(panOffset + (mx - dpad.l) / xScale);
-        idx = Math.max(0, Math.min(detailAp.length - 1, idx));
-
-        var dMin = Infinity, dMax = -Infinity;
-        var visibleStart = Math.max(0, Math.floor(panOffset));
-        var visibleEnd = Math.min(detailAp.length, visibleStart + visibleCount);
-        for (var i = visibleStart; i < visibleEnd; i++) {
-            if (detailAp[i] < dMin) dMin = detailAp[i];
-            if (detailAp[i] > dMax) dMax = detailAp[i];
-        }
-        if (dMin === Infinity) dMin = 0;
-        if (dMax === -Infinity) dMax = 100;
-        var drng = dMax - dMin || 1;
-        dMin -= drng * 0.1;
-        dMax += drng * 0.1;
-
-        function dxOf(i) { return dpad.l + (i - visibleStart) * xScale; }
-        function dyOf(v) { return dpad.t + dgH - (v - dMin) / (dMax - dMin) * dgH; }
-
-        var px = dxOf(idx), py = dyOf(detailAp[idx]);
-
-        doc.strokeStyle = "rgba(255,255,255,0.15)";
-        doc.lineWidth = 1;
-        doc.setLineDash([3, 3]);
-        doc.beginPath(); doc.moveTo(px, dpad.t); doc.lineTo(px, dpad.t + dgH); doc.stroke();
-        doc.beginPath(); doc.moveTo(dpad.l, py); doc.lineTo(dW - dpad.r, py); doc.stroke();
-        doc.setLineDash([]);
-
-        doc.beginPath(); doc.arc(px, py, 5, 0, Math.PI * 2);
-        doc.fillStyle = "rgba(100,181,246,0.3)"; doc.fill();
-        doc.beginPath(); doc.arc(px, py, 3, 0, Math.PI * 2);
-        doc.fillStyle = "#64b5f6"; doc.fill();
-        doc.strokeStyle = "#fff"; doc.lineWidth = 1.5; doc.stroke();
-        doc.setTransform(1, 0, 0, 1, 0, 0);
-
-        var diff = idx > 0 ? (detailAp[idx] - detailAp[idx - 1]) : 0;
-        var isUp = diff >= 0;
-        var dc = isUp ? "#ef5350" : "#26a69a";
-        var ds = (isUp ? "+" : "") + diff;
-        var source = detailSources[idx] || '-';
-        var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
-
-        setTooltipContent(dtipEl, [
-            { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: detailLabels[idx] }] },
-            { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(detailAp[idx]), style: { color: "#64b5f6" } }] },
-            { parts: [{ type: 'text', value: "变化: " }, { type: 'bold', value: ds, style: { color: dc } }] },
-            { parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] }
-        ]);
-
-        dtipEl.style.display = "block";
-        var tx = px + 16;
-        var ty = my - 50;
-        if (tx + 160 > dW) tx = px - 180;
-        if (ty < 8) ty = my + 16;
-        dtipEl.style.left = tx + "px";
-        dtipEl.style.top = ty + "px";
-    });
-
-    dcv.addEventListener("mouseleave", function() {
-        dtipEl.style.display = "none";
-        doc.setTransform(1, 0, 0, 1, 0, 0);
-        doc.clearRect(0, 0, dovCv.width, dovCv.height);
-    });
-
-    var isDragging = false;
-    var dragStartX = 0;
-    var dragStartPan = 0;
-
-    dcv.addEventListener("mousedown", function(e) {
-        isDragging = true;
-        dragStartX = e.clientX;
-        dragStartPan = panOffset;
-        dcv.style.cursor = "grabbing";
-    });
-
-    document.addEventListener("mousemove", function(e) {
-        if (!isDragging) return;
-        var dx = e.clientX - dragStartX;
-        var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-        var xScale = (dW - 64) / visibleCount;
-        var newPan = dragStartPan - dx / xScale;
-        var maxPan = Math.max(0, detailAp.length - visibleCount);
-        panOffset = Math.max(0, Math.min(maxPan, newPan));
         renderDetailChart();
-    });
 
-    document.addEventListener("mouseup", function() {
-        if (isDragging) {
-            isDragging = false;
-            dcv.style.cursor = "crosshair";
+        var isDragging = false;
+        var dragStartX = 0;
+        var dragStartPan = 0;
+
+        cv.addEventListener("mousedown", function(e) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartPan = panOffset;
+            cv.style.cursor = "grabbing";
+        });
+
+        document.addEventListener("mousemove", function(e) {
+            if (!isDragging) return;
+            var dx = e.clientX - dragStartX;
+            var visibleCount = Math.ceil(nn / zoomLevel);
+            var xScale = gW / visibleCount;
+            var newPan = dragStartPan - dx / xScale;
+            var maxPan = Math.max(0, nn - visibleCount);
+            panOffset = Math.max(0, Math.min(maxPan, newPan));
+            renderDetailChart();
+        });
+
+        document.addEventListener("mouseup", function() {
+            if (isDragging) {
+                isDragging = false;
+                cv.style.cursor = "crosshair";
+            }
+        });
+
+        cv.addEventListener("wheel", function(e) {
+            e.preventDefault();
+            var rect = cv.getBoundingClientRect();
+            var mx = e.clientX - rect.left;
+            var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            var newZoom = Math.max(minZoom, Math.min(maxZoom, zoomLevel * zoomFactor));
+            if (newZoom !== zoomLevel) {
+                var visibleCountBefore = Math.ceil(nn / zoomLevel);
+                var visibleCountAfter = Math.ceil(nn / newZoom);
+                var xScaleBefore = gW / visibleCountBefore;
+                var mouseIdx = panOffset + (mx - pad.l) / xScaleBefore;
+                zoomLevel = newZoom;
+                var xScaleAfter = gW / visibleCountAfter;
+                panOffset = Math.max(0, mouseIdx - (mx - pad.l) / xScaleAfter);
+                var maxPan = Math.max(0, nn - visibleCountAfter);
+                panOffset = Math.max(0, Math.min(maxPan, panOffset));
+                renderDetailChart();
+            }
+        }, { passive: false });
+
+        var zoomInBtn = document.getElementById(chartId + "_zoom_in");
+        var zoomOutBtn = document.getElementById(chartId + "_zoom_out");
+        var zoomResetBtn = document.getElementById(chartId + "_reset");
+
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener("click", function() {
+                zoomLevel = Math.min(maxZoom, zoomLevel * 1.5);
+                var visibleCount = Math.ceil(nn / zoomLevel);
+                var maxPan = Math.max(0, nn - visibleCount);
+                panOffset = Math.min(panOffset, maxPan);
+                renderDetailChart();
+            });
         }
-    });
 
-    dcv.addEventListener("wheel", function(e) {
-        e.preventDefault();
-        var rect = dcv.getBoundingClientRect();
-        var mx = e.clientX - rect.left;
-        var zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-        var newZoom = Math.max(minZoom, Math.min(maxZoom, zoomLevel * zoomFactor));
-        if (newZoom !== zoomLevel) {
-            var visibleCountBefore = Math.ceil(detailAp.length / zoomLevel);
-            var visibleCountAfter = Math.ceil(detailAp.length / newZoom);
-            var xScaleBefore = (dW - 64) / visibleCountBefore;
-            var mouseIdx = panOffset + (mx - 48) / xScaleBefore;
-            zoomLevel = newZoom;
-            var xScaleAfter = (dW - 64) / visibleCountAfter;
-            panOffset = Math.max(0, mouseIdx - (mx - 48) / xScaleAfter);
-            var maxPan = Math.max(0, detailAp.length - visibleCountAfter);
-            panOffset = Math.max(0, Math.min(maxPan, panOffset));
-            renderDetailChart();
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener("click", function() {
+                zoomLevel = Math.max(minZoom, zoomLevel / 1.5);
+                renderDetailChart();
+            });
         }
-    }, { passive: false });
 
-    var zoomInBtn = document.getElementById(detailChartId + "_zoom_in");
-    var zoomOutBtn = document.getElementById(detailChartId + "_zoom_out");
-    var zoomResetBtn = document.getElementById(detailChartId + "_zoom_reset");
-
-    if (zoomInBtn) {
-        zoomInBtn.addEventListener("click", function() {
-            zoomLevel = Math.min(maxZoom, zoomLevel * 1.5);
-            var visibleCount = Math.ceil(detailAp.length / zoomLevel);
-            var maxPan = Math.max(0, detailAp.length - visibleCount);
-            panOffset = Math.min(panOffset, maxPan);
-            renderDetailChart();
-        });
-    }
-
-    if (zoomOutBtn) {
-        zoomOutBtn.addEventListener("click", function() {
-            zoomLevel = Math.max(minZoom, zoomLevel / 1.5);
-            renderDetailChart();
-        });
-    }
-
-    if (zoomResetBtn) {
-        zoomResetBtn.addEventListener("click", function() {
-            zoomLevel = 1.0;
-            panOffset = 0;
-            renderDetailChart();
-        });
+        if (zoomResetBtn) {
+            zoomResetBtn.addEventListener("click", function() {
+                zoomLevel = 1.0;
+                panOffset = 0;
+                renderDetailChart();
+            });
+        }
     }
 })();

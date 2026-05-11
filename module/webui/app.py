@@ -459,7 +459,6 @@ class AlasGUI(Frame):
 
             raw_points.sort(key=lambda p: p['dt'])
             current_view = getattr(self, '_ap_chart_view', 'line')
-            show_detail = getattr(self, '_ap_chart_show_detail', True)
 
             labels = []
             opens = []
@@ -468,8 +467,32 @@ class AlasGUI(Frame):
             closes = []
             counts = []
             ap_list = []
+            detail_sources = []
+            is_detail_mode = False
 
-            if current_view == 'line':
+            today = _dt.now().date()
+            today_points = [p for p in raw_points if p['dt'].date() == today]
+            if not today_points and raw_points:
+                last_date = raw_points[-1]['dt'].date()
+                today_points = [p for p in raw_points if p['dt'].date() == last_date]
+                today = last_date
+
+            if current_view == 'detail':
+                is_detail_mode = True
+                if today_points:
+                    for p in today_points:
+                        labels.append(p['dt'].strftime('%H:%M'))
+                        ap_list.append(p['ap'])
+                        detail_sources.append(p.get('source', '-'))
+                    view_title = t("Gui.Stat.DetailChartTitle")
+                else:
+                    for p in raw_points:
+                        labels.append(p['dt'].strftime('%m-%d %H:%M'))
+                        ap_list.append(p['ap'])
+                    view_title = t("Gui.Stat.ViewTitleLine")
+                    is_detail_mode = False
+                    current_view = 'line'
+            elif current_view == 'line':
                 for p in raw_points:
                     labels.append(p['dt'].strftime('%m-%d %H:%M'))
                     ap_list.append(p['ap'])
@@ -478,13 +501,7 @@ class AlasGUI(Frame):
                 from collections import OrderedDict
                 candles = OrderedDict()
                 if current_view == 'day':
-                    today = _dt.now().date()
-                    today_points = [p for p in raw_points if p['dt'].date() == today]
-                    if not today_points:
-                        last_date = raw_points[-1]['dt'].date()
-                        today_points = [p for p in raw_points if p['dt'].date() == last_date]
-                        today = last_date
-                    for p in today_points:
+                    for p in today_points if today_points else raw_points[:24]:
                         hour_key = p['dt'].strftime('%H:00')
                         if hour_key not in candles:
                             candles[hour_key] = {'open': p['ap'], 'high': p['ap'], 'low': p['ap'], 'close': p['ap'], 'count': 1}
@@ -526,7 +543,7 @@ class AlasGUI(Frame):
             ap_min = min(all_ap)
             ap_avg = int(sum(all_ap) / len(all_ap))
             ap_cur = all_ap[-1]
-            if current_view == 'line':
+            if current_view in ('line', 'detail'):
                 ap_change = ap_list[-1] - ap_list[0] if len(ap_list) >= 2 else 0
                 data_points_text = t("Gui.Stat.DataPointsCount", count=len(labels))
             else:
@@ -536,36 +553,7 @@ class AlasGUI(Frame):
             change_sign = '+' if ap_change >= 0 else ''
 
             chart_id = f"ap_cv_{id(self)}"
-            detail_chart_id = f"ap_detail_{id(self)}"
-
-            today = _dt.now().date()
-            today_points = [p for p in raw_points if p['dt'].date() == today]
-            if not today_points and raw_points:
-                last_date = raw_points[-1]['dt'].date()
-                today_points = [p for p in raw_points if p['dt'].date() == last_date]
-                today = last_date
-
-            detail_labels = []
-            detail_ap = []
-            detail_sources = []
-            detail_date_str = today.strftime('%Y-%m-%d')
-            detail_count = 0
-            detail_range = 0
-
-            if today_points and show_detail:
-                for p in today_points:
-                    detail_labels.append(p['dt'].strftime('%H:%M'))
-                    detail_ap.append(p['ap'])
-                    detail_sources.append(p.get('source', '-'))
-                detail_count = len(today_points)
-                if detail_count > 0:
-                    detail_max = max(p['ap'] for p in today_points)
-                    detail_min = min(p['ap'] for p in today_points)
-                    detail_range = detail_max - detail_min
-
-            detail_display = 'block' if show_detail and detail_count > 0 else 'none'
-            detail_title = t("Gui.Stat.DetailChartTitle")
-            detail_range_str = str(detail_range)
+            detail_controls_display = 'display:flex;' if is_detail_mode else 'display:none;'
 
             html_tpl = read_webapp_template('ap_chart_panel.html')
             html = html_tpl.format(
@@ -579,17 +567,12 @@ class AlasGUI(Frame):
                 ap_min=ap_min,
                 ap_avg=ap_avg,
                 data_points_text=data_points_text,
-                detail_chart_id=detail_chart_id,
-                detail_display=detail_display,
-                detail_title=detail_title,
-                detail_date=detail_date_str,
-                detail_count=detail_count,
-                detail_range=detail_range_str,
+                detail_controls_display=detail_controls_display,
             )
 
             js_tpl = read_webapp_template('ap_chart.js')
             js_code = (js_tpl
-                .replace('__CHART_TYPE__', current_view)
+                .replace('__CHART_TYPE__', 'line' if is_detail_mode else current_view)
                 .replace('__LABELS__', _json.dumps(labels, ensure_ascii=False))
                 .replace('__OPENS__', _json.dumps(opens))
                 .replace('__HIGHS__', _json.dumps(highs))
@@ -599,11 +582,8 @@ class AlasGUI(Frame):
                 .replace('__AP__', _json.dumps(ap_list))
                 .replace('__AVG__', str(ap_avg))
                 .replace('__CHART_ID__', chart_id)
-                .replace('__DETAIL_LABELS__', _json.dumps(detail_labels, ensure_ascii=False))
-                .replace('__DETAIL_AP__', _json.dumps(detail_ap))
-                .replace('__DETAIL_SOURCES__', _json.dumps(detail_sources))
-                .replace('__DETAIL_CHART_ID__', detail_chart_id)
-                .replace('__DETAIL_DISPLAY__', detail_display)
+                .replace('__IS_DETAIL_MODE__', 'true' if is_detail_mode else 'false')
+                .replace('__SOURCES__', _json.dumps(detail_sources if is_detail_mode else []))
             )
             from pywebio.session import run_js
             with use_scope("ap_chart", clear=True):
@@ -614,20 +594,12 @@ class AlasGUI(Frame):
                     self._ap_chart_view = v
                     _render_ap_chart()
 
-                def _toggle_detail():
-                    self._ap_chart_show_detail = not getattr(self, '_ap_chart_show_detail', True)
-                    _render_ap_chart()
-
-                detail_status_text = t("Gui.Stat.DetailChartOn") if show_detail else t("Gui.Stat.DetailChartOff")
-
                 put_html('<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center;padding:8px;background:#1a1a2e;border-radius:6px;border:1px solid #333;">')
                 put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.ViewLabel")}</span>')
                 put_button(t("Gui.Stat.ViewLineButton"), onclick=lambda: _switch_view('line'), color="primary" if current_view == 'line' else "secondary", small=True, outline=current_view != 'line')
                 put_button(t("Gui.Stat.ViewDayButton"), onclick=lambda: _switch_view('day'), color="primary" if current_view == 'day' else "secondary", small=True, outline=current_view != 'day')
                 put_button(t("Gui.Stat.ViewMonthButton"), onclick=lambda: _switch_view('month'), color="primary" if current_view == 'month' else "secondary", small=True, outline=current_view != 'month')
-                put_html('<span style="color:#444;margin:0 8px;">|</span>')
-                put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.DetailLabel")}</span>')
-                put_button(detail_status_text, onclick=_toggle_detail, color="success" if show_detail else "secondary", small=True, outline=not show_detail)
+                put_button(t("Gui.Stat.DetailChartTitle"), onclick=lambda: _switch_view('detail'), color="primary" if current_view == 'detail' else "secondary", small=True, outline=current_view != 'detail')
                 put_html('<span style="color:#444;margin:0 8px;">|</span>')
                 put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="secondary", small=True, outline=True)
                 put_html('</div>')
