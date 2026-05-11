@@ -143,6 +143,10 @@ class GitManager(DeployConfig):
         else:
             if not self.git_config.check('http', 'sslVerify', value='false'):
                 self.execute(f'"{self.git}" config --local http.sslVerify false', allow_failure=True)
+        
+        logger.hr('Set Git User-Agent', 1)
+        self.execute(f'"{self.git}" config http.userAgent "ALAS/1.5.8 AzurPilot"')
+        
         Progress.GitSetConfig()
 
         logger.hr('Set Git Repository', 1)
@@ -210,23 +214,21 @@ class GitManager(DeployConfig):
         Resolve 307 redirects from git.nanoda.work to get the actual git repository URL.
         """
         if 'git.nanoda.work' in url:
-            import requests
-            logger.info(f'Resolving repository URL: {url}')
             try:
-                # Catch 307 redirect
+                import requests
+                headers = {'User-Agent': 'alas AzurPilot'}
+                logger.info(f'Resolving repository URL: {url}')
+                # Follow all redirects to get the final destination
                 response = requests.get(
                     url, 
-                    allow_redirects=False, 
+                    allow_redirects=True, 
                     timeout=10,
-                    headers={'User-Agent': 'ALAS/1.5.8 AzurPilot'}
+                    headers=headers
                 )
-                if response.status_code in [302, 307]:
-                    new_url = response.headers.get('Location')
-                    if new_url:
-                        # Strip .git suffix for consistency
-                        new_url = new_url.replace('.git', '')
-                        logger.info(f'Resolved {url} to {new_url}')
-                        return new_url
+                if response.status_code == 200:
+                    resolved = response.url.rstrip('/')
+                    logger.info(f'Resolved {url} to {resolved}')
+                    return resolved
                 return url
             except Exception as e:
                 logger.error(f'Failed to resolve {url}: {e}')
@@ -242,10 +244,6 @@ class GitManager(DeployConfig):
 
         # Resolve repository URL before any git operations
         repo = self.resolve_repository_url(self.Repository)
-
-        if self.GitOverCdn:
-            if self.goc_client.update(keep_changes=self.KeepLocalChanges):
-                return
 
         self.git_repository_init(
             repo=repo,

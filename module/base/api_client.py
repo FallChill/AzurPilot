@@ -86,7 +86,7 @@ class ApiClient:
                         endpoint,
                         params=params,
                         timeout=timeout,
-                        headers={'User-Agent': 'ALAS/1.5.8 AzurPilot'}
+                        headers={'User-Agent': 'alas AzurPilot'}
                     )
                 else:
                     response = requests.post(
@@ -95,7 +95,7 @@ class ApiClient:
                         timeout=timeout,
                         headers={
                             'Content-Type': 'application/json',
-                            'User-Agent': 'ALAS/1.5.8 AzurPilot'
+                            'User-Agent': 'alas AzurPilot'
                         }
                     )
                 

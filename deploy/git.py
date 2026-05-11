@@ -108,6 +108,9 @@ class GitManager(DeployConfig):
         else:
             self.execute(f'"{self.git}" config --local http.sslVerify false', allow_failure=True)
 
+        logger.hr('Set Git User-Agent', 1)
+        self.execute(f'"{self.git}" config http.userAgent "ALAS/1.5.8 AzurPilot"')
+
         logger.hr('Set Git Repository', 1)
         if not self.execute(f'"{self.git}" remote set-url "{source}" "{repo}"', allow_failure=True):
             self.execute(f'"{self.git}" remote add "{source}" "{repo}"')
@@ -169,21 +172,19 @@ class GitManager(DeployConfig):
         if 'git.nanoda.work' in url:
             try:
                 import requests
+                headers = {'User-Agent': 'alas AzurPilot'}
                 logger.info(f'Resolving repository URL: {url}')
-                # Catch 307 redirect
+                # Follow all redirects to get the final destination
                 response = requests.get(
                     url, 
-                    allow_redirects=False, 
+                    allow_redirects=True, 
                     timeout=10,
-                    headers={'User-Agent': 'ALAS/1.5.8 AzurPilot'}
+                    headers=headers
                 )
-                if response.status_code in [302, 307]:
-                    new_url = response.headers.get('Location')
-                    if new_url:
-                        # Strip .git suffix for consistency
-                        new_url = new_url.replace('.git', '')
-                        logger.info(f'Resolved {url} to {new_url}')
-                        return new_url
+                if response.status_code == 200:
+                    resolved = response.url.rstrip('/')
+                    logger.info(f'Resolved {url} to {resolved}')
+                    return resolved
                 return url
             except Exception as e:
                 logger.error(f'Failed to resolve {url}: {e}')
