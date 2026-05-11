@@ -438,7 +438,6 @@ class AlasGUI(Frame):
                     put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="off")
                 return
 
-            # 解析原始数据点
             from datetime import datetime as _dt
             import json as _json
             raw_points = []
@@ -448,7 +447,11 @@ class AlasGUI(Frame):
                     dt = _dt.fromisoformat(ts_raw)
                 except Exception:
                     continue
-                raw_points.append({'dt': dt, 'ap': int(pt.get('ap', 0))})
+                raw_points.append({
+                    'dt': dt,
+                    'ap': int(pt.get('ap', 0)),
+                    'source': pt.get('source', '-')
+                })
 
             if not raw_points:
                 with use_scope("ap_chart", clear=True):
@@ -465,8 +468,32 @@ class AlasGUI(Frame):
             closes = []
             counts = []
             ap_list = []
+            detail_sources = []
+            is_detail_mode = False
 
-            if current_view == 'line':
+            today = _dt.now().date()
+            today_points = [p for p in raw_points if p['dt'].date() == today]
+            if not today_points and raw_points:
+                last_date = raw_points[-1]['dt'].date()
+                today_points = [p for p in raw_points if p['dt'].date() == last_date]
+                today = last_date
+
+            if current_view == 'detail':
+                is_detail_mode = True
+                if today_points:
+                    for p in today_points:
+                        labels.append(p['dt'].strftime('%H:%M'))
+                        ap_list.append(p['ap'])
+                        detail_sources.append(p.get('source', '-'))
+                    view_title = t("Gui.Stat.DetailChartTitle")
+                else:
+                    for p in raw_points:
+                        labels.append(p['dt'].strftime('%m-%d %H:%M'))
+                        ap_list.append(p['ap'])
+                    view_title = t("Gui.Stat.ViewTitleLine")
+                    is_detail_mode = False
+                    current_view = 'line'
+            elif current_view == 'line':
                 for p in raw_points:
                     labels.append(p['dt'].strftime('%m-%d %H:%M'))
                     ap_list.append(p['ap'])
@@ -475,13 +502,7 @@ class AlasGUI(Frame):
                 from collections import OrderedDict
                 candles = OrderedDict()
                 if current_view == 'day':
-                    today = _dt.now().date()
-                    today_points = [p for p in raw_points if p['dt'].date() == today]
-                    if not today_points:
-                        last_date = raw_points[-1]['dt'].date()
-                        today_points = [p for p in raw_points if p['dt'].date() == last_date]
-                        today = last_date
-                    for p in today_points:
+                    for p in today_points if today_points else raw_points[:24]:
                         hour_key = p['dt'].strftime('%H:00')
                         if hour_key not in candles:
                             candles[hour_key] = {'open': p['ap'], 'high': p['ap'], 'low': p['ap'], 'close': p['ap'], 'count': 1}
@@ -523,7 +544,7 @@ class AlasGUI(Frame):
             ap_min = min(all_ap)
             ap_avg = int(sum(all_ap) / len(all_ap))
             ap_cur = all_ap[-1]
-            if current_view == 'line':
+            if current_view in ('line', 'detail'):
                 ap_change = ap_list[-1] - ap_list[0] if len(ap_list) >= 2 else 0
                 data_points_text = t("Gui.Stat.DataPointsCount", count=len(labels))
             else:
@@ -533,6 +554,7 @@ class AlasGUI(Frame):
             change_sign = '+' if ap_change >= 0 else ''
 
             chart_id = f"ap_cv_{id(self)}"
+            detail_controls_display = 'display:flex;' if is_detail_mode else 'display:none;'
 
             html_tpl = read_webapp_template('ap_chart_panel.html')
             html = html_tpl.format(
@@ -546,11 +568,12 @@ class AlasGUI(Frame):
                 ap_min=ap_min,
                 ap_avg=ap_avg,
                 data_points_text=data_points_text,
+                detail_controls_display=detail_controls_display,
             )
 
             js_tpl = read_webapp_template('ap_chart.js')
             js_code = (js_tpl
-                .replace('__CHART_TYPE__', current_view)
+                .replace('__CHART_TYPE__', 'line' if is_detail_mode else current_view)
                 .replace('__LABELS__', _json.dumps(labels, ensure_ascii=False))
                 .replace('__OPENS__', _json.dumps(opens))
                 .replace('__HIGHS__', _json.dumps(highs))
@@ -560,20 +583,49 @@ class AlasGUI(Frame):
                 .replace('__AP__', _json.dumps(ap_list))
                 .replace('__AVG__', str(ap_avg))
                 .replace('__CHART_ID__', chart_id)
+                .replace('__IS_DETAIL_MODE__', 'true' if is_detail_mode else 'false')
+                .replace('__SOURCES__', _json.dumps(detail_sources if is_detail_mode else []))
             )
             from pywebio.session import run_js
             with use_scope("ap_chart", clear=True):
                 put_html(html)
                 run_js(js_code)
+
                 def _switch_view(v):
                     self._ap_chart_view = v
                     _render_ap_chart()
-                put_row([
-                    put_button(t("Gui.Stat.ViewLineButton"), onclick=lambda: _switch_view('line'), color="off" if current_view!='line' else "primary"),
-                    put_button(t("Gui.Stat.ViewDayButton"), onclick=lambda: _switch_view('day'), color="off" if current_view!='day' else "primary"),
-                    put_button(t("Gui.Stat.ViewMonthButton"), onclick=lambda: _switch_view('month'), color="off" if current_view!='month' else "primary"),
-                    put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="off"),
-                ], size="auto")
+
+                md3_btn_style = '''
+                <style>
+                .md3-btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: #1a1a2e; border-radius: 16px; border: 1px solid #333; margin-top: 12px; }
+                .md3-btn-group > * { display: inline-flex !important; }
+                .md3-btn-group .pywebio-btn { border-radius: 999px !important; padding: 8px 20px !important; font-size: 13px !important; font-weight: 500 !important; min-width: auto !important; margin: 0 !important; }
+                .md3-btn-group .pywebio-btn-primary { background: #6750a4 !important; border: none !important; box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
+                .md3-btn-group .pywebio-btn-off { background: #2d2d3d !important; border: 1px solid #444 !important; }
+                </style>
+                '''
+                put_html(md3_btn_style)
+                put_html(f'''
+                <div class="md3-btn-group">
+                    <span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.ViewLabel")}</span>
+                ''')
+
+                view_options = [
+                    (t("Gui.Stat.ViewLineButton"), "line"),
+                    (t("Gui.Stat.ViewDayButton"), "day"),
+                    (t("Gui.Stat.ViewMonthButton"), "month"),
+                    (t("Gui.Stat.DetailChartTitle"), "detail"),
+                ]
+                btn_list = []
+                for label, value in view_options:
+                    is_active = current_view == value
+                    color = "primary" if is_active else "off"
+                    btn_list.append(put_button(label, onclick=lambda v=value: _switch_view(v), color=color, small=False))
+
+                btn_list.append(put_html('<span style="width:8px;"></span>'))
+                btn_list.append(put_button(t("Gui.Stat.Refresh"), onclick=lambda: _render_ap_chart(), color="off", small=False))
+                put_row(btn_list, size="auto")
+                put_html('</div>')
 
         put_scope("ap_chart", [])
         _render_ap_chart()
@@ -2524,7 +2576,7 @@ class AlasGUI(Frame):
                 instance=instance,
                 title="发现更新喵！",
                 content="测试更新推送逻辑，启动器应显示专用标题。",
-                updata=True
+                update=True
             )
             toast("已发送更新测试通知", color="success")
 
