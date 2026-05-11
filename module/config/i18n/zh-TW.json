@@ -5146,6 +5146,8 @@
       "ViewMonthButton": "月视图(日K)",
       "DetailChartTitle": "單日體力波動詳情 (24小時)",
       "ToggleDetailChart": "詳情圖",
+      "DetailChartOn": "✓ 開啟",
+      "DetailChartOff": "○ 關閉",
       "LoadOpsiStatsFailed": "加载 OpSi 统计失败: {e}",
       "LoadExpStatsFailed": "加载经验统计失败: {e}",
       "DailyExpCheckTitle": "每日经验检测",

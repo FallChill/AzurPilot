@@ -181,6 +181,8 @@ Stat:
   ViewMonthButton:
   DetailChartTitle:
   ToggleDetailChart:
+  DetailChartOn:
+  DetailChartOff:
   LoadOpsiStatsFailed:
   LoadExpStatsFailed:
   DailyExpCheckTitle:

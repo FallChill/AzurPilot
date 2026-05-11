@@ -5146,6 +5146,8 @@
       "ViewMonthButton": "月视图(日K)喵",
       "DetailChartTitle": "单日体力波动详情 (24小时) 喵~",
       "ToggleDetailChart": "详情图喵",
+      "DetailChartOn": "✓ 开启喵",
+      "DetailChartOff": "○ 关闭喵",
       "LoadOpsiStatsFailed": "加载 OpSi 统计失败: {e}",
       "LoadExpStatsFailed": "加载经验统计失败: {e}",
       "DailyExpCheckTitle": "每日经验检测喵",

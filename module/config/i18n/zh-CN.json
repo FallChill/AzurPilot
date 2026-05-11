@@ -5146,6 +5146,8 @@
       "ViewMonthButton": "月视图(日K)",
       "DetailChartTitle": "单日体力波动详情 (24小时)",
       "ToggleDetailChart": "详情图",
+      "DetailChartOn": "✓ 开启",
+      "DetailChartOff": "○ 关闭",
       "LoadOpsiStatsFailed": "加载 OpSi 统计失败: {e}",
       "LoadExpStatsFailed": "加载经验统计失败: {e}",
       "DailyExpCheckTitle": "每日经验检测",
