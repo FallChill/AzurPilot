@@ -878,6 +878,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -1274,6 +1278,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -1670,6 +1678,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -2198,6 +2210,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -2693,6 +2709,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -3153,6 +3173,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -3589,6 +3613,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -4024,6 +4052,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -4458,6 +4490,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -4896,6 +4932,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -5167,6 +5207,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -5727,6 +5771,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "Coalition": {
@@ -6378,6 +6426,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -6825,6 +6877,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -7277,6 +7333,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -7729,6 +7789,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -8181,6 +8245,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -8623,6 +8691,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -9057,6 +9129,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "StopCondition": {
@@ -9302,6 +9378,10 @@
       "UseRecommendFleet": {
         "type": "checkbox",
         "value": false
+      },
+      "DefeatWithdraw": {
+        "type": "checkbox",
+        "value": true
       }
     },
     "Coalition": {
