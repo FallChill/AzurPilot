@@ -621,15 +621,15 @@ class AlasGUI(Frame):
                 detail_status_text = t("Gui.Stat.DetailChartOn") if show_detail else t("Gui.Stat.DetailChartOff")
 
                 put_html('<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center;padding:8px;background:#1a1a2e;border-radius:6px;border:1px solid #333;">')
-                put_html('<span style="color:#888;font-size:12px;margin-right:8px;">📊 视图:</span>')
+                put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.ViewLabel")}</span>')
                 put_button(t("Gui.Stat.ViewLineButton"), onclick=lambda: _switch_view('line'), color="primary" if current_view == 'line' else "secondary", small=True, outline=current_view != 'line')
                 put_button(t("Gui.Stat.ViewDayButton"), onclick=lambda: _switch_view('day'), color="primary" if current_view == 'day' else "secondary", small=True, outline=current_view != 'day')
                 put_button(t("Gui.Stat.ViewMonthButton"), onclick=lambda: _switch_view('month'), color="primary" if current_view == 'month' else "secondary", small=True, outline=current_view != 'month')
                 put_html('<span style="color:#444;margin:0 8px;">|</span>')
-                put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">📈 详情:</span>')
+                put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.DetailLabel")}</span>')
                 put_button(detail_status_text, onclick=_toggle_detail, color="success" if show_detail else "secondary", small=True, outline=not show_detail)
                 put_html('<span style="color:#444;margin:0 8px;">|</span>')
-                put_button("🔄 " + t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="secondary", small=True, outline=True)
+                put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="secondary", small=True, outline=True)
                 put_html('</div>')
 
         put_scope("ap_chart", [])

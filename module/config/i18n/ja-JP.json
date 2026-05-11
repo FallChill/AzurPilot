@@ -5141,6 +5141,8 @@
       "ViewLineShort": "Line",
       "DataPointsCount": "{count} data points",
       "CandlesCount": "{count} candles",
+      "ViewLabel": "📊 View:",
+      "DetailLabel": "📈 Detail:",
       "ViewLineButton": "Intraday (Detailed)",
       "ViewDayButton": "Day View (Hourly K)",
       "ViewMonthButton": "Month View (Daily K)",

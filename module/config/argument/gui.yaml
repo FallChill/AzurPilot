@@ -176,6 +176,8 @@ Stat:
   ViewLineShort:
   DataPointsCount:
   CandlesCount:
+  ViewLabel:
+  DetailLabel:
   ViewLineButton:
   ViewDayButton:
   ViewMonthButton:

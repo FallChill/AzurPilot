@@ -5141,6 +5141,8 @@
       "ViewLineShort": "分时喵",
       "DataPointsCount": "共 {count} 个点",
       "CandlesCount": "共 {count} 根K线",
+      "ViewLabel": "📊 視圖喵:",
+      "DetailLabel": "📈 詳情喵:",
       "ViewLineButton": "分时(详细波动)喵",
       "ViewDayButton": "天视图(小时K)喵",
       "ViewMonthButton": "月视图(日K)喵",
