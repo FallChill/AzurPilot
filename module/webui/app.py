@@ -730,9 +730,17 @@ class AlasGUI(Frame):
                     color: {md3_colors["text"]} !important;
                     box-shadow: inset 0 0 0 1px {md3_colors["segment_outline"]} !important;
                 }}
-                [style*="--ap-chart-md3-refresh-{chart_id}"],
+                [style*="--ap-chart-md3-refresh-{chart_id}"] {{
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: 0 !important;
+                    background: transparent !important;
+                    box-shadow: none !important;
+                }}
+                [style*="--ap-chart-md3-refresh-{chart_id}"].btn,
                 [style*="--ap-chart-md3-refresh-{chart_id}"] .btn {{
                     margin: 0 !important;
+                    padding: 7px 16px !important;
                     border: 1px solid {md3_colors["segment_border"]} !important;
                     border-radius: 12px !important;
                     background: {md3_colors["segment_bg"]} !important;
@@ -742,10 +750,16 @@ class AlasGUI(Frame):
                     font-weight: 600 !important;
                     line-height: 20px !important;
                     white-space: nowrap !important;
+                    transform: none !important;
                 }}
-                [style*="--ap-chart-md3-refresh-{chart_id}"]:hover,
+                [style*="--ap-chart-md3-refresh-{chart_id}"].btn:hover,
                 [style*="--ap-chart-md3-refresh-{chart_id}"] .btn:hover {{
                     background: {md3_colors["hover"]} !important;
+                    transform: none !important;
+                }}
+                [style*="--ap-chart-md3-refresh-{chart_id}"].btn:active,
+                [style*="--ap-chart-md3-refresh-{chart_id}"] .btn:active {{
+                    transform: none !important;
                 }}
                 @media (max-width: 720px) {{
                     [style*="--ap-chart-md3-toolbar-{chart_id}"] {{
