@@ -1,21 +1,24 @@
 (function() {
     function setTooltipContent(tipEl, rows) {
+        if (!tipEl || !Array.isArray(rows)) return;
         while (tipEl.firstChild) {
             tipEl.removeChild(tipEl.firstChild);
         }
         rows.forEach(function(row) {
+            if (!row) return;
             var div = document.createElement('div');
-            if (row.style) {
+            if (row.style && typeof row.style === 'object') {
                 Object.keys(row.style).forEach(function(k) {
                     div.style[k] = row.style[k];
                 });
             }
-            if (row.parts) {
+            if (row.parts && Array.isArray(row.parts)) {
                 row.parts.forEach(function(part) {
+                    if (!part) return;
                     if (part.type === 'text') {
                         var span = document.createElement('span');
-                        span.textContent = part.value;
-                        if (part.style) {
+                        span.textContent = part.value != null ? String(part.value) : '';
+                        if (part.style && typeof part.style === 'object') {
                             Object.keys(part.style).forEach(function(k) {
                                 span.style[k] = part.style[k];
                             });
@@ -23,8 +26,8 @@
                         div.appendChild(span);
                     } else if (part.type === 'bold') {
                         var b = document.createElement('b');
-                        b.textContent = part.value;
-                        if (part.style) {
+                        b.textContent = part.value != null ? String(part.value) : '';
+                        if (part.style && typeof part.style === 'object') {
                             Object.keys(part.style).forEach(function(k) {
                                 b.style[k] = part.style[k];
                             });
@@ -357,44 +360,6 @@
 })();
 
 (function() {
-    function setTooltipContent(tipEl, rows) {
-        while (tipEl.firstChild) {
-            tipEl.removeChild(tipEl.firstChild);
-        }
-        rows.forEach(function(row) {
-            var div = document.createElement('div');
-            if (row.style) {
-                Object.keys(row.style).forEach(function(k) {
-                    div.style[k] = row.style[k];
-                });
-            }
-            if (row.parts) {
-                row.parts.forEach(function(part) {
-                    if (part.type === 'text') {
-                        var span = document.createElement('span');
-                        span.textContent = part.value;
-                        if (part.style) {
-                            Object.keys(part.style).forEach(function(k) {
-                                span.style[k] = part.style[k];
-                            });
-                        }
-                        div.appendChild(span);
-                    } else if (part.type === 'bold') {
-                        var b = document.createElement('b');
-                        b.textContent = part.value;
-                        if (part.style) {
-                            Object.keys(part.style).forEach(function(k) {
-                                b.style[k] = part.style[k];
-                            });
-                        }
-                        div.appendChild(b);
-                    }
-                });
-            }
-            tipEl.appendChild(div);
-        });
-    }
-
     var detailLabels = __DETAIL_LABELS__;
     var detailAp = __DETAIL_AP__;
     var detailSources = __DETAIL_SOURCES__;
