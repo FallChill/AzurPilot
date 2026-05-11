@@ -2554,7 +2554,7 @@ class AlasGUI(Frame):
                 instance=instance,
                 title="发现更新喵！",
                 content="测试更新推送逻辑，启动器应显示专用标题。",
-                updata=True
+                update=True
             )
             toast("已发送更新测试通知", color="success")
 

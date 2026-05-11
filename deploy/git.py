@@ -112,7 +112,7 @@ class GitManager(DeployConfig):
             self.execute(_cmd(self.git, 'config', '--local', 'http.sslVerify', 'false'), allow_failure=True)
 
         logger.hr('Set Git User-Agent', 1)
-        self.execute(f'"{self.git}" config http.userAgent "ALAS/1.5.8 AzurPilot"')
+        self.execute(_cmd(self.git, 'config', 'http.userAgent', 'ALAS/1.5.8 AzurPilot'))
 
         logger.hr('Set Git Repository', 1)
         if not self.execute(_cmd(self.git, 'remote', 'set-url', source, repo), allow_failure=True):

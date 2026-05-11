@@ -145,7 +145,7 @@ class GitManager(DeployConfig):
                 self.execute(_cmd(self.git, 'config', '--local', 'http.sslVerify', 'true'), allow_failure=True)
         else:
             if not self.git_config.check('http', 'sslVerify', value='false'):
-                self.execute(f'"{self.git}" config --local http.sslVerify false', allow_failure=True)
+                self.execute(_cmd(self.git, 'config', '--local', 'http.sslVerify', 'false'), allow_failure=True)
         
         logger.hr('Set Git User-Agent', 1)
         self.execute(f'"{self.git}" config http.userAgent "ALAS/1.5.8 AzurPilot"')
@@ -195,7 +195,6 @@ class GitManager(DeployConfig):
 
     @property
     def goc_client(self):
-        # Resolve repo first to get the actual project name (e.g. AzurLaneAutoScript) instead of git.nanoda.work
         repo = self.resolve_repository_url(self.Repository)
         repo_name = repo.strip('/').split('/')[-1]
         url = f'https://vip.123pan.cn/1815343254/pack/LmeSzinc_{repo_name}_{self.Branch}'
@@ -203,7 +202,7 @@ class GitManager(DeployConfig):
             url=url,
             folder=self.root_filepath,
             source='origin',
-            branch='master',
+            branch=self.Branch,
             git=self.git,
         )
         client.logger = logger
