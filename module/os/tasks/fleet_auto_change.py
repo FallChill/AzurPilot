@@ -59,6 +59,8 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         3. 获取自定义舰位配置
         4. 执行自动配队
         5. 设置冷却时间
+        6. 运行经验检测
+        7. 推送结果
         
         注意：此方法由经验检测触发，不需要重新收集舰船数据
         """
@@ -76,10 +78,49 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
             
             self._set_cooldown()
             logger.info("自动配队完成")
+            
+            self._run_exp_check_after_auto_change(custom_positions)
+            
+            self._notify_auto_change_complete(custom_positions)
+            
         except Exception as e:
             logger.error(f"自动配队执行失败: {e}")
             self._handle_auto_change_error(str(e))
             raise
+    
+    def _run_exp_check_after_auto_change(self, custom_positions):
+        """
+        自动配队后运行经验检测
+        
+        Args:
+            custom_positions: 自定义舰位列表
+        """
+        logger.info("自动配队后运行经验检测")
+        
+        try:
+            from module.os.tasks.hazard_leveling import OpsiHazard1Leveling
+            
+            leveling = OpsiHazard1Leveling(config=self.config, device=self.device)
+            leveling.os_check_leveling()
+            logger.info("经验检测完成")
+        except Exception as e:
+            logger.warning(f"经验检测失败: {e}")
+    
+    def _notify_auto_change_complete(self, custom_positions):
+        """
+        推送自动配队完成通知
+        
+        Args:
+            custom_positions: 自定义舰位列表
+        """
+        try:
+            positions_str = ', '.join(map(str, custom_positions))
+            self.notify_push(
+                title="大世界自动配队完成",
+                content=f"<{self.config.config_name}>\n\n已更换舰位: {positions_str}\n\n自动配队冷却时间: {self.config.OpsiFleetAutoChange_CooldownHours} 小时"
+            )
+        except Exception as e:
+            logger.warning(f"推送通知失败: {e}")
     
     def _goto_azur_port(self):
         """前往最近的碧蓝航线港口"""
