@@ -55,5 +55,5 @@ jobs:
           AI_BASE_URL: https://api.nanoda.work/v1
           AI_MODEL: Nvidia/qwen/qwen3-coder-480b-a35b-instruct
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.AI_ISSUE_LABELER_TOKEN || github.token }}
         run: python .github/scripts/ai_issue_labeler.py
