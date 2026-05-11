@@ -470,6 +470,7 @@ class AlasGUI(Frame):
             counts = []
             ap_list = []
             detail_sources = []
+            chart_points = []
             is_detail_mode = False
 
             today = _dt.now().date()
@@ -486,11 +487,13 @@ class AlasGUI(Frame):
                         labels.append(p['dt'].strftime('%H:%M'))
                         ap_list.append(p['ap'])
                         detail_sources.append(p.get('source', '-'))
+                        chart_points.append(p)
                     view_title = t("Gui.Stat.DetailChartTitle")
                 else:
                     for p in raw_points:
                         labels.append(p['dt'].strftime('%m-%d %H:%M'))
                         ap_list.append(p['ap'])
+                        chart_points.append(p)
                     view_title = t("Gui.Stat.ViewTitleLine")
                     is_detail_mode = False
                     current_view = 'line'
@@ -498,6 +501,7 @@ class AlasGUI(Frame):
                 for p in raw_points:
                     labels.append(p['dt'].strftime('%m-%d %H:%M'))
                     ap_list.append(p['ap'])
+                    chart_points.append(p)
                 view_title = t("Gui.Stat.ViewTitleLine")
             else:
                 from collections import OrderedDict
@@ -561,8 +565,7 @@ class AlasGUI(Frame):
             coins_stats_html = ''
             coins_legend_html = ''
 
-            if coins_timeline and current_view in ('line', 'detail'):
-                show_coins = True
+            if coins_timeline and chart_points and current_view in ('line', 'detail'):
                 coins_raw_points = []
                 for pt in coins_timeline:
                     ts_raw = pt.get('ts', '')
@@ -579,29 +582,42 @@ class AlasGUI(Frame):
 
                 if coins_raw_points:
                     coins_raw_points.sort(key=lambda p: p['dt'])
-                    for p in coins_raw_points:
-                        yellow_coins_list.append(p['yellow_coins'])
-                        purple_coins_list.append(p['purple_coins'])
-                        coins_sources_list.append(p.get('source', '-'))
+                    coins_idx = 0
+                    coins_last = len(coins_raw_points) - 1
+                    for p in chart_points:
+                        while coins_idx < coins_last:
+                            cur_delta = abs((coins_raw_points[coins_idx]['dt'] - p['dt']).total_seconds())
+                            next_delta = abs((coins_raw_points[coins_idx + 1]['dt'] - p['dt']).total_seconds())
+                            if next_delta > cur_delta:
+                                break
+                            coins_idx += 1
+                        coins_point = coins_raw_points[coins_idx]
+                        yellow_coins_list.append(coins_point['yellow_coins'])
+                        purple_coins_list.append(coins_point['purple_coins'])
+                        coins_sources_list.append(coins_point.get('source', '-'))
 
-                    if yellow_coins_list:
-                        yc_cur = yellow_coins_list[-1]
-                        yc_change = yellow_coins_list[-1] - yellow_coins_list[0] if len(yellow_coins_list) >= 2 else 0
+                    valid_yellow_coins = [v for v in yellow_coins_list if v is not None]
+                    valid_purple_coins = [v for v in purple_coins_list if v is not None]
+                    show_coins = bool(valid_yellow_coins or valid_purple_coins)
+
+                    if valid_yellow_coins:
+                        yc_cur = valid_yellow_coins[-1]
+                        yc_change = valid_yellow_coins[-1] - valid_yellow_coins[0] if len(valid_yellow_coins) >= 2 else 0
                         yc_change_color = '#ef5350' if yc_change >= 0 else '#26a69a'
                         yc_change_sign = '+' if yc_change >= 0 else ''
-                        yc_max = max(yellow_coins_list)
-                        yc_min = min(yellow_coins_list)
+                        yc_max = max(valid_yellow_coins)
+                        yc_min = min(valid_yellow_coins)
 
                         coins_stats_html += f'<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:4px; font-size:12px; color:#aaa;"><span>黄币: <b style="color:#ffd54f">{yc_cur}</b></span><span>变化: <b style="color:{yc_change_color}">{yc_change_sign}{yc_change}</b></span><span>最高: <b style="color:#ef5350">{yc_max}</b></span><span>最低: <b style="color:#26a69a">{yc_min}</b></span></div>'
                         coins_legend_html += '<span style="display:flex; align-items:center; gap:4px;"><span style="width:12px; height:2px; background:#ffd54f; border-radius:1px; border-top:1px dashed #ffd54f;"></span>黄币</span>'
 
-                    if purple_coins_list:
-                        pc_cur = purple_coins_list[-1]
-                        pc_change = purple_coins_list[-1] - purple_coins_list[0] if len(purple_coins_list) >= 2 else 0
+                    if valid_purple_coins:
+                        pc_cur = valid_purple_coins[-1]
+                        pc_change = valid_purple_coins[-1] - valid_purple_coins[0] if len(valid_purple_coins) >= 2 else 0
                         pc_change_color = '#ef5350' if pc_change >= 0 else '#26a69a'
                         pc_change_sign = '+' if pc_change >= 0 else ''
-                        pc_max = max(purple_coins_list)
-                        pc_min = min(purple_coins_list)
+                        pc_max = max(valid_purple_coins)
+                        pc_min = min(valid_purple_coins)
 
                         coins_stats_html += f'<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:4px; font-size:12px; color:#aaa;"><span>紫币: <b style="color:#ce93d8">{pc_cur}</b></span><span>变化: <b style="color:{pc_change_color}">{pc_change_sign}{pc_change}</b></span><span>最高: <b style="color:#ef5350">{pc_max}</b></span><span>最低: <b style="color:#26a69a">{pc_min}</b></span></div>'
                         coins_legend_html += '<span style="display:flex; align-items:center; gap:4px;"><span style="width:12px; height:2px; background:#ce93d8; border-radius:1px; border-top:1px dashed #ce93d8;"></span>紫币</span>'

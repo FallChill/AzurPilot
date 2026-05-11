@@ -96,12 +96,15 @@
     var coinsMin = Infinity, coinsMax = -Infinity;
     var yellowCoinsLen = yellowCoins ? yellowCoins.length : 0;
     var purpleCoinsLen = purpleCoins ? purpleCoins.length : 0;
+    var hasCoins = showCoins && chartType === 'line' && (yellowCoinsLen > 0 || purpleCoinsLen > 0);
     if (showCoins && chartType === 'line') {
         for (var i = 0; i < yellowCoinsLen; i++) {
+            if (yellowCoins[i] === null || yellowCoins[i] === undefined) continue;
             if (yellowCoins[i] < coinsMin) coinsMin = yellowCoins[i];
             if (yellowCoins[i] > coinsMax) coinsMax = yellowCoins[i];
         }
         for (var i = 0; i < purpleCoinsLen; i++) {
+            if (purpleCoins[i] === null || purpleCoins[i] === undefined) continue;
             if (purpleCoins[i] < coinsMin) coinsMin = purpleCoins[i];
             if (purpleCoins[i] > coinsMax) coinsMax = purpleCoins[i];
         }
@@ -115,6 +118,47 @@
     function xOfLine(i) { return pad.l + (i / Math.max(nn - 1, 1)) * gW; }
     function yOf(v) { return pad.t + gH - (v - allMin) / (allMax - allMin) * gH; }
     function yOfCoins(v) { return pad.t + gH - (v - coinsMin) / (coinsMax - coinsMin) * gH; }
+    function drawCoinsLine(xOf, start, end) {
+        if (!hasCoins) return;
+
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = "round";
+        ctx.setLineDash([4, 2]);
+
+        if (yellowCoinsLen > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#ffd54f";
+            var startedYellowCoins = false;
+            for (var i = start; i < end && i < yellowCoinsLen; i++) {
+                if (yellowCoins[i] === null || yellowCoins[i] === undefined) {
+                    startedYellowCoins = false;
+                    continue;
+                }
+                var x = xOf(i), y = yOfCoins(yellowCoins[i]);
+                if (!startedYellowCoins) { ctx.moveTo(x, y); startedYellowCoins = true; }
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        if (purpleCoinsLen > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "#ce93d8";
+            var startedPurpleCoins = false;
+            for (var i = start; i < end && i < purpleCoinsLen; i++) {
+                if (purpleCoins[i] === null || purpleCoins[i] === undefined) {
+                    startedPurpleCoins = false;
+                    continue;
+                }
+                var x = xOf(i), y = yOfCoins(purpleCoins[i]);
+                if (!startedPurpleCoins) { ctx.moveTo(x, y); startedPurpleCoins = true; }
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        ctx.setLineDash([]);
+    }
 
     var candleSpace = gW / nn;
     var candleW = Math.max(3, Math.min(candleSpace * 0.6, 30));
@@ -136,8 +180,8 @@
         ctx.fillText(Math.round(v), pad.l - 8, y);
     }
 
-    if (showCoins && chartType === 'line' && yellowCoinsLen > 0) {
-        ctx.fillStyle = "#ffd54f";
+    if (hasCoins) {
+        ctx.fillStyle = "#999";
         ctx.textAlign = "left";
         for (var i = 0; i <= 5; i++) {
             var v = coinsMin + (coinsMax - coinsMin) * (i / 5);
@@ -278,35 +322,7 @@
         drawMA(10, "#e91e63");
     }
 
-    if (showCoins && chartType === 'line' && yellowCoinsLen > 0) {
-        ctx.lineWidth = 1.5;
-        ctx.lineJoin = "round";
-        ctx.setLineDash([4, 2]);
-
-        if (yellowCoinsLen > 0) {
-            ctx.beginPath();
-            ctx.strokeStyle = "#ffd54f";
-            for (var i = 0; i < yellowCoinsLen; i++) {
-                var x = xOfLine(i), y = yOfCoins(yellowCoins[i]);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-        }
-
-        if (purpleCoinsLen > 0) {
-            ctx.beginPath();
-            ctx.strokeStyle = "#ce93d8";
-            for (var i = 0; i < purpleCoinsLen; i++) {
-                var x = xOfLine(i), y = yOfCoins(purpleCoins[i]);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-        }
-
-        ctx.setLineDash([]);
-    }
+    drawCoinsLine(xOfLine, 0, nn);
 
     cv.addEventListener("mousemove", function(e) {
         var rect = cv.getBoundingClientRect();
@@ -375,17 +391,17 @@
                     { parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] }
                 ];
 
-                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen) {
+                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen && yellowCoins[idx] !== null && yellowCoins[idx] !== undefined) {
                     var yc = yellowCoins[idx];
-                    var ycDiff = idx > 0 && idx < yellowCoinsLen ? (yc - yellowCoins[idx - 1]) : 0;
+                    var ycDiff = idx > 0 && yellowCoins[idx - 1] !== null && yellowCoins[idx - 1] !== undefined ? (yc - yellowCoins[idx - 1]) : 0;
                     var ycColor = ycDiff >= 0 ? "#ef5350" : "#26a69a";
                     var ycDiffStr = (ycDiff >= 0 ? "+" : "") + ycDiff;
                     tooltipRows.push({ parts: [{ type: 'text', value: "黄币: " }, { type: 'bold', value: String(yc), style: { color: "#ffd54f" } }, { type: 'text', value: " (" + ycDiffStr + ")", style: { color: ycColor } }] });
                 }
 
-                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen) {
+                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen && purpleCoins[idx] !== null && purpleCoins[idx] !== undefined) {
                     var pc = purpleCoins[idx];
-                    var pcDiff = idx > 0 && idx < purpleCoinsLen ? (pc - purpleCoins[idx - 1]) : 0;
+                    var pcDiff = idx > 0 && purpleCoins[idx - 1] !== null && purpleCoins[idx - 1] !== undefined ? (pc - purpleCoins[idx - 1]) : 0;
                     var pcColor = pcDiff >= 0 ? "#ef5350" : "#26a69a";
                     var pcDiffStr = (pcDiff >= 0 ? "+" : "") + pcDiff;
                     tooltipRows.push({ parts: [{ type: 'text', value: "紫币: " }, { type: 'bold', value: String(pc), style: { color: "#ce93d8" } }, { type: 'text', value: " (" + pcDiffStr + ")", style: { color: pcColor } }] });
@@ -423,17 +439,17 @@
                     { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
                 ];
 
-                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen) {
+                if (showCoins && yellowCoinsLen > 0 && idx < yellowCoinsLen && yellowCoins[idx] !== null && yellowCoins[idx] !== undefined) {
                     var yc = yellowCoins[idx];
-                    var ycDiff = idx > 0 && idx < yellowCoinsLen ? (yc - yellowCoins[idx - 1]) : 0;
+                    var ycDiff = idx > 0 && yellowCoins[idx - 1] !== null && yellowCoins[idx - 1] !== undefined ? (yc - yellowCoins[idx - 1]) : 0;
                     var ycColor = ycDiff >= 0 ? "#ef5350" : "#26a69a";
                     var ycDiffStr = (ycDiff >= 0 ? "+" : "") + ycDiff;
                     tooltipRows.push({ parts: [{ type: 'text', value: "黄币: " }, { type: 'bold', value: String(yc), style: { color: "#ffd54f" } }, { type: 'text', value: " (" + ycDiffStr + ")", style: { color: ycColor } }] });
                 }
 
-                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen) {
+                if (showCoins && purpleCoinsLen > 0 && idx < purpleCoinsLen && purpleCoins[idx] !== null && purpleCoins[idx] !== undefined) {
                     var pc = purpleCoins[idx];
-                    var pcDiff = idx > 0 && idx < purpleCoinsLen ? (pc - purpleCoins[idx - 1]) : 0;
+                    var pcDiff = idx > 0 && purpleCoins[idx - 1] !== null && purpleCoins[idx - 1] !== undefined ? (pc - purpleCoins[idx - 1]) : 0;
                     var pcColor = pcDiff >= 0 ? "#ef5350" : "#26a69a";
                     var pcDiffStr = (pcDiff >= 0 ? "+" : "") + pcDiff;
                     tooltipRows.push({ parts: [{ type: 'text', value: "紫币: " }, { type: 'bold', value: String(pc), style: { color: "#ce93d8" } }, { type: 'text', value: " (" + pcDiffStr + ")", style: { color: pcColor } }] });
@@ -552,6 +568,16 @@
                 ctx.fillText(Math.round(v), pad.l - 8, y);
             }
 
+            if (hasCoins) {
+                ctx.fillStyle = "#999";
+                ctx.textAlign = "left";
+                for (var i = 0; i <= 5; i++) {
+                    var v = coinsMin + (coinsMax - coinsMin) * (i / 5);
+                    var y = yOfCoins(v);
+                    ctx.fillText(Math.round(v), W - pad.r + 8, y);
+                }
+            }
+
             ctx.fillStyle = "#666";
             ctx.font = "10px -apple-system, sans-serif";
             ctx.textAlign = "center";
@@ -593,6 +619,8 @@
                 ctx.fillStyle = dotColor;
                 ctx.fill();
             }
+
+            drawCoinsLine(dxOf, visibleStart, visibleEnd);
 
             var labelInterval = Math.max(1, Math.floor(visibleNn / 8));
             for (var i = visibleStart; i < visibleEnd; i += labelInterval) {

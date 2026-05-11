@@ -503,6 +503,16 @@ class Cl1Database:
         }
 
         snapshots = data.get('coins_snapshots', [])
+        if snapshots:
+            last = snapshots[-1]
+            try:
+                same_yellow = int(last.get('yellow_coins', -1)) == snapshot['yellow_coins']
+                same_purple = int(last.get('purple_coins', -1)) == snapshot['purple_coins']
+                if same_yellow and same_purple and last.get('source') == source:
+                    return
+            except (TypeError, ValueError):
+                pass
+
         snapshots.append(snapshot)
         # 保留最近 500 条记录，避免数据过大
         if len(snapshots) > 500:
