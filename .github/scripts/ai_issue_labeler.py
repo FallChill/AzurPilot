@@ -125,8 +125,25 @@ MANUAL_ONLY_LABELS = {
 }
 
 
+LABEL_ALIASES = {
+    "assets issue": "assets issue / 资源适配问题",
+    "bug": "bug / 缺陷",
+    "documentation": "documentation / 文档",
+    "feature request": "feature request / 功能请求",
+    "installation": "installation / 安装",
+    "optimization": "optimization / 优化",
+    "sharing": "sharing / 分享",
+    "question": "asking a question / 提问",
+    "asking a question": "asking a question / 提问",
+}
+
+
 def log_error(message):
     print(f"::error::{message}", file=sys.stderr)
+
+
+def log_warning(message):
+    print(f"::warning::{message}")
 
 
 def platform_name():
@@ -756,6 +773,7 @@ def normalize_labels(requested_labels, allowed_label_names, existing_repo_label_
     for name in requested_labels:
         if not isinstance(name, str):
             continue
+        name = LABEL_ALIASES.get(name.strip(), name.strip())
         if name not in allowed_label_names:
             continue
         if name not in existing_repo_label_names:
@@ -797,14 +815,17 @@ def format_related_comment(pr_number, related):
 
 def upsert_related_comment(platform, owner, repo, pr_number, body, token):
     marker = "<!-- ai-issue-labeler:related -->"
-    for comment in issue_comments(platform, owner, repo, pr_number, token):
-        if marker in (comment.get("body") or ""):
-            update_issue_comment(platform, comment["url"], body, token)
-            print("Updated related-items comment.")
-            return
+    try:
+        for comment in issue_comments(platform, owner, repo, pr_number, token):
+            if marker in (comment.get("body") or ""):
+                update_issue_comment(platform, comment["url"], body, token)
+                print("Updated related-items comment.")
+                return
 
-    create_issue_comment(platform, owner, repo, pr_number, body, token)
-    print("Created related-items comment.")
+        create_issue_comment(platform, owner, repo, pr_number, body, token)
+        print("Created related-items comment.")
+    except RuntimeError as error:
+        log_warning(f"Could not create or update related-items comment: {error}")
 
 
 def apply_issue_labels(platform, owner, repo, issue, token):
