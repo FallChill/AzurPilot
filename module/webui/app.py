@@ -220,6 +220,7 @@ class AlasGUI(Frame):
         self._announcement_result = None
         self._announcement_fetching = False
         self._announcement_force = False
+        self._update_notified = False
         self.simulator = OSSimulator()
         self._simulator_logger_pm = None
         self._overview_log = None
@@ -2516,17 +2517,35 @@ class AlasGUI(Frame):
 
         put_button(label=t("重启Alas"), onclick=_force_restart)
 
-        def _test_notify():
-            from module.webui.api import _notification_queue
+        def _test_notify_update():
+            from module.notify.notify import notify_webui
             instance = getattr(self, "alas_name", "alas")
-            _notification_queue.put_nowait({
-                "instance": instance,
-                "title": f"测试喵~ {instance} 测试~",
-                "content": f"这是一条测试通知喵~",
-            })
-            toast("已发送测试通知", color="success")
+            notify_webui(
+                instance=instance,
+                title="发现更新喵！",
+                content="测试更新推送逻辑，启动器应显示专用标题。",
+                updata=True
+            )
+            toast("已发送更新测试通知", color="success")
 
-        put_button(label="消息推送测试", onclick=_test_notify)
+        def _test_notify_announcement():
+            from module.notify.notify import notify_webui
+            instance = getattr(self, "alas_name", "alas")
+            notify_webui(
+                instance=instance,
+                title="新公告喵！",
+                content="测试公告推送逻辑，启动器应显示专用标题。",
+                updata=False
+            )
+            toast("已发送公告测试通知", color="info")
+
+        put_buttons(
+            buttons=[
+                {"label": "测试更新推送 (updata=True)", "value": "update", "color": "danger"},
+                {"label": "测试公告推送 (updata=False)", "value": "announcement", "color": "info"},
+            ],
+            onclick=[_test_notify_update, _test_notify_announcement]
+        )
 
     @use_scope("content", clear=True)
     def dev_remote(self) -> None:
@@ -2881,6 +2900,10 @@ class AlasGUI(Frame):
 
             logger.info(f"Pushing announcement: {data.get('title')}")
             run_js(f"window.alasShowAnnouncement({title_json}, {content_json}, {announcement_id_json}, {url_json}, {force_json});")
+            
+            # Pushing to launcher
+            from module.notify.notify import notify_webui
+            notify_webui(instance='Alas', title=data.get('title', ''), content=data.get('content', ''), updata=False)
 
             self._last_announcement_id = announcement_id
 
@@ -2968,6 +2991,18 @@ class AlasGUI(Frame):
             self.dev_update()
 
         def show_update_toast():
+            if self._update_notified:
+                return
+            self._update_notified = True
+
+            from module.notify.notify import notify_webui
+            notify_webui(
+                instance='Alas', 
+                title=t("Gui.Toast.ClickToUpdate"), 
+                content="检测到了新更新喵~ 指挥官快来更新喵~",
+                updata=True
+            )
+
             gradient = 'linear-gradient(90deg, #00b894, #0984e3)'
             toast(t("Gui.Toast.ClickToUpdate"), duration=0, position="right", color=gradient, onclick=goto_update)
 

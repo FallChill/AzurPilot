@@ -85,14 +85,18 @@ class ApiClient:
                     response = requests.get(
                         endpoint,
                         params=params,
-                        timeout=timeout
+                        timeout=timeout,
+                        headers={'User-Agent': 'ALAS/1.5.8 AzurPilot'}
                     )
                 else:
                     response = requests.post(
                         endpoint,
                         json=json_data,
                         timeout=timeout,
-                        headers={'Content-Type': 'application/json'}
+                        headers={
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'ALAS/1.5.8 AzurPilot'
+                        }
                     )
                 
                 if response.status_code in success_codes:

@@ -214,7 +214,12 @@ class GitManager(DeployConfig):
             logger.info(f'Resolving repository URL: {url}')
             try:
                 # Catch 307 redirect
-                response = requests.get(url, allow_redirects=False, timeout=10)
+                response = requests.get(
+                    url, 
+                    allow_redirects=False, 
+                    timeout=10,
+                    headers={'User-Agent': 'ALAS/1.5.8 AzurPilot'}
+                )
                 if response.status_code in [302, 307]:
                     new_url = response.headers.get('Location')
                     if new_url:
