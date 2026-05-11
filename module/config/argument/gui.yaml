@@ -179,6 +179,8 @@ Stat:
   ViewLineButton:
   ViewDayButton:
   ViewMonthButton:
+  DetailChartTitle:
+  ToggleDetailChart:
   LoadOpsiStatsFailed:
   LoadExpStatsFailed:
   DailyExpCheckTitle:

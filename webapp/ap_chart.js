@@ -1,4 +1,10 @@
 (function() {
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     var chartType = "__CHART_TYPE__";
     var labels = __LABELS__;
     var opens  = __OPENS__;
@@ -239,9 +245,9 @@
             var isUp = diff >= 0;
             var dc = isUp ? "#ef5350" : "#26a69a";
             var ds = (isUp ? "+" : "") + diff;
-            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + labels[idx] + '</div>'
-                + '<div>体力: <b style="color:#64b5f6">' + ap[idx] + '</b></div>'
-                + '<div>单次变化: <b style="color:' + dc + '">' + ds + '</b></div>';
+            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(labels[idx]) + '</div>'
+                + '<div>体力: <b style="color:#64b5f6">' + escapeHtml(String(ap[idx])) + '</b></div>'
+                + '<div>单次变化: <b style="color:' + dc + '">' + escapeHtml(ds) + '</b></div>';
         } else {
             var idx = Math.floor((mx_ - pad.l) / candleSpace);
             idx = Math.max(0, Math.min(nn - 1, idx));
@@ -280,13 +286,13 @@
                 ma10Val = (sum10/10).toFixed(1);
             }
 
-            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + labels[idx] + '</div>'
-                + '<div>开盘: <b>' + o + '</b> <span style="margin-left:8px;color:#ffeb3b">MA5(5期平均): ' + ma5Val + '</span></div>'
-                + '<div>收盘: <b style="color:' + dc + '">' + c_ + '</b> <span style="margin-left:8px;color:#e91e63">MA10(10期平均): ' + ma10Val + '</span></div>'
-                + '<div>最高: <b style="color:#ef5350">' + h + '</b></div>'
-                + '<div>最低: <b style="color:#26a69a">' + l + '</b></div>'
-                + '<div>涨跌: <b style="color:' + dc + '">' + chgSign + chg + ' (' + chgSign + chgPct + '%)</b></div>'
-                + '<div style="color:#666;margin-top:4px">数据点密度: ' + counts[idx] + '</div>';
+            tipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(labels[idx]) + '</div>'
+                + '<div>开盘: <b>' + escapeHtml(String(o)) + '</b> <span style="margin-left:8px;color:#ffeb3b">MA5(5期平均): ' + escapeHtml(ma5Val) + '</span></div>'
+                + '<div>收盘: <b style="color:' + dc + '">' + escapeHtml(String(c_)) + '</b> <span style="margin-left:8px;color:#e91e63">MA10(10期平均): ' + escapeHtml(ma10Val) + '</span></div>'
+                + '<div>最高: <b style="color:#ef5350">' + escapeHtml(String(h)) + '</b></div>'
+                + '<div>最低: <b style="color:#26a69a">' + escapeHtml(String(l)) + '</b></div>'
+                + '<div>涨跌: <b style="color:' + dc + '">' + escapeHtml(chgSign + chg) + ' (' + escapeHtml(chgSign + chgPct) + '%)</b></div>'
+                + '<div style="color:#666;margin-top:4px">数据点密度: ' + escapeHtml(String(counts[idx])) + '</div>';
         }
 
         tipEl.style.display = "block";
@@ -489,10 +495,10 @@
         var source = detailSources[idx] || '-';
         var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
 
-        dtipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + detailLabels[idx] + '</div>'
-            + '<div>体力: <b style="color:#64b5f6">' + detailAp[idx] + '</b></div>'
-            + '<div>变化: <b style="color:' + dc + '">' + ds + '</b></div>'
-            + '<div>来源: <b style="color:' + sourceColor + '">' + source + '</b></div>';
+        dtipEl.innerHTML = '<div style="color:#888;margin-bottom:4px;font-weight:600">' + escapeHtml(detailLabels[idx]) + '</div>'
+            + '<div>体力: <b style="color:#64b5f6">' + escapeHtml(String(detailAp[idx])) + '</b></div>'
+            + '<div>变化: <b style="color:' + dc + '">' + escapeHtml(ds) + '</b></div>'
+            + '<div>来源: <b style="color:' + sourceColor + '">' + escapeHtml(source) + '</b></div>';
 
         dtipEl.style.display = "block";
         var tx = px + 16;
