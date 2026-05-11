@@ -595,14 +595,36 @@ class AlasGUI(Frame):
                     self._ap_chart_view = v
                     _render_ap_chart()
 
-                put_html('<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center;padding:8px;background:#1a1a2e;border-radius:6px;border:1px solid #333;">')
-                put_html(f'<span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.ViewLabel")}</span>')
-                put_button(t("Gui.Stat.ViewLineButton"), onclick=lambda: _switch_view('line'), color="primary" if current_view == 'line' else "secondary", small=True, outline=current_view != 'line')
-                put_button(t("Gui.Stat.ViewDayButton"), onclick=lambda: _switch_view('day'), color="primary" if current_view == 'day' else "secondary", small=True, outline=current_view != 'day')
-                put_button(t("Gui.Stat.ViewMonthButton"), onclick=lambda: _switch_view('month'), color="primary" if current_view == 'month' else "secondary", small=True, outline=current_view != 'month')
-                put_button(t("Gui.Stat.DetailChartTitle"), onclick=lambda: _switch_view('detail'), color="primary" if current_view == 'detail' else "secondary", small=True, outline=current_view != 'detail')
-                put_html('<span style="color:#444;margin:0 8px;">|</span>')
-                put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="secondary", small=True, outline=True)
+                md3_btn_style = '''
+                <style>
+                .md3-btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: #1a1a2e; border-radius: 16px; border: 1px solid #333; margin-top: 12px; }
+                .md3-btn-group > * { display: inline-flex !important; }
+                .md3-btn-group .pywebio-btn { border-radius: 999px !important; padding: 8px 20px !important; font-size: 13px !important; font-weight: 500 !important; min-width: auto !important; margin: 0 !important; }
+                .md3-btn-group .pywebio-btn-primary { background: #6750a4 !important; border: none !important; box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
+                .md3-btn-group .pywebio-btn-off { background: #2d2d3d !important; border: 1px solid #444 !important; }
+                </style>
+                '''
+                put_html(md3_btn_style)
+                put_html(f'''
+                <div class="md3-btn-group">
+                    <span style="color:#888;font-size:12px;margin-right:8px;">{t("Gui.Stat.ViewLabel")}</span>
+                ''')
+
+                view_options = [
+                    (t("Gui.Stat.ViewLineButton"), "line"),
+                    (t("Gui.Stat.ViewDayButton"), "day"),
+                    (t("Gui.Stat.ViewMonthButton"), "month"),
+                    (t("Gui.Stat.DetailChartTitle"), "detail"),
+                ]
+                btn_list = []
+                for label, value in view_options:
+                    is_active = current_view == value
+                    color = "primary" if is_active else "off"
+                    btn_list.append(put_button(label, onclick=lambda v=value: _switch_view(v), color=color, small=False))
+
+                btn_list.append(put_html('<span style="width:8px;"></span>'))
+                btn_list.append(put_button(t("Gui.Stat.Refresh"), onclick=lambda: _render_ap_chart(), color="off", small=False))
+                put_row(btn_list, size="auto")
                 put_html('</div>')
 
         put_scope("ap_chart", [])

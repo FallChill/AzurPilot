@@ -260,43 +260,87 @@
         oc.scale(dpr, dpr);
 
         if (chartType === 'line') {
-            var ratio = (mx_ - pad.l) / gW;
-            var idx = Math.round(ratio * (nn - 1));
-            idx = Math.max(0, Math.min(nn - 1, idx));
-            var px = xOfLine(idx), py = yOf(ap[idx]);
+            if (isDetailMode) {
+                var visibleStart = Math.max(0, Math.floor(panOffset));
+                var visibleCount = Math.ceil(nn / zoomLevel);
+                var visibleEnd = Math.min(nn, visibleStart + visibleCount);
+                var visibleNn = visibleEnd - visibleStart;
 
-            oc.strokeStyle = "rgba(255,255,255,0.18)";
-            oc.lineWidth = 1;
-            oc.setLineDash([4, 3]);
-            oc.beginPath(); oc.moveTo(px, pad.t); oc.lineTo(px, pad.t + gH); oc.stroke();
-            oc.beginPath(); oc.moveTo(pad.l, py); oc.lineTo(W - pad.r, py); oc.stroke();
-            oc.setLineDash([]);
+                var dMin = Infinity, dMax = -Infinity;
+                for (var i = visibleStart; i < visibleEnd; i++) {
+                    if (ap[i] < dMin) dMin = ap[i];
+                    if (ap[i] > dMax) dMax = ap[i];
+                }
+                if (dMin === Infinity) dMin = 0;
+                if (dMax === -Infinity) dMax = 100;
+                var drng = dMax - dMin || 1;
+                dMin -= drng * 0.1;
+                dMax += drng * 0.1;
 
-            oc.beginPath(); oc.arc(px, py, 6, 0, Math.PI * 2);
-            oc.fillStyle = "rgba(100,181,246,0.3)"; oc.fill();
-            oc.beginPath(); oc.arc(px, py, 4, 0, Math.PI * 2);
-            oc.fillStyle = "#64b5f6"; oc.fill();
-            oc.strokeStyle = "#fff"; oc.lineWidth = 2; oc.stroke();
-            oc.setTransform(1, 0, 0, 1, 0, 0);
+                var xScale = gW / visibleNn;
+                var idx = Math.floor(panOffset + (mx_ - pad.l) / xScale);
+                idx = Math.max(0, Math.min(nn - 1, idx));
+                var px = pad.l + (idx - visibleStart) * xScale;
+                var py = pad.t + gH - (ap[idx] - dMin) / (dMax - dMin) * gH;
 
-            var diff = idx > 0 ? (ap[idx] - ap[idx - 1]) : 0;
-            var isUp = diff >= 0;
-            var dc = isUp ? "#ef5350" : "#26a69a";
-            var ds = (isUp ? "+" : "") + diff;
+                oc.strokeStyle = "rgba(255,255,255,0.18)";
+                oc.lineWidth = 1;
+                oc.setLineDash([4, 3]);
+                oc.beginPath(); oc.moveTo(px, pad.t); oc.lineTo(px, pad.t + gH); oc.stroke();
+                oc.beginPath(); oc.moveTo(pad.l, py); oc.lineTo(W - pad.r, py); oc.stroke();
+                oc.setLineDash([]);
 
-            var tooltipRows = [
-                { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
-                { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
-                { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
-            ];
+                oc.beginPath(); oc.arc(px, py, 6, 0, Math.PI * 2);
+                oc.fillStyle = "rgba(100,181,246,0.3)"; oc.fill();
+                oc.beginPath(); oc.arc(px, py, 4, 0, Math.PI * 2);
+                oc.fillStyle = "#64b5f6"; oc.fill();
+                oc.strokeStyle = "#fff"; oc.lineWidth = 2; oc.stroke();
+                oc.setTransform(1, 0, 0, 1, 0, 0);
 
-            if (isDetailMode && sources && sources[idx]) {
-                var source = sources[idx];
+                var diff = idx > 0 ? (ap[idx] - ap[idx - 1]) : 0;
+                var isUp = diff >= 0;
+                var dc = isUp ? "#ef5350" : "#26a69a";
+                var ds = (isUp ? "+" : "") + diff;
+                var source = sources && sources[idx] ? sources[idx] : '-';
                 var sourceColor = source === 'cl1' ? '#64b5f6' : (source === 'meow' ? '#ff9800' : '#888');
-                tooltipRows.push({ parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] });
-            }
 
-            setTooltipContent(tipEl, tooltipRows);
+                setTooltipContent(tipEl, [
+                    { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
+                    { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
+                    { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] },
+                    { parts: [{ type: 'text', value: "来源: " }, { type: 'bold', value: source, style: { color: sourceColor } }] }
+                ]);
+            } else {
+                var ratio = (mx_ - pad.l) / gW;
+                var idx = Math.round(ratio * (nn - 1));
+                idx = Math.max(0, Math.min(nn - 1, idx));
+                var px = xOfLine(idx), py = yOf(ap[idx]);
+
+                oc.strokeStyle = "rgba(255,255,255,0.18)";
+                oc.lineWidth = 1;
+                oc.setLineDash([4, 3]);
+                oc.beginPath(); oc.moveTo(px, pad.t); oc.lineTo(px, pad.t + gH); oc.stroke();
+                oc.beginPath(); oc.moveTo(pad.l, py); oc.lineTo(W - pad.r, py); oc.stroke();
+                oc.setLineDash([]);
+
+                oc.beginPath(); oc.arc(px, py, 6, 0, Math.PI * 2);
+                oc.fillStyle = "rgba(100,181,246,0.3)"; oc.fill();
+                oc.beginPath(); oc.arc(px, py, 4, 0, Math.PI * 2);
+                oc.fillStyle = "#64b5f6"; oc.fill();
+                oc.strokeStyle = "#fff"; oc.lineWidth = 2; oc.stroke();
+                oc.setTransform(1, 0, 0, 1, 0, 0);
+
+                var diff = idx > 0 ? (ap[idx] - ap[idx - 1]) : 0;
+                var isUp = diff >= 0;
+                var dc = isUp ? "#ef5350" : "#26a69a";
+                var ds = (isUp ? "+" : "") + diff;
+
+                setTooltipContent(tipEl, [
+                    { style: { color: "#888", marginBottom: "4px", fontWeight: "600" }, parts: [{ type: 'text', value: labels[idx] }] },
+                    { parts: [{ type: 'text', value: "体力: " }, { type: 'bold', value: String(ap[idx]), style: { color: "#64b5f6" } }] },
+                    { parts: [{ type: 'text', value: "单次变化: " }, { type: 'bold', value: ds, style: { color: dc } }] }
+                ]);
+            }
         } else {
             var idx = Math.floor((mx_ - pad.l) / candleSpace);
             idx = Math.max(0, Math.min(nn - 1, idx));

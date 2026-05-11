@@ -1,7 +1,7 @@
 import configparser
 import os
-import shlex
 import shutil
+import subprocess
 
 from deploy.Windows.config import DeployConfig
 from deploy.Windows.logger import Progress, logger
@@ -10,7 +10,7 @@ from deploy.git_over_cdn.client import GitOverCdnClient
 
 
 def _cmd(*args):
-    return ' '.join(shlex.quote(str(arg)) for arg in args)
+    return subprocess.list2cmdline([str(arg) for arg in args])
 
 
 class GitConfigParser(configparser.ConfigParser):
