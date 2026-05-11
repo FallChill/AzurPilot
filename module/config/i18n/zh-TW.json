@@ -5144,6 +5144,8 @@
       "ViewLineButton": "分时(详细波动)",
       "ViewDayButton": "天视图(小时K)",
       "ViewMonthButton": "月视图(日K)",
+      "DetailChartTitle": "單日體力波動詳情 (24小時)",
+      "ToggleDetailChart": "詳情圖",
       "LoadOpsiStatsFailed": "加载 OpSi 统计失败: {e}",
       "LoadExpStatsFailed": "加载经验统计失败: {e}",
       "DailyExpCheckTitle": "每日经验检测",

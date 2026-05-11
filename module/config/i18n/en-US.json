@@ -5144,6 +5144,8 @@
       "ViewLineButton": "Intraday (Detailed)",
       "ViewDayButton": "Day View (Hourly K)",
       "ViewMonthButton": "Month View (Daily K)",
+      "DetailChartTitle": "Daily AP Fluctuation Detail (24h)",
+      "ToggleDetailChart": "Detail Chart",
       "LoadOpsiStatsFailed": "Failed to load OpSi stats: {e}",
       "LoadExpStatsFailed": "Failed to load EXP stats: {e}",
       "DailyExpCheckTitle": "Daily EXP Check",

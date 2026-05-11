@@ -437,7 +437,6 @@ class AlasGUI(Frame):
                     put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="off")
                 return
 
-            # 解析原始数据点
             from datetime import datetime as _dt
             import json as _json
             raw_points = []
@@ -447,7 +446,11 @@ class AlasGUI(Frame):
                     dt = _dt.fromisoformat(ts_raw)
                 except Exception:
                     continue
-                raw_points.append({'dt': dt, 'ap': int(pt.get('ap', 0))})
+                raw_points.append({
+                    'dt': dt,
+                    'ap': int(pt.get('ap', 0)),
+                    'source': pt.get('source', '-')
+                })
 
             if not raw_points:
                 with use_scope("ap_chart", clear=True):
@@ -456,6 +459,7 @@ class AlasGUI(Frame):
 
             raw_points.sort(key=lambda p: p['dt'])
             current_view = getattr(self, '_ap_chart_view', 'line')
+            show_detail = getattr(self, '_ap_chart_show_detail', True)
 
             labels = []
             opens = []
@@ -532,6 +536,36 @@ class AlasGUI(Frame):
             change_sign = '+' if ap_change >= 0 else ''
 
             chart_id = f"ap_cv_{id(self)}"
+            detail_chart_id = f"ap_detail_{id(self)}"
+
+            today = _dt.now().date()
+            today_points = [p for p in raw_points if p['dt'].date() == today]
+            if not today_points and raw_points:
+                last_date = raw_points[-1]['dt'].date()
+                today_points = [p for p in raw_points if p['dt'].date() == last_date]
+                today = last_date
+
+            detail_labels = []
+            detail_ap = []
+            detail_sources = []
+            detail_date_str = today.strftime('%Y-%m-%d')
+            detail_count = 0
+            detail_range = 0
+
+            if today_points and show_detail:
+                for p in today_points:
+                    detail_labels.append(p['dt'].strftime('%H:%M'))
+                    detail_ap.append(p['ap'])
+                    detail_sources.append(p.get('source', '-'))
+                detail_count = len(today_points)
+                if detail_count > 0:
+                    detail_max = max(p['ap'] for p in today_points)
+                    detail_min = min(p['ap'] for p in today_points)
+                    detail_range = detail_max - detail_min
+
+            detail_display = 'block' if show_detail and detail_count > 0 else 'none'
+            detail_title = t("Gui.Stat.DetailChartTitle")
+            detail_range_str = str(detail_range)
 
             html_tpl = read_webapp_template('ap_chart_panel.html')
             html = html_tpl.format(
@@ -545,6 +579,12 @@ class AlasGUI(Frame):
                 ap_min=ap_min,
                 ap_avg=ap_avg,
                 data_points_text=data_points_text,
+                detail_chart_id=detail_chart_id,
+                detail_display=detail_display,
+                detail_title=detail_title,
+                detail_date=detail_date_str,
+                detail_count=detail_count,
+                detail_range=detail_range_str,
             )
 
             js_tpl = read_webapp_template('ap_chart.js')
@@ -559,6 +599,11 @@ class AlasGUI(Frame):
                 .replace('__AP__', _json.dumps(ap_list))
                 .replace('__AVG__', str(ap_avg))
                 .replace('__CHART_ID__', chart_id)
+                .replace('__DETAIL_LABELS__', _json.dumps(detail_labels, ensure_ascii=False))
+                .replace('__DETAIL_AP__', _json.dumps(detail_ap))
+                .replace('__DETAIL_SOURCES__', _json.dumps(detail_sources))
+                .replace('__DETAIL_CHART_ID__', detail_chart_id)
+                .replace('__DETAIL_DISPLAY__', detail_display)
             )
             from pywebio.session import run_js
             with use_scope("ap_chart", clear=True):
@@ -567,10 +612,14 @@ class AlasGUI(Frame):
                 def _switch_view(v):
                     self._ap_chart_view = v
                     _render_ap_chart()
+                def _toggle_detail():
+                    self._ap_chart_show_detail = not getattr(self, '_ap_chart_show_detail', True)
+                    _render_ap_chart()
                 put_row([
                     put_button(t("Gui.Stat.ViewLineButton"), onclick=lambda: _switch_view('line'), color="off" if current_view!='line' else "primary"),
                     put_button(t("Gui.Stat.ViewDayButton"), onclick=lambda: _switch_view('day'), color="off" if current_view!='day' else "primary"),
                     put_button(t("Gui.Stat.ViewMonthButton"), onclick=lambda: _switch_view('month'), color="off" if current_view!='month' else "primary"),
+                    put_button(t("Gui.Stat.ToggleDetailChart"), onclick=_toggle_detail, color="primary" if show_detail else "off"),
                     put_button(t("Gui.Stat.Refresh"), onclick=_render_ap_chart, color="off"),
                 ], size="auto")
 

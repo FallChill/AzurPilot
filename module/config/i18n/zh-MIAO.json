@@ -5144,6 +5144,8 @@
       "ViewLineButton": "分时(详细波动)喵",
       "ViewDayButton": "天视图(小时K)喵",
       "ViewMonthButton": "月视图(日K)喵",
+      "DetailChartTitle": "单日体力波动详情 (24小时) 喵~",
+      "ToggleDetailChart": "详情图喵",
       "LoadOpsiStatsFailed": "加载 OpSi 统计失败: {e}",
       "LoadExpStatsFailed": "加载经验统计失败: {e}",
       "DailyExpCheckTitle": "每日经验检测喵",
