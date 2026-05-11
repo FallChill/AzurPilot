@@ -4675,6 +4675,30 @@
       "help": "完全な経験が検出されると、このタスクは指定された時間延期されます。"
     }
   },
+  "OpsiFleetAutoChange": {
+    "_info": {
+      "name": "OpsiFleetAutoChange._info.name",
+      "help": "OpsiFleetAutoChange._info.help"
+    },
+    "Enable": {
+      "name": "OpsiFleetAutoChange.Enable.name",
+      "help": "OpsiFleetAutoChange.Enable.help",
+      "True": "True",
+      "False": "False"
+    },
+    "CooldownHours": {
+      "name": "OpsiFleetAutoChange.CooldownHours.name",
+      "help": "OpsiFleetAutoChange.CooldownHours.help",
+      "12": "12",
+      "24": "24",
+      "48": "48",
+      "72": "72"
+    },
+    "LastRun": {
+      "name": "OpsiFleetAutoChange.LastRun.name",
+      "help": "OpsiFleetAutoChange.LastRun.help"
+    }
+  },
   "OpsiScheduling": {
     "_info": {
       "name": "インテリジェントスケジューリング",

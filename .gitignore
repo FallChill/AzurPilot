@@ -22,6 +22,7 @@ test.py
 test/
 debug_ocr/
 PaddleOCR
+.trae
 
 # Created by .ignore support plugin (hsz.mobi)
 
