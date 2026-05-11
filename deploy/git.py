@@ -111,6 +111,9 @@ class GitManager(DeployConfig):
         else:
             self.execute(_cmd(self.git, 'config', '--local', 'http.sslVerify', 'false'), allow_failure=True)
 
+        logger.hr('Set Git User-Agent', 1)
+        self.execute(f'"{self.git}" config http.userAgent "ALAS/1.5.8 AzurPilot"')
+
         logger.hr('Set Git Repository', 1)
         if not self.execute(_cmd(self.git, 'remote', 'set-url', source, repo), allow_failure=True):
             self.execute(_cmd(self.git, 'remote', 'add', source, repo))
@@ -147,18 +150,46 @@ class GitManager(DeployConfig):
 
     @property
     def goc_client(self):
+        # Resolve repo first to get the actual project name
+        repo = self.resolve_repository_url(self.Repository)
+        repo_name = repo.strip('/').split('/')[-1]
         client = GitOverCdnClient(
             url=[
-                'https://vip.123pan.cn/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
-                'https://1818706573.v.123yx.com/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
+                f'https://vip.123pan.cn/1818706573/pack/LmeSzinc_{repo_name}_{self.Branch}',
+                f'https://1818706573.v.123yx.com/1818706573/pack/LmeSzinc_{repo_name}_{self.Branch}',
             ],
             folder=self.root_filepath,
             source='origin',
-            branch='master',
+            branch=self.Branch,
             git=self.git,
         )
         client.logger = logger
         return client
+
+    def resolve_repository_url(self, url):
+        """
+        Resolve 307 redirects from git.nanoda.work to get the actual git repository URL.
+        """
+        if 'git.nanoda.work' in url:
+            try:
+                import requests
+                headers = {'User-Agent': 'alas AzurPilot'}
+                logger.info(f'Resolving repository URL: {url}')
+                # Follow all redirects to get the final destination
+                response = requests.get(
+                    url, 
+                    allow_redirects=True, 
+                    timeout=10,
+                    headers=headers
+                )
+                if response.status_code == 200:
+                    resolved = response.url.rstrip('/')
+                    logger.info(f'Resolved {url} to {resolved}')
+                    return resolved
+                return url
+            except Exception as e:
+                logger.error(f'Failed to resolve {url}: {e}')
+        return url
 
     def git_install(self):
         logger.hr('Update Alas', 0)
@@ -193,8 +224,11 @@ class GitManager(DeployConfig):
             if self.goc_client.update(keep_changes=self.KeepLocalChanges):
                 return
 
+        # Resolve repository URL before any git operations
+        repo = self.resolve_repository_url(self.Repository)
+
         self.git_repository_init(
-            repo=self.Repository,
+            repo=repo,
             source='origin',
             branch=self.Branch,
             proxy=self.GitProxy,
