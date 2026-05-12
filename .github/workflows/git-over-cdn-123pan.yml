@@ -50,10 +50,9 @@ jobs:
           PAN123_PARENT_FILE_ID_INPUT: ${{ github.event.inputs.parent_file_id }}
           PAN123_REMOTE_PREFIX_INPUT: ${{ github.event.inputs.remote_prefix }}
         run: |
-          uv pip install --system requests
           PAN123_PARENT_FILE_ID="${PAN123_PARENT_FILE_ID_INPUT:-${PAN123_PARENT_FILE_ID_SECRET:-31540282}}"
           PAN123_REMOTE_PREFIX="${PAN123_REMOTE_PREFIX_INPUT:-AzurPilot_master}"
-          uv run python .github/scripts/upload_123pan.py \
+          uv run --with requests python .github/scripts/upload_123pan.py \
             --source dist/git-over-cdn \
             --parent-file-id "$PAN123_PARENT_FILE_ID" \
             --remote-prefix "$PAN123_REMOTE_PREFIX"
