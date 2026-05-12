@@ -5,13 +5,17 @@ from deploy.logger import logger
 from deploy.utils import *
 
 
+GIT_OVER_CDN_REPOSITORY = 'git://git.pull/AzurPilot'
+GIT_OVER_CDN_FALLBACK_REPOSITORY = 'https://gitcode.com/ddl2/AzurLaneAutoScript'
+
+
 class ExecutionError(Exception):
     pass
 
 
 class ConfigModel:
     # Git
-    Repository: str = "https://github.com/LmeSzinc/AzurLaneAutoScript"
+    Repository: str = "https://github.com/wess09/AzurPilot"
     Branch: str = "master"
     GitExecutable: str = "./toolkit/Git/mingw64/bin/git.exe"
     GitProxy: Optional[str] = None
@@ -121,9 +125,17 @@ class DeployConfig(ConfigModel):
             'https://e.coding.net/llop18870/alas/AzurLaneAutoScript.git',
             'https://e.coding.net/saarcenter/alas/AzurLaneAutoScript.git',
             'https://git.saarcenter.com/LmeSzinc/AzurLaneAutoScript.git',
+            'git://git.lyoko.io/AzurLaneAutoScript',
+            'https://gitcode.com/ddl2/AzurLaneAutoScript',
+            'https://gitcode.com/ZhangMusan/AzurLaneAutoScript',
+            'https://gitcode.com/nerom/AzurLaneAutoScript',
+            'https://gitee.com/wqeaxc/AzurLaneAutoScript1',
+            'https://git.nanoda.work/git/AzurLaneAutoScript',
+            'https://git.nanoda.work/git/AzurPilot',
+            'https://git.nanoda.work',
         ]:
-            self.Repository = 'git://git.lyoko.io/AzurLaneAutoScript'
-            self.config['Repository'] = 'git://git.lyoko.io/AzurLaneAutoScript'
+            self.Repository = GIT_OVER_CDN_REPOSITORY
+            self.config['Repository'] = GIT_OVER_CDN_REPOSITORY
         if self.PypiMirror in [
             'https://pypi.tuna.tsinghua.edu.cn/simple'
         ]:
@@ -134,12 +146,14 @@ class DeployConfig(ConfigModel):
         # Don't write these into deploy.yaml
         super().__setattr__(
             'GitOverCdn',
-            self.Repository == 'git://git.lyoko.io/AzurLaneAutoScript' and self.Branch == 'master'
+            self.Repository == GIT_OVER_CDN_REPOSITORY and self.Branch == 'master'
         )
+        if self.Repository == GIT_OVER_CDN_REPOSITORY:
+            super().__setattr__('Repository', GIT_OVER_CDN_FALLBACK_REPOSITORY)
         if self.Repository in ['global']:
-            super().__setattr__('Repository', 'https://github.com/LmeSzinc/AzurLaneAutoScript')
+            super().__setattr__('Repository', 'https://github.com/wess09/AzurPilot')
         if self.Repository in ['cn']:
-            super().__setattr__('Repository', 'git://git.lyoko.io/AzurLaneAutoScript')
+            super().__setattr__('Repository', GIT_OVER_CDN_REPOSITORY)
 
     def filepath(self, key):
         """

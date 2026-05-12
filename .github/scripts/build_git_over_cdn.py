@@ -42,7 +42,7 @@ def build_pack(latest, old, output_dir):
 def main():
     parser = argparse.ArgumentParser(description="Build git-over-cdn update packs.")
     parser.add_argument("--branch", default="master")
-    parser.add_argument("--history", type=int, default=50)
+    parser.add_argument("--history", type=int, default=1)
     parser.add_argument("--output", default="dist/git-over-cdn")
     args = parser.parse_args()
 

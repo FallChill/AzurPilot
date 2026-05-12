@@ -1,6 +1,6 @@
 import requests
 
-from deploy.config import DeployConfig
+from deploy.config import DeployConfig, ExecutionError
 from deploy.git_over_cdn.client import GitOverCdnClient
 from deploy.logger import logger
 from deploy.utils import *
@@ -95,7 +95,7 @@ class GitManager(DeployConfig):
             resp.raise_for_status()
         except Exception as e:
             logger.warning(f'Failed to check cloud update control: {e}')
-            return False
+            return None
 
         text = resp.text.strip()
         try:
@@ -110,6 +110,14 @@ class GitManager(DeployConfig):
         logger.info(f'Cloud update control is disabled: {text}')
         return False
 
+    def cloud_update_access_failed(self):
+        logger.hr('Cloud Update Control Failed', 0)
+        logger.warning('Failed to access cloud update control, stopping startup')
+        alas_kill = getattr(self, 'alas_kill', None)
+        if callable(alas_kill):
+            alas_kill()
+        raise ExecutionError
+
     def git_install(self):
         logger.hr('Update Alas', 0)
 
@@ -117,7 +125,10 @@ class GitManager(DeployConfig):
             logger.info('AutoUpdate is disabled, skip')
             return
 
-        if not self.cloud_auto_update_enabled():
+        cloud_update = self.cloud_auto_update_enabled()
+        if cloud_update is None:
+            self.cloud_update_access_failed()
+        if not cloud_update:
             logger.info('Cloud update control disabled, skip')
             return
 
