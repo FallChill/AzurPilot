@@ -7,18 +7,26 @@ import cv2
 from rich.table import Table
 from rich.text import Text
 
-from module.daemon.daemon_base import DaemonBase
+from module.config.config import AzurLaneConfig
 from module.exception import RequestHumanTakeover
 from module.logger import logger
 from module.ocr.al_ocr import AlOcr
 
 
-class OcrBenchmark(DaemonBase):
+class OcrBenchmark:
     # Each entry: (model_name, dataset_prefix, subfolder_name)
     BENCHMARKS = [
         ('en', 'sets_num', 'sets_num'),
         ('cn', 'sets_zhcn', 'sets_zhcn'),
     ]
+
+    def __init__(self, config, device=None, task=None):
+        if isinstance(config, AzurLaneConfig):
+            self.config = config
+            if task is not None:
+                self.config.init_task(task)
+        else:
+            self.config = AzurLaneConfig(config, task=task)
 
     def _find_archive(self, prefix):
         for ext in ['.zip', '.tar', '.tar.xz', '.tar.gz']:

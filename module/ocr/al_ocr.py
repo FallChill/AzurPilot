@@ -111,7 +111,7 @@ class RecOnlyOCR(RapidOCR):
         self.use_rec = cfg.Global.use_rec
         cfg.Rec.engine_cfg = cfg.EngineConfig[cfg.Rec.engine_type.value]
         cfg.Rec.font_path = cfg.Global.font_path
-        cfg.Rec.model_root_dir = cfg.Global.model_root_dir
+        cfg.Rec.model_root_dir = cfg.Global.get("model_root_dir", os.getcwd())
         self.text_rec = TextRecognizer(cfg.Rec)
 
         self.load_img = LoadImage()
