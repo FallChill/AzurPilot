@@ -18,7 +18,7 @@ class ExecutionError(Exception):
 
 class ConfigModel:
     # Git
-    Repository: str = "https://github.com/LmeSzinc/AzurLaneAutoScript"
+    Repository: str = "https://github.com/wess09/AzurPilot"
     Branch: str = "master"
     GitExecutable: str = "./toolkit/Git/mingw64/bin/git.exe"
     GitProxy: Optional[str] = None
@@ -123,7 +123,7 @@ class DeployConfig(ConfigModel):
         # Don't write these into deploy.yaml
         super().__setattr__('GitOverCdn', self.Repository in ['cn', GIT_OVER_CDN_REPOSITORY])
         if self.Repository in ['global']:
-            super().__setattr__('Repository', 'https://github.com/LmeSzinc/StarRailCopilot')
+            super().__setattr__('Repository', 'https://github.com/wess09/AzurPilot')
         if self.Repository in ['cn', GIT_OVER_CDN_REPOSITORY]:
             super().__setattr__('Repository', GIT_OVER_CDN_FALLBACK_REPOSITORY)
 
