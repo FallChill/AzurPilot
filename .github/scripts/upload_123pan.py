@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 import requests
+from requests import RequestException
 
 
 API_BASE = "https://open-api.123pan.com"
@@ -14,6 +15,21 @@ PLATFORM = "open_platform"
 
 class Pan123Error(RuntimeError):
     pass
+
+
+def request_with_retry(method, url, attempts=5, timeout=(30, 600), **kwargs):
+    last_error = None
+    for attempt in range(1, attempts + 1):
+        try:
+            return requests.request(method, url, timeout=timeout, **kwargs)
+        except RequestException as e:
+            last_error = e
+            if attempt == attempts:
+                break
+            wait = min(2 ** attempt, 30)
+            print(f"request failed, retrying in {wait}s ({attempt}/{attempts}): {e}")
+            time.sleep(wait)
+    raise last_error
 
 
 def md5_file(path):
@@ -29,7 +45,7 @@ def api_json(method, url, token=None, **kwargs):
     headers["Platform"] = PLATFORM
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    response = requests.request(method, url, headers=headers, timeout=120, **kwargs)
+    response = request_with_retry(method, url, headers=headers, **kwargs)
     response.raise_for_status()
     data = response.json()
     if data.get("code") == 20103:
@@ -90,6 +106,7 @@ def upload_slices(token, create_data, path):
                 data=data,
                 files=files,
             )
+            print(f"uploaded slice {slice_no}: {path}")
             slice_no += 1
 
 
@@ -144,6 +161,7 @@ def main():
         path for path in source.rglob("*")
         if path.is_file() and (path.name == "latest.json" or path.suffix == ".zip")
     )
+    print(f"uploading {len(files)} file(s) from {source} to /{args.remote_prefix.strip('/')}")
     for path in files:
         upload_file(token, args.parent_file_id, source, path, args.remote_prefix)
 
