@@ -1046,6 +1046,10 @@
     "UseRecommendFleet": {
       "name": "自動配隊",
       "help": "使用遊戲內建的推薦陣容自動完成困難圖配隊"
+    },
+    "DefeatWithdraw": {
+      "name": "道中戰鬥失敗撤退",
+      "help": "道中戰鬥戰敗時的處理方式。開啟時直接退出海域，關閉時嘗試由另一隊接管後續戰鬥。"
     }
   },
   "StopCondition": {

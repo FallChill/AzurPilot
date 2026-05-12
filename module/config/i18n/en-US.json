@@ -1046,6 +1046,10 @@
     "UseRecommendFleet": {
       "name": "Auto Fleet Composition",
       "help": "Use the game's built-in recommended fleet to automatically compose hard mode fleets"
+    },
+    "DefeatWithdraw": {
+      "name": "Retreat after defeat in Mob",
+      "help": "The handling method for defeat in Mob during the journey. Upon initiation, exit the sea area directly; upon termination, attempt to have another team take over the subsequent battle."
     }
   },
   "StopCondition": {

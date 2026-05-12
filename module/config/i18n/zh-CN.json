@@ -1046,6 +1046,10 @@
     "UseRecommendFleet": {
       "name": "自动配队",
       "help": "使用游戏内置的推荐阵容自动完成困难图配队"
+    },
+    "DefeatWithdraw": {
+      "name": "道中战斗失败撤退",
+      "help": "道中战斗战败时的处理方式。开启时直接退出海域，关闭时尝试由另一队接管后续战斗。"
     }
   },
   "StopCondition": {
