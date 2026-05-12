@@ -178,6 +178,7 @@ class GeneratedConfig:
     Campaign_Use2xBook = False
     Campaign_AmbushEvade = True
     Campaign_UseRecommendFleet = False
+    Campaign_DefeatWithdraw = True
 
     # Group `StopCondition`
     StopCondition_OilLimit = 1000
