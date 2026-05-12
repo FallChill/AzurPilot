@@ -1,7 +1,12 @@
+import requests
+
 from deploy.config import DeployConfig
 from deploy.git_over_cdn.client import GitOverCdnClient
 from deploy.logger import logger
 from deploy.utils import *
+
+
+CLOUD_UPDATE_CONTROL_URL = 'https://alas-apiv2.nanoda.work/api/updata'
 
 
 class GitManager(DeployConfig):
@@ -72,8 +77,7 @@ class GitManager(DeployConfig):
     def goc_client(self):
         client = GitOverCdnClient(
             url=[
-                'https://vip.123pan.cn/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
-                'https://1818706573.v.123yx.com/1818706573/pack/LmeSzinc_AzurLaneAutoScript_master',
+                'https://1825239988.v.123pan.cn/1825239988/azur/AzurPilot_master',
             ],
             folder=self.root_filepath,
             source='origin',
@@ -83,11 +87,38 @@ class GitManager(DeployConfig):
         client.logger = logger
         return client
 
+    @staticmethod
+    def cloud_auto_update_enabled():
+        logger.info(f'Check cloud update control: {CLOUD_UPDATE_CONTROL_URL}')
+        try:
+            resp = requests.get(CLOUD_UPDATE_CONTROL_URL, timeout=5)
+            resp.raise_for_status()
+        except Exception as e:
+            logger.warning(f'Failed to check cloud update control: {e}')
+            return False
+
+        text = resp.text.strip()
+        try:
+            data = resp.json()
+        except ValueError:
+            data = text
+
+        if data is True or (isinstance(data, str) and data.lower() in ('true', 'ture')):
+            logger.info('Cloud update control is enabled')
+            return True
+
+        logger.info(f'Cloud update control is disabled: {text}')
+        return False
+
     def git_install(self):
         logger.hr('Update Alas', 0)
 
         if not self.AutoUpdate:
             logger.info('AutoUpdate is disabled, skip')
+            return
+
+        if not self.cloud_auto_update_enabled():
+            logger.info('Cloud update control disabled, skip')
             return
 
         if self.GitOverCdn:

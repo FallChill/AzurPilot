@@ -117,7 +117,7 @@ class GitManager(DeployConfig):
     @property
     def goc_client(self):
         client = GitOverCdnClient(
-            url='https://vip.123pan.cn/1815343254/pack/LmeSzinc_StarRailCopilot_master',
+            url='https://1825239988.v.123pan.cn/1825239988/azur/AzurPilot_master',
             folder=self.root_filepath,
             source='origin',
             branch='master',
