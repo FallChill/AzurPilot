@@ -356,8 +356,8 @@
             dMin -= drng * 0.1;
             dMax += drng * 0.1;
 
-            var xScale = gW / visibleNn;
-            var idx = Math.floor(panOffset + (mx_ - pad.l) / xScale);
+            var xScale = gW / Math.max(visibleNn - 1, 1);
+            var idx = Math.round(visibleStart + (mx_ - pad.l) / xScale);
             idx = Math.max(0, Math.min(nn - 1, idx));
             var px = pad.l + (idx - visibleStart) * xScale;
             var py = pad.t + gH - (ap[idx] - dMin) / (dMax - dMin) * gH;
@@ -535,7 +535,7 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
 
-            var xScale = gW / visibleNn;
+            var xScale = gW / Math.max(visibleNn - 1, 1);
             function dxOf(i) { return pad.l + (i - visibleStart) * xScale; }
             function dyOf(v) { return pad.t + gH - (v - dMin) / (dMax - dMin) * gH; }
 
@@ -602,7 +602,7 @@
             if (!isDragging) return;
             var dx = e.clientX - dragStartX;
             var visibleCount = Math.ceil(nn / zoomLevel);
-            var xScale = gW / visibleCount;
+            var xScale = gW / Math.max(visibleCount - 1, 1);
             var newPan = dragStartPan - dx / xScale;
             var maxPan = Math.max(0, nn - visibleCount);
             panOffset = Math.max(0, Math.min(maxPan, newPan));
@@ -625,10 +625,10 @@
             if (newZoom !== zoomLevel) {
                 var visibleCountBefore = Math.ceil(nn / zoomLevel);
                 var visibleCountAfter = Math.ceil(nn / newZoom);
-                var xScaleBefore = gW / visibleCountBefore;
+                var xScaleBefore = gW / Math.max(visibleCountBefore - 1, 1);
                 var mouseIdx = panOffset + (mx - pad.l) / xScaleBefore;
                 zoomLevel = newZoom;
-                var xScaleAfter = gW / visibleCountAfter;
+                var xScaleAfter = gW / Math.max(visibleCountAfter - 1, 1);
                 panOffset = Math.max(0, mouseIdx - (mx - pad.l) / xScaleAfter);
                 var maxPan = Math.max(0, nn - visibleCountAfter);
                 panOffset = Math.max(0, Math.min(maxPan, panOffset));
