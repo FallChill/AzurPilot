@@ -468,7 +468,8 @@
         "option": [
           "auto",
           "cpu",
-          "gpu"
+          "gpu",
+          "ane"
         ]
       },
       "ScreenshotInterval": {
