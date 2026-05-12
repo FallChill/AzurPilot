@@ -1,7 +1,4 @@
 import copy
-import os
-import subprocess
-import sys
 from typing import Optional, Union
 
 from deploy.logger import logger
@@ -14,13 +11,12 @@ class ExecutionError(Exception):
 
 class ConfigModel:
     # Git
-    Repository: str = "https://gitee.com/wqeaxc/AzurLaneAutoScript1"
+    Repository: str = "https://github.com/LmeSzinc/AzurLaneAutoScript"
     Branch: str = "master"
     GitExecutable: str = "./toolkit/Git/mingw64/bin/git.exe"
     GitProxy: Optional[str] = None
     SSLVerify: bool = False
     AutoUpdate: bool = True
-    KeepLocalChanges: bool = False
 
     # Python
     PythonExecutable: str = "./toolkit/python.exe"
@@ -49,9 +45,9 @@ class ConfigModel:
     DiscordRichPresence: bool = False
 
     # Remote Access
-    EnableRemoteAccess: bool = True
+    EnableRemoteAccess: bool = False
     SSHUser: Optional[str] = None
-    SSHServer: Optional[str] = "app.hk1.azurlane.cloud:10022"
+    SSHServer: Optional[str] = None
     SSHExecutable: Optional[str] = None
 
     # Webui
@@ -62,7 +58,7 @@ class ConfigModel:
     Language: str = "en-US"
     Theme: str = "default"
     DpiScaling: bool = True
-    Password: Optional[str] = "123456"
+    Password: Optional[str] = None
     CDN: Union[str, bool] = False
     Run: Optional[str] = None
 
@@ -184,8 +180,7 @@ class DeployConfig(ConfigModel):
         if not output:
             command = command + ' >nul 2>nul'
         logger.info(command)
-        # Using subprocess.call instead of os.system to better handle quoted paths with spaces on Windows
-        error_code = subprocess.call(command, shell=True)
+        error_code = os.system(command)
         if error_code:
             if allow_failure:
                 logger.info(f"[ allowed failure ], error_code: {error_code}")

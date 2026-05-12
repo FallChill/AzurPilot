@@ -20,7 +20,6 @@ class ConfigModel:
     GitProxy: Optional[str] = None
     SSLVerify: bool = False
     AutoUpdate: bool = True
-    KeepLocalChanges: bool = False
 
     # Python
     PythonExecutable: str = "./toolkit/python.exe"
@@ -56,7 +55,7 @@ class ConfigModel:
 
     # Webui
     WebuiHost: str = "0.0.0.0"
-    WebuiPort: int = 22267
+    WebuiPort: int = 22367
     Language: str = "en-US"
     Theme: str = "default"
     DpiScaling: bool = True
@@ -197,8 +196,7 @@ class DeployConfig(ConfigModel):
         if not output:
             command = command + ' >nul 2>nul'
         logger.info(command)
-        # Using subprocess.call instead of os.system to better handle quoted paths with spaces on Windows
-        error_code = subprocess.call(command, shell=True)
+        error_code = os.system(command)
         if error_code:
             if allow_failure:
                 logger.info(f"[ allowed failure ], error_code: {error_code}")
