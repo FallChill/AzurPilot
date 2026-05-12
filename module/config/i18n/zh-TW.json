@@ -610,8 +610,9 @@
       "name": "Optimization.OcrDevice.name",
       "help": "Optimization.OcrDevice.help",
       "auto": "auto",
-      "cpu": "cpu",
-      "gpu": "gpu"
+      "cpu": "CPU",
+      "gpu": "GPU",
+      "ane": "ANE (Apple)"
     },
     "ScreenshotInterval": {
       "name": "放慢截圖速度至 X 秒一張",

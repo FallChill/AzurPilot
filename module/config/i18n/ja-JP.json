@@ -607,11 +607,12 @@
       "help": ""
     },
     "OcrDevice": {
-      "name": "Optimization.OcrDevice.name",
-      "help": "Optimization.OcrDevice.help",
-      "auto": "auto",
-      "cpu": "cpu",
-      "gpu": "gpu"
+      "name": "OCR设备选择",
+      "help": "",
+      "auto": "自動",
+      "cpu": "CPU",
+      "gpu": "GPU",
+      "ane": "ANE (Apple)"
     },
     "ScreenshotInterval": {
       "name": "スクリーンショット速度をX秒に1枚に減速",
