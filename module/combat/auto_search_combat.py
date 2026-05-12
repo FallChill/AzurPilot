@@ -5,7 +5,7 @@ from module.combat.combat import Combat
 from module.exception import CampaignEnd
 from module.handler.assets import AUTO_SEARCH_MAP_OPTION_ON, GET_MISSION
 from module.logger import logger
-from module.map.assets import WITHDRAW, SWITCH_OVER, FLEET_WITHDRAW
+from module.map.assets import WITHDRAW, SWITCH_OVER, FLEET_WITHDRAW, FLEET_SWITCH_CONFIRM
 from module.map.map_operation import MapOperation
 
 
@@ -333,7 +333,12 @@ class AutoSearchCombat(MapOperation, Combat, CampaignStatus):
                 raise CampaignEnd
 
             # Withdraw
-            if self._withdraw and self.appear(WITHDRAW, offset=(30, 30)):
+            if self._withdraw:
+                if self.appear_then_click(FLEET_SWITCH_CONFIRM, offset=(30, 30)):
+                    continue
+                if not self.appear(WITHDRAW, offset=(30, 30)):
+                    continue
+
                 logger.info(f'fleet_alive_multiple: {self.fleet_alive_multiple}')
                 self._withdraw = False
                 if self.config.Campaign_DefeatWithdraw or not self.fleet_alive_multiple:
@@ -347,7 +352,7 @@ class AutoSearchCombat(MapOperation, Combat, CampaignStatus):
                         self.device.screenshot()
                         if self.appear_then_click(FLEET_WITHDRAW, offset=(30, 30)):
                             break
-                        if self.appear_then_click(SWITCH_OVER,interval=2):
+                        if self.appear_then_click(SWITCH_OVER, interval=2):
                             continue
                     self.fleet_alive_multiple = False
                     continue
