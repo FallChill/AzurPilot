@@ -8,6 +8,11 @@ from deploy.logger import logger
 from deploy.utils import *
 
 
+def quote_arg(value):
+    value = str(value)
+    return f'"{value}"' if re.search(r'\s', value) else value
+
+
 @dataclass
 class DataDependency:
     name: str
@@ -149,5 +154,5 @@ class PipManager(DeployConfig):
         arg += ['--disable-pip-version-check']
 
         logger.hr('Update Dependencies', 1)
-        arg = ' ' + ' '.join(arg) if arg else ''
-        self.execute(f'{self.pip} install -r {self.requirements_file}{arg}')
+        arg = ' ' + ' '.join(map(quote_arg, arg)) if arg else ''
+        self.execute(f'{self.pip} install -r {quote_arg(self.requirements_file)}{arg}')
