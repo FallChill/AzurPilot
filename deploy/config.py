@@ -131,6 +131,7 @@ class DeployConfig(ConfigModel):
             'https://gitcode.com/nerom/AzurLaneAutoScript',
             'https://gitee.com/wqeaxc/AzurLaneAutoScript1',
             'https://git.nanoda.work/git/AzurLaneAutoScript',
+            'https://git.nanoda.work/git/AzurPilot',
             'https://git.nanoda.work',
         ]:
             self.Repository = GIT_OVER_CDN_REPOSITORY
