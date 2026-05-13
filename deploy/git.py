@@ -106,9 +106,12 @@ class GitManager(DeployConfig):
         if data is True or (isinstance(data, str) and data.lower() in ('true', 'ture')):
             logger.info('Cloud update control is enabled')
             return True
+        if data is False or (isinstance(data, str) and data.lower() in ('false', 'fales')):
+            logger.info('Cloud update control is disabled')
+            return False
 
-        logger.info(f'Cloud update control is disabled: {text}')
-        return False
+        logger.info(f'Cloud update control is inaccessible: {text}')
+        return None
 
     def cloud_update_access_failed(self):
         logger.hr('Cloud Update Control Failed', 0)
@@ -120,10 +123,6 @@ class GitManager(DeployConfig):
 
     def git_install(self):
         logger.hr('Update Alas', 0)
-
-        if not self.AutoUpdate:
-            logger.info('AutoUpdate is disabled, skip')
-            return
 
         cloud_update = self.cloud_auto_update_enabled()
         if cloud_update is None:

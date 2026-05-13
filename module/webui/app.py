@@ -2563,6 +2563,12 @@ class AlasGUI(Frame):
             color="menu",
         ).style(f"--menu-HomePage--")
 
+        put_button(
+            label="导入旧数据",
+            onclick=self.ui_import_legacy,
+            color="menu",
+        ).style(f"--menu-Import--")
+
         # put_button(
         #     label=t("Gui.MenuDevelop.Translate"),
         #     onclick=self.dev_translate,
@@ -3049,6 +3055,112 @@ class AlasGUI(Frame):
                 )
 
             put()
+
+    @use_scope("content", clear=True)
+    def ui_import_legacy(self) -> None:
+        """Develop 菜单：导入旧 AzurPilot 数据"""
+        self.init_menu(name="Import")
+        self.set_title("导入旧数据")
+        from pywebio.output import put_markdown, put_html, put_buttons, put_scope
+        import json
+
+        # 检查上一轮导入的结果（通过 sessionStorage 跨刷新传递）
+        try:
+            raw = eval_js("(function(){var r=sessionStorage.getItem('import_msg');if(r){sessionStorage.removeItem('import_msg');return r;}return null;})()")
+            if raw:
+                info = json.loads(raw)
+                if info.get("ok"):
+                    d = info["data"]
+                    parts = []
+                    toast("导入成功", color="success", duration=10)
+                else:
+                    toast("导入失败：" + info.get("error", "未知错误"), color="error", duration=10)
+        except Exception:
+            pass
+
+        def import_legacy_upload():
+            toast("请在弹出的窗口中选择旧 AzurPilot/ALAS 根目录", color="info", duration=0)
+            run_js("""
+            (function(){
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.setAttribute('webkitdirectory', '');
+                input.setAttribute('multiple', '');
+                input.style.display = 'none';
+
+                input.addEventListener('change', async function(e) {
+                    var files = e.target.files;
+                    document.body.removeChild(input);
+                    if (!files || files.length === 0) return;
+
+                    var formData = new FormData();
+                    var matched = 0, skipped = 0, total = files.length;
+
+                    for (var i = 0; i < total; i++) {
+                        var file = files[i];
+                        var relPath = '/' + file.webkitRelativePath.replace(/\\\\/g, '/');
+                        var name = relPath.split('/').pop().toLowerCase();
+
+                        var pp = relPath.split('/');
+                        var si = 1;
+                        if (pp.length >= 3 && pp[1] !== 'config' && pp[1] !== 'log') si = 2;
+                        var subPath = pp.slice(si).join('/');
+
+                        var ok = false;
+                        if (subPath.startsWith('config/')) {
+                            if ((name.endsWith('.json') || name.endsWith('.db')) && !name.startsWith('template')) ok = true;
+                        } else if (subPath.startsWith('log/cl1/')) {
+                            ok = true;
+                        } else if (subPath === 'log/azurstat_meowofficer_farming.csv') {
+                            ok = true;
+                        }
+
+                        if (!ok) { skipped++; continue; }
+                        matched++;
+                        formData.append('file', file, relPath);
+                    }
+
+                    if (matched === 0) {
+                        sessionStorage.setItem('import_msg', JSON.stringify({ok:false, error:'所选文件夹中没有找到 config/ 或 log/cl1/ 下的匹配文件'}));
+                        location.reload();
+                        return;
+                    }
+
+                    try {
+                        var resp = await fetch('/api/import_legacy_upload', { method: 'POST', body: formData });
+                        var result = await resp.json();
+                        if (result.success) {
+                            result.data.total = total;
+                            sessionStorage.setItem('import_msg', JSON.stringify({ok:true, data:result.data, total:total}));
+                        } else {
+                            sessionStorage.setItem('import_msg', JSON.stringify({ok:false, error:result.error || '未知错误'}));
+                        }
+                    } catch (err) {
+                        sessionStorage.setItem('import_msg', JSON.stringify({ok:false, error:'上传请求失败: ' + err.message}));
+                    }
+                    location.reload();
+                });
+
+                document.body.appendChild(input);
+                input.click();
+            })();
+            """)
+
+        put_html(build_title_block("导入旧 AzurPilot/ALAS 数据", margin_top=12, margin_bottom=8))
+        put_markdown(
+            "选择旧 AzurPilot/ALAS 根目录后，自动将以下数据导入到当前项目：\n\n"
+            "**配置 数据文件等**\n\n"
+            "> 同名文件将被覆盖，建议先备份当前项目。"
+        )
+
+        put_scope("import_btn")
+        with use_scope("import_btn"):
+            put_buttons(
+                [
+                    {"label": "选择旧 AzurPilot/ALAS 文件夹", "value": "upload", "color": "primary"},
+                ],
+                onclick=[import_legacy_upload],
+            )
 
     def show(self) -> None:
         self._show()

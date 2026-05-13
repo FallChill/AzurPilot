@@ -129,11 +129,6 @@ class GitManager(DeployConfig):
     def git_install(self):
         logger.hr('Update Alas', 0)
 
-        if not self.AutoUpdate:
-            logger.info('AutoUpdate is disabled, skip')
-            Progress.GitShowVersion()
-            return
-
         if self.GitOverCdn:
             if self.goc_client.update():
                 return
