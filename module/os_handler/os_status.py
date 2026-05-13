@@ -16,7 +16,7 @@ from module.ocr.ocr import Digit
 from module.os_shop.assets import OS_SHOP_CHECK, OS_SHOP_PURPLE_COINS, SHOP_PURPLE_COINS, SHOP_YELLOW_COINS
 from module.ui.ui import UI
 from module.log_res.log_res import LogRes
-from module.base.utils import crop, save_image
+from module.base.utils import crop, crop_to_text, save_image
 
 if server.server != 'jp':
     OCR_SHOP_YELLOW_COINS = Digit(SHOP_YELLOW_COINS, letter=(239, 239, 239), threshold=160, name='OCR_SHOP_YELLOW_COINS')
@@ -99,9 +99,10 @@ class OSStatus(UI):
             now_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             # 保存原始全屏截图
             save_image(self.device.image, f'debug_img/yellow_coins_{now_str}_orig.png')
-            # 保存传给 OCR 的预处理截图（裁剪并提取文字后）
+            # 保存传给 OCR 的预处理截图（裁剪、提取文字、并去除边缘空白后）
             for i, area in enumerate(OCR_SHOP_YELLOW_COINS.buttons):
                 pre = OCR_SHOP_YELLOW_COINS.pre_process(crop(self.device.image, area))
+                pre = crop_to_text(pre)
                 save_image(pre, f'debug_img/yellow_coins_{now_str}_ocr_{i}.png')
             if timeout.reached():
                 logger.warning('Get yellow coins timeout')
