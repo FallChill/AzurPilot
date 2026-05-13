@@ -124,10 +124,6 @@ class GitManager(DeployConfig):
     def git_install(self):
         logger.hr('Update Alas', 0)
 
-        if not self.AutoUpdate:
-            logger.info('AutoUpdate is disabled, skip')
-            return
-
         cloud_update = self.cloud_auto_update_enabled()
         if cloud_update is None:
             self.cloud_update_access_failed()
