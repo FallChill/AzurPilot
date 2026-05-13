@@ -134,38 +134,34 @@
 
     var hasCoins = hasYellowCoins || hasPurpleCoins;
 
-    function xOfLine(i) { return pad.l + (i / Math.max(nn - 1, 1)) * gW; }
-    function yOf(v) { return pad.t + gH - (v - allMin) / (allMax - allMin) * gH; }
+    // 硬币绘制参数化配置（颜色 / 范围 / 垂直偏移），driven by drawCoinTicks
+    var COIN_CONFIGS = [
+        { has: hasYellowCoins, color: "#ffd54f", dataMin: yellowMin, dataMax: yellowMax, offsetY: 0 },
+        { has: hasPurpleCoins, color: "#ce93d8", dataMin: purpleMin,  dataMax: purpleMax,  offsetY: hasYellowCoins ? COIN_TICK_STACK_GAP : 0 }
+    ];
 
-    // 通用 Y 坐标映射：将 value 从 [rangeMin, rangeMax] 映射到绘图区域
+    function xOfLine(i) { return pad.l + (i / Math.max(nn - 1, 1)) * gW; }
+    // 通用 Y 坐标映射：将 value 从 [rangeMin, rangeMax] 映射到绘图区域（所有纵向映射的唯一来源）
     function yScale(value, rangeMin, rangeMax) {
         return pad.t + gH - (value - rangeMin) / (rangeMax - rangeMin) * gH;
     }
+    function yOf(v) { return yScale(v, allMin, allMax); }
     function yOfYellow(v) { return yScale(v, yellowMin, yellowMax); }
     function yOfPurple(v) { return yScale(v, purpleMin, purpleMax); }
 
     function drawCoinTicks(ctx, yOfMain, mainMin, mainMax) {
         if (!hasCoins) return;
+        ctx.font = "10px -apple-system, sans-serif";
+        ctx.textAlign = "left";
         for (var i = 0; i <= 5; i++) {
             var mainVal = mainMin + (mainMax - mainMin) * (i / 5);
             var y = yOfMain(mainVal);
-            if (hasYellowCoins) {
-                var yv = yellowMin + (yellowMax - yellowMin) * (i / 5);
-                ctx.fillStyle = "#ffd54f";
-                ctx.font = "10px -apple-system, sans-serif";
-                ctx.textAlign = "left";
-                ctx.fillText(Math.round(yv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE);
-            }
-            if (hasPurpleCoins) {
-                var pv = purpleMin + (purpleMax - purpleMin) * (i / 5);
-                ctx.fillStyle = "#ce93d8";
-                ctx.font = "10px -apple-system, sans-serif";
-                ctx.textAlign = "left";
-                if (hasYellowCoins) {
-                    ctx.fillText(Math.round(pv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE + COIN_TICK_STACK_GAP);
-                } else {
-                    ctx.fillText(Math.round(pv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE);
-                }
+            for (var ci = 0; ci < COIN_CONFIGS.length; ci++) {
+                var cfg = COIN_CONFIGS[ci];
+                if (!cfg.has) continue;
+                var val = cfg.dataMin + (cfg.dataMax - cfg.dataMin) * (i / 5);
+                ctx.fillStyle = cfg.color;
+                ctx.fillText(Math.round(val), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE + cfg.offsetY);
             }
         }
     }
@@ -404,7 +400,7 @@
             var idx = Math.round(visibleStart + (mx_ - pad.l) / xScale);
             idx = Math.max(0, Math.min(nn - 1, idx));
             var px = pad.l + (idx - visibleStart) * xScale;
-            var py = pad.t + gH - (ap[idx] - dMin) / (dMax - dMin) * gH;
+            var py = yScale(ap[idx], dMin, dMax);
 
             oc.strokeStyle = "rgba(255,255,255,0.18)";
             oc.lineWidth = 1;
@@ -559,14 +555,14 @@
             ctx.textBaseline = "middle";
             for (var i = 0; i <= 5; i++) {
                 var v = dMin + (dMax - dMin) * (i / 5);
-                var y = pad.t + gH - (v - dMin) / (dMax - dMin) * gH;
+                var y = yScale(v, dMin, dMax);
                 ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
                 ctx.fillText(Math.round(v), pad.l - 8, y);
             }
 
             var xScale = gW / Math.max(visibleNn - 1, 1);
             function dxOf(i) { return pad.l + (i - visibleStart) * xScale; }
-            function dyOf(v) { return pad.t + gH - (v - dMin) / (dMax - dMin) * gH; }
+            function dyOf(v) { return yScale(v, dMin, dMax); }
 
             drawCoinTicks(ctx, dyOf, dMin, dMax);
 
