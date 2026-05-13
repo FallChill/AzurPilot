@@ -1,6 +1,8 @@
 # 此文件用于管理大世界（Operation Siren）模式下的状态信息。
 # 负责海域代币（黄币/紫币）的数值追踪、任务类型识别以及子任务冷却（CD）状态的实时计算。
+import os
 import threading
+
 import typing as t
 from datetime import datetime, timedelta
 
@@ -14,6 +16,7 @@ from module.ocr.ocr import Digit
 from module.os_shop.assets import OS_SHOP_CHECK, OS_SHOP_PURPLE_COINS, SHOP_PURPLE_COINS, SHOP_YELLOW_COINS
 from module.ui.ui import UI
 from module.log_res.log_res import LogRes
+from module.base.utils import crop, save_image
 
 if server.server != 'jp':
     OCR_SHOP_YELLOW_COINS = Digit(SHOP_YELLOW_COINS, letter=(239, 239, 239), threshold=160, name='OCR_SHOP_YELLOW_COINS')
@@ -89,6 +92,17 @@ class OSStatus(UI):
         for _ in self.loop():
             # End
             current_value = OCR_SHOP_YELLOW_COINS.ocr(self.device.image)
+            logger.info(f'[Debug] OCR_SHOP_YELLOW_COINS: {current_value}')
+            if not os.path.exists('debug_img'):
+                os.makedirs('debug_img')
+            
+            now_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            # 保存原始全屏截图
+            save_image(self.device.image, f'debug_img/yellow_coins_{now_str}_orig.png')
+            # 保存传给 OCR 的预处理截图（裁剪并提取文字后）
+            for i, area in enumerate(OCR_SHOP_YELLOW_COINS.buttons):
+                pre = OCR_SHOP_YELLOW_COINS.pre_process(crop(self.device.image, area))
+                save_image(pre, f'debug_img/yellow_coins_{now_str}_ocr_{i}.png')
             if timeout.reached():
                 logger.warning('Get yellow coins timeout')
                 break
