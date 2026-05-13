@@ -13,6 +13,7 @@ from module.config.utils import get_server_next_update
 from module.logger import logger
 from module.map.map_grids import SelectedGrids
 from module.ocr.ocr import Digit
+from module.combat.assets import GET_ITEMS_1, GET_ITEMS_2, GET_SHIP
 from module.os_shop.assets import OS_SHOP_CHECK, OS_SHOP_PURPLE_COINS, SHOP_PURPLE_COINS, SHOP_YELLOW_COINS
 from module.ui.ui import UI
 from module.log_res.log_res import LogRes
@@ -91,6 +92,16 @@ class OSStatus(UI):
         
         for _ in self.loop():
             # End
+            if self.appear_then_click(GET_ITEMS_1, offset=True, interval=1):
+                timeout.reset()
+                continue
+            if self.appear_then_click(GET_ITEMS_2, offset=True, interval=1):
+                timeout.reset()
+                continue
+            if self.appear_then_click(GET_SHIP, interval=1):
+                timeout.reset()
+                continue
+
             current_value = OCR_SHOP_YELLOW_COINS.ocr(self.device.image)
             logger.info(f'[Debug] OCR_SHOP_YELLOW_COINS: {current_value}')
             if not os.path.exists('debug_img'):
@@ -108,9 +119,10 @@ class OSStatus(UI):
                 logger.warning('Get yellow coins timeout')
                 break
 
-            if current_value < 100:
-                # OCR may get 0 or 1 when amount is not immediately loaded
-                logger.info(f'Yellow coins less than 100 ({current_value}), assuming it is an ocr error')
+            if current_value == 0:
+                # OCR may get 0 when amount is not immediately loaded
+                # Or when popups are obscuring the top bar
+                logger.info(f'Yellow coins is 0, assuming it is an ocr error or UI not loaded')
                 continue
             else:
                 # 验证识别稳定性：连续两次识别相同才确认
