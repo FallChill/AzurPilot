@@ -4616,6 +4616,12 @@
       "name": "舰队强制移动",
       "help": "雪风大人温馨提示：开启后，将强制移动舰队以免找不到明石，指挥官你也不想因为找不到明石导致坠机nanoda？打开这个功能轻轻松松达到50万海里每月nanoda，指挥官还在等什么nanoda!"
     },
+    "SkipHpCheck": {
+      "name": "献祭流跳过血量检测",
+      "help": "开启后跳过战斗后的血量检测，即使船沉了也不会停止练级",
+      "True": "True",
+      "False": "False"
+    },
     "Cl1Filter": {
       "name": "明石购买筛选",
       "help": "默认只购买体力nanoda。如果要同时购买紫币，设置为 'ActionPoint > PurpleCoins'"

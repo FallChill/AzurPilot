@@ -4616,6 +4616,12 @@
       "name": "Forced Fleet Movement",
       "help": "Warm reminder from Yukikaze-sama: After enabling, the fleet will be forced to move to prevent not finding Akashi. Commander, you don’t want to crash because you can’t find Akashi nanoda? Enable this function and easily reach 500,000 nautical miles per month nanoda. What are you waiting for, Commander?"
     },
+    "SkipHpCheck": {
+      "name": "Sacrifice run: skip HP check",
+      "help": "Skip HP check after combat. Fleet will continue even if ships are sunk.",
+      "True": "True",
+      "False": "False"
+    },
     "Cl1Filter": {
       "name": "Akashi Purchase Filter",
       "help": "By default, only Action Points are purchased nanoda. If you want to also buy purple coins, set it to ‘ActionPoint > PurpleCoins’"

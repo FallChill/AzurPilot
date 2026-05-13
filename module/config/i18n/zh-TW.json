@@ -4616,6 +4616,12 @@
       "name": "艦隊強制移動",
       "help": "雪風大人溫馨提示：開啟後，將強制移動艦隊以免找不到明石，指揮官你也不想因為找不到明石導致墜機nanoda？開啟這個功能輕輕鬆鬆達到50萬海裡每月nanoda，指揮官還在等什麼nanoda!"
     },
+    "SkipHpCheck": {
+      "name": "獻祭流跳過血量檢測",
+      "help": "開啟後跳過戰鬥後的血量檢測，即使船沉了也不會停止練級",
+      "True": "True",
+      "False": "False"
+    },
     "Cl1Filter": {
       "name": "明石購買篩選",
       "help": "預設只購買體力nanoda。如果要同時購買紫幣，設定為 'ActionPoint > PurpleCoins'"
