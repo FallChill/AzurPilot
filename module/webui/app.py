@@ -838,17 +838,41 @@ class AlasGUI(Frame):
                 }}
                 @media (max-width: 720px) {{
                     [style*="--ap-chart-md3-toolbar-{chart_id}"] {{
-                        grid-template-columns: 1fr !important;
-                        row-gap: 8px !important;
+                        grid-template-columns: 1fr auto !important;
+                        column-gap: 6px !important;
+                        padding: 6px 8px !important;
+                    }}
+                    [style*="--ap-chart-md3-toolbar-{chart_id}"] > :first-child {{
+                        display: none !important;
+                    }}
+                    [style*="--ap-chart-md3-segment-{chart_id}"] {{
+                        max-width: none !important;
+                        width: 100% !important;
+                        overflow-x: auto !important;
+                        -webkit-overflow-scrolling: touch !important;
                     }}
                     [style*="--ap-chart-md3-segment-{chart_id}"] .btn-group {{
-                        width: 100% !important;
+                        width: max-content !important;
+                        flex-wrap: nowrap !important;
+                        overflow: visible !important;
                     }}
                     [style*="--ap-chart-md3-segment-{chart_id}"] .btn {{
-                        min-width: 0 !important;
-                        flex: 1 1 0 !important;
-                        padding-left: 8px !important;
-                        padding-right: 8px !important;
+                        flex: 0 0 auto !important;
+                        padding: 6px 12px !important;
+                        font-size: 12px !important;
+                        white-space: nowrap !important;
+                    }}
+                    [style*="--ap-chart-md3-segment-{chart_id}"]::-webkit-scrollbar {{
+                        height: 3px !important;
+                    }}
+                    [style*="--ap-chart-md3-segment-{chart_id}"]::-webkit-scrollbar-thumb {{
+                        background: {md3_colors["segment_border"]} !important;
+                        border-radius: 2px !important;
+                    }}
+                    [style*="--ap-chart-md3-refresh-{chart_id}"] .btn {{
+                        padding: 6px 12px !important;
+                        font-size: 12px !important;
+                        white-space: nowrap !important;
                     }}
                 }}
                 </style>
