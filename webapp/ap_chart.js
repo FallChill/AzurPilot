@@ -74,6 +74,11 @@
     ctx.scale(dpr, dpr);
     var oc = ovCv.getContext("2d");
 
+    // 硬币刻度标签布局常量
+    var COIN_TICK_X = 8;            // 右侧刻度标签相对 pad.r 的水平偏移
+    var COIN_TICK_BASELINE = 4;     // 单币时文字基线垂直偏移
+    var COIN_TICK_STACK_GAP = 12;   // 双币堆叠时紫币相对黄币的垂直偏移
+
     var pad = {t: 20, r: showCoins ? 72 : 20, b: 52, l: 52};
     var gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
 
@@ -132,13 +137,37 @@
     function xOfLine(i) { return pad.l + (i / Math.max(nn - 1, 1)) * gW; }
     function yOf(v) { return pad.t + gH - (v - allMin) / (allMax - allMin) * gH; }
 
-    // 黄币曲线映射到完整图表区域
-    function yOfYellow(v) {
-        return pad.t + gH - (v - yellowMin) / (yellowMax - yellowMin) * gH;
+    // 通用 Y 坐标映射：将 value 从 [rangeMin, rangeMax] 映射到绘图区域
+    function yScale(value, rangeMin, rangeMax) {
+        return pad.t + gH - (value - rangeMin) / (rangeMax - rangeMin) * gH;
     }
-    // 紫币曲线映射到完整图表区域
-    function yOfPurple(v) {
-        return pad.t + gH - (v - purpleMin) / (purpleMax - purpleMin) * gH;
+    function yOfYellow(v) { return yScale(v, yellowMin, yellowMax); }
+    function yOfPurple(v) { return yScale(v, purpleMin, purpleMax); }
+
+    function drawCoinTicks(ctx, yOfMain, mainMin, mainMax) {
+        if (!hasCoins) return;
+        for (var i = 0; i <= 5; i++) {
+            var mainVal = mainMin + (mainMax - mainMin) * (i / 5);
+            var y = yOfMain(mainVal);
+            if (hasYellowCoins) {
+                var yv = yellowMin + (yellowMax - yellowMin) * (i / 5);
+                ctx.fillStyle = "#ffd54f";
+                ctx.font = "10px -apple-system, sans-serif";
+                ctx.textAlign = "left";
+                ctx.fillText(Math.round(yv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE);
+            }
+            if (hasPurpleCoins) {
+                var pv = purpleMin + (purpleMax - purpleMin) * (i / 5);
+                ctx.fillStyle = "#ce93d8";
+                ctx.font = "10px -apple-system, sans-serif";
+                ctx.textAlign = "left";
+                if (hasYellowCoins) {
+                    ctx.fillText(Math.round(pv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE + COIN_TICK_STACK_GAP);
+                } else {
+                    ctx.fillText(Math.round(pv), W - pad.r + COIN_TICK_X, y + COIN_TICK_BASELINE);
+                }
+            }
+        }
     }
 
     function drawCoinsLine(xOf, start, end) {
@@ -203,31 +232,7 @@
         ctx.fillText(Math.round(v), pad.l - 8, y);
     }
 
-    // 右侧同行双币刻度，与左侧K线价格行一一对应，黄币在上、紫币紧挨在下
-    if (hasCoins) {
-        for (var i = 0; i <= 5; i++) {
-            var mainVal = allMin + (allMax - allMin) * (i / 5);
-            var y = yOf(mainVal);
-            if (hasYellowCoins) {
-                var yv = yellowMin + (yellowMax - yellowMin) * (i / 5);
-                ctx.fillStyle = "#ffd54f";
-                ctx.font = "10px -apple-system, sans-serif";
-                ctx.textAlign = "left";
-                ctx.fillText(Math.round(yv), W - pad.r + 8, y + 4);
-            }
-            if (hasPurpleCoins) {
-                var pv = purpleMin + (purpleMax - purpleMin) * (i / 5);
-                ctx.fillStyle = "#ce93d8";
-                ctx.font = "10px -apple-system, sans-serif";
-                ctx.textAlign = "left";
-                if (hasYellowCoins) {
-                    ctx.fillText(Math.round(pv), W - pad.r + 8, y + 4 + 12);
-                } else {
-                    ctx.fillText(Math.round(pv), W - pad.r + 8, y + 4);
-                }
-            }
-        }
-    }
+    drawCoinTicks(ctx, yOf, allMin, allMax);
 
     var avgY = yOf(avg);
     ctx.save();
@@ -559,40 +564,16 @@
                 ctx.fillText(Math.round(v), pad.l - 8, y);
             }
 
-            // 右侧同行双币刻度，与左侧K线价格行一一对应，黄币在上、紫币紧挨在下
-            if (hasCoins) {
-                for (var i = 0; i <= 5; i++) {
-                    var mainVal = dMin + (dMax - dMin) * (i / 5);
-                    var y = dyOf(mainVal);
-                    if (hasYellowCoins) {
-                        var yv = yellowMin + (yellowMax - yellowMin) * (i / 5);
-                        ctx.fillStyle = "#ffd54f";
-                        ctx.font = "10px -apple-system, sans-serif";
-                        ctx.textAlign = "left";
-                        ctx.fillText(Math.round(yv), W - pad.r + 8, y + 4);
-                    }
-                    if (hasPurpleCoins) {
-                        var pv = purpleMin + (purpleMax - purpleMin) * (i / 5);
-                        ctx.fillStyle = "#ce93d8";
-                        ctx.font = "10px -apple-system, sans-serif";
-                        ctx.textAlign = "left";
-                        if (hasYellowCoins) {
-                            ctx.fillText(Math.round(pv), W - pad.r + 8, y + 4 + 12);
-                        } else {
-                            ctx.fillText(Math.round(pv), W - pad.r + 8, y + 4);
-                        }
-                    }
-                }
-            }
+            var xScale = gW / Math.max(visibleNn - 1, 1);
+            function dxOf(i) { return pad.l + (i - visibleStart) * xScale; }
+            function dyOf(v) { return pad.t + gH - (v - dMin) / (dMax - dMin) * gH; }
+
+            drawCoinTicks(ctx, dyOf, dMin, dMax);
 
             ctx.fillStyle = "#666";
             ctx.font = "10px -apple-system, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
-
-            var xScale = gW / Math.max(visibleNn - 1, 1);
-            function dxOf(i) { return pad.l + (i - visibleStart) * xScale; }
-            function dyOf(v) { return pad.t + gH - (v - dMin) / (dMax - dMin) * gH; }
 
             var dgrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + gH);
             dgrad.addColorStop(0, "rgba(100,181,246,0.15)");
