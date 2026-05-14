@@ -16,6 +16,7 @@ from module.os_handler.assets import (
     FAVORITE_BUTTON,
     FAVORITE_TEMPLATE,
     FLEET_DEPLOY_BUTTON,
+    FLEET_DEPLOYMENT,
     FLEET_SLOT_1_BUTTON,
     FLEET_SLOT_1_TEMPLATE,
     FLEET_SLOT_2_BUTTON,
@@ -328,7 +329,7 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         
         timeout = 10
         enter_timeout = 0
-        while not self.appear(FLEET_SLOT_1_TEMPLATE, offset=(20, 20)):
+        while not self.appear(FLEET_DEPLOYMENT, offset=(20, 20)):
             self.device.screenshot()
             enter_timeout += 1
             if enter_timeout > timeout * 2:
@@ -409,7 +410,7 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         self.device.screenshot()
         
         return_timeout = 0
-        while not self.appear(FLEET_SLOT_1_TEMPLATE, offset=(20, 20)):
+        while not self.appear(FLEET_DEPLOYMENT, offset=(20, 20)):
             self.device.screenshot()
             return_timeout += 1
             if return_timeout > timeout * 2:
@@ -425,11 +426,20 @@ class OpsiFleetAutoChange(CoinTaskMixin, DockMixin, OSMap):
         logger.info("确认出发")
         
         self.device.click(DEPART_IMMEDIATELY_BUTTON)
-        self.device.screenshot()
         
-        if self.appear(DEPART_CONFIRM_TEMPLATE, offset=(20, 20)):
-            logger.info("检测到出发确认弹窗，点击确认")
-            self.device.click(DEPART_CONFIRM_BUTTON)
+        confirm_timeout = 0
+        confirm_max_timeout = 10
+        while confirm_timeout < confirm_max_timeout * 2:
+            self.device.screenshot()
+            
+            if self.appear(DEPART_CONFIRM_TEMPLATE, offset=(20, 20)):
+                logger.info("检测到出发确认弹窗，点击确认")
+                self.device.click(DEPART_CONFIRM_BUTTON)
+                break
+            
+            confirm_timeout += 1
+        else:
+            logger.info("未检测到出发确认弹窗，继续执行")
         
         for _ in range(5):
             self.device.screenshot()
