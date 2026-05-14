@@ -187,7 +187,7 @@ class ItemNameOcr(Ocr):
     def after_process(self, result):
         result = super().after_process(result)
         if server.server == 'cn':
-            result = result.replace('蛮', '蜜').replace('茉', '末').replace('汗', '汁').replace('纠', '组').replace('离', '禽')
+            result = result.replace('蛮', '蜜').replace('茉', '末').replace('汗', '汁').replace('纠', '组').replace('离', '禽').replace('莱', '菜').replace('内', '肉')
             result = re.sub(r'[^\u4e00-\u9fff]', '', result)
             if '冰咖' in result:
                 result = '冰咖啡'
